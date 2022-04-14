@@ -14,8 +14,8 @@ from urllib.request import urlretrieve
 
 import numpy as np
 
-from tsdb import DATABASE
 from tsdb.data_loading_funcs import *
+from tsdb.database import DATABASE
 
 CACHED_DATASET_DIR = os.path.join(os.path.dirname(__file__), ".cached_datasets")
 
@@ -123,7 +123,11 @@ def download_and_extract(dataset_name, dataset_saving_path):
         _download_and_extract(DATABASE[dataset_name], dataset_saving_path)
 
 
-def delete_all_cached_data():
+def list_cached_data():
+    return os.listdir(CACHED_DATASET_DIR)
+
+
+def delete_cached_data():
     """ Delete CACHED_DATASET_DIR if exists.
     """
     # if CACHED_DATASET_DIR does not exist, abort
@@ -203,6 +207,10 @@ def load_specific_dataset(dataset_name, use_cache=True):
                 result = load_electricity(dataset_saving_path)
             elif dataset_name == 'beijing_multisite_air_quality':
                 result = load_beijing_air_quality(dataset_saving_path)
+            elif 'UCR_UEA_' in dataset_name:
+                actual_dataset_name = dataset_name.replace('UCR_UEA_', '')  # delete 'UCR_UEA_' in the name
+                result = load_ucr_uea_dataset(dataset_saving_path, actual_dataset_name)
+
             print('Successfully loaded.')
         except FileExistsError:
             shutil.rmtree(dataset_saving_path, ignore_errors=True)
