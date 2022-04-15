@@ -149,3 +149,27 @@ for i in _UCR_UEA_datasets:
 
 DATABASE = {**_DATABASE, **UCR_UEA_datasets}
 AVAILABLE_DATASETS = list(DATABASE.keys())
+
+
+def list_database():
+    """ List the database.
+
+    Returns
+    -------
+    DATABASE : dict
+        A dict contains all datasets' names and download links.
+
+    """
+    return DATABASE
+
+
+def list_available_datasets():
+    """ List all available datasets.
+
+    Returns
+    -------
+    AVAILABLE_DATASETS : list
+        A list contains all datasets' names.
+
+    """
+    return AVAILABLE_DATASETS

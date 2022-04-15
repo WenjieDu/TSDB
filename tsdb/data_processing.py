@@ -124,6 +124,14 @@ def download_and_extract(dataset_name, dataset_saving_path):
 
 
 def list_cached_data():
+    """ List names of all cached datasets.
+
+    Returns
+    -------
+    list,
+        A list contains all cached datasets' names.
+
+    """
     return os.listdir(CACHED_DATASET_DIR)
 
 
@@ -148,15 +156,44 @@ def delete_cached_data():
 
 
 def pickle_dump(data, path):
+    """ Pickle the given object.
+
+    Parameters
+    ----------
+    data : object
+        The object to be pickled.
+
+    path : string,
+        Saving path.
+
+    Returns
+    -------
+    `path` if succeed else None
+
+    """
     try:
         with open(path, 'wb') as f:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
     except pickle.PicklingError:
         print('Pickling failed. No cache will be saved.')
+        return None
     return path
 
 
 def pickle_load(path):
+    """ Load pickled object from file.
+
+    Parameters
+    ----------
+    path : string,
+        Local path of the pickled object.
+
+    Returns
+    -------
+    Object
+        Pickled object.
+
+    """
     try:
         with open(path, 'rb') as f:
             data = pickle.load(f)
