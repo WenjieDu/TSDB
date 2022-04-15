@@ -27,6 +27,7 @@ setup(
         'numpy',
         'scikit_learn',
         'pandas',
+        'scipy'
     ],
     setup_requires=['setuptools>=38.6.0'],
 )
