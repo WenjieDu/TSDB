@@ -47,7 +47,10 @@ def load_physionet2012(local_path):
     outcome_collector = []
     for o_ in outcome_files:
         outcome_file_path = os.path.join(local_path, o_)
-        outcome = pd.read_csv(outcome_file_path).set_index('RecordID')['In-hospital_death']
+        with open(outcome_file_path, 'r') as f:
+            outcome = pd.read_csv(f)[['In-hospital_death', 'RecordID']]
+        outcome['RecordID'] = outcome['RecordID'].astype(int)  # ensure RecordID's type is int
+        outcome = outcome.set_index('RecordID')
         outcome_collector.append(outcome)
     y = pd.concat(outcome_collector)
 
@@ -65,7 +68,7 @@ def load_physionet2012(local_path):
             df_temp = df_temp.pivot_table('Value', 'Time', 'Parameter')
             df_temp = df_temp.reset_index()  # take Time from index as a col
             if len(df_temp) == 1:
-                print(f'Pass {recordID}, because its len==1, having no time series data')
+                print(f'Ignore {recordID}, because its len==1, having no time series data')
                 continue
             all_recordID.append(recordID)  # only count valid recordID
 
@@ -85,6 +88,9 @@ def load_physionet2012(local_path):
     df = df.drop(['Age', 'Gender', 'ICUType', 'Height'], axis=1)
     df = df.reset_index(drop=True)
     X = df.drop('Time', axis=1)  # we don't need Time column
+    unique_ids = df['RecordID'].unique()
+    y = y.loc[unique_ids]
+
     data = {
         'X': X,
         'y': y
