@@ -2,8 +2,30 @@
 
 This repository lists and stores open-source time-series datasets.
 
+## ❖ Usage Example
+Install from PyPI: 
+> pip install tsdb
+
+or install from source code: 
+> pip install `https://github.com/WenjieDu/Time_Series_Database/archive/master.zip`
+
+
+```python
+import tsdb
+tsdb.list_available_datasets()  # list all available datasets in TSDB
+data = tsdb.load_specific_dataset('physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
+tsdb.download_and_extract('physionet_2012', 'save it here')  # if you only need the raw data, use download_and_extract() 
+tsdb.list_cached_data()  # datasets you loaded are cached. You can check them with list_cached_data().
+tsdb.delete_cached_data()  # and you can delete all cache with delete_cached_data()
+```
+
+That's all. Simple and efficient. Enjoy it! 😃
+
+## ❖ List of Available Datasets
+
 | Name                                                                  | Main Tasks                              |
 |-----------------------------------------------------------------------|-----------------------------------------|
 | [PhysioNet Challenge 2012](datasets/PhysioNet-2012)                   | Classification, Forecasting, Imputation |
 | [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality) | Forecasting, Imputation                 |
 | [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)         | Forecasting, Imputation                 |
+| [All UCR & UEA Datasets](datasets/UCR_UEA_Datasets)                   | Classification                          |
