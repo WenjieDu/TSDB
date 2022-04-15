@@ -108,8 +108,11 @@ def download_and_extract(dataset_name, dataset_saving_path):
 
     Parameters
     ----------
-    dataset_name :
-    dataset_saving_path :
+    dataset_name : str,
+        The name of a dataset available in tsdb.
+
+    dataset_saving_path : str,
+        The local path for dataset saving.
 
     Returns
     -------
@@ -248,11 +251,12 @@ def load_specific_dataset(dataset_name, use_cache=True):
                 actual_dataset_name = dataset_name.replace('UCR_UEA_', '')  # delete 'UCR_UEA_' in the name
                 result = load_ucr_uea_dataset(dataset_saving_path, actual_dataset_name)
 
-            print('Successfully loaded.')
         except FileExistsError:
             shutil.rmtree(dataset_saving_path, ignore_errors=True)
             warnings.warn(
                 'Dataset corrupted, already deleted. Please rerun load_specific_dataset() to re-download the raw data.'
             )
         pickle_dump(result, cache_path)
+
+    print('Successfully loaded.')
     return result
