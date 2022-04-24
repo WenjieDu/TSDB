@@ -54,7 +54,6 @@ def load_physionet2012(local_path):
         outcome_collector.append(outcome)
     y = pd.concat(outcome_collector)
 
-    all_recordID = []
     df_collector = []
 
     # iterate over all samples
@@ -70,7 +69,6 @@ def load_physionet2012(local_path):
             if len(df_temp) == 1:
                 print(f'Ignore {recordID}, because its len==1, having no time series data')
                 continue
-            all_recordID.append(recordID)  # only count valid recordID
 
             if df_temp.shape[0] != 48:
                 print(f'df_temp.shape: {df_temp.shape[0]}')
