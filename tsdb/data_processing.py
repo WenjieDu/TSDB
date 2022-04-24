@@ -15,7 +15,7 @@ from urllib.request import urlretrieve
 import numpy as np
 
 from tsdb.data_loading_funcs import *
-from tsdb.database import DATABASE
+from tsdb.database import DATABASE, AVAILABLE_DATASETS
 
 CACHED_DATASET_DIR = os.path.join(os.path.dirname(__file__), ".cached_datasets")
 
@@ -118,6 +118,7 @@ def download_and_extract(dataset_name, dataset_saving_path):
     -------
 
     """
+    print('Start downloading...')
     os.makedirs(dataset_saving_path)
     if isinstance(DATABASE[dataset_name], list):
         for link in DATABASE[dataset_name]:
@@ -222,13 +223,13 @@ def load_specific_dataset(dataset_name, use_cache=True):
     pandas.DataFrame,
         Loaded dataset.
     """
-    assert dataset_name in DATABASE.keys(), f'Input dataset name "{dataset_name}" is not in the database {DATABASE}.'
+    assert dataset_name in AVAILABLE_DATASETS, f'Input dataset name "{dataset_name}" is not in the database {AVAILABLE_DATASETS}.'
     dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
     if not os.path.exists(dataset_saving_path):  # if the dataset is not cached, then download it
         download_and_extract(dataset_name, dataset_saving_path)
     else:
         if use_cache:
-            print(f'Dataset {dataset_name} has already been downloaded. Start processing directly...')
+            print(f'Dataset {dataset_name} has already been downloaded. Processing directly...')
         else:
             # if not use cache, then delete the downloaded data dir (including processing cache)
             shutil.rmtree(dataset_saving_path, ignore_errors=True)
@@ -237,12 +238,14 @@ def load_specific_dataset(dataset_name, use_cache=True):
     # if cached, then load directly
     cache_path = os.path.join(dataset_saving_path, dataset_name + '_cache.pkl')
     if os.path.exists(cache_path):
-        print(f'Dataset {dataset_name} has already been cached. Loading directly...')
+        print(f'Dataset {dataset_name} has already been cached. Loading from cache directly...')
         result = pickle_load(cache_path)
     else:
         try:
             if dataset_name == 'physionet_2012':
                 result = load_physionet2012(dataset_saving_path)
+            if dataset_name == 'physionet_2019':
+                result = load_physionet2019(dataset_saving_path)
             elif dataset_name == 'electricity_load_diagrams':
                 result = load_electricity(dataset_saving_path)
             elif dataset_name == 'beijing_multisite_air_quality':
