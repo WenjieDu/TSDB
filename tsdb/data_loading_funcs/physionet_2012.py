@@ -73,26 +73,21 @@ def load_physionet2012(local_path):
             all_recordID.append(recordID)  # only count valid recordID
 
             if df_temp.shape[0] != 48:
-                missing = list(set(range(0, 48)).difference(set(df_temp['Time'])))
-                missing_part = pd.DataFrame({'Time': missing})
-                df_temp = df_temp.append(missing_part, ignore_index=False, sort=False)
-                df_temp = df_temp.set_index('Time').sort_index().reset_index()
+                print(f'df_temp.shape: {df_temp.shape[0]}')
 
-            df_temp = df_temp.iloc[:48]  # only take 48 hours, some samples may have more records, like 49 hours
             df_temp['RecordID'] = recordID
             df_temp['Age'] = df_temp.loc[0, 'Age']
             df_temp['Height'] = df_temp.loc[0, 'Height']
             df_collector.append(df_temp)
 
     df = pd.concat(df_collector, sort=True)
-    df = df.drop(['Age', 'Gender', 'ICUType', 'Height'], axis=1)
-    df = df.reset_index(drop=True)
-    X = df.drop('Time', axis=1)  # we don't need Time column
+    X = df.reset_index(drop=True)
     unique_ids = df['RecordID'].unique()
     y = y.loc[unique_ids]
 
     data = {
         'X': X,
-        'y': y
+        'y': y,
+        'static_features': ['Age', 'Gender', 'ICUType', 'Height']
     }
     return data
