@@ -139,19 +139,28 @@ def list_cached_data():
     return os.listdir(CACHED_DATASET_DIR)
 
 
-def delete_cached_data():
+def delete_cached_data(dataset_name=None):
     """ Delete CACHED_DATASET_DIR if exists.
     """
     # if CACHED_DATASET_DIR does not exist, abort
     if not os.path.exists(CACHED_DATASET_DIR):
-        print('No cached data. Aborting.')
+        print('No cached data. Operation aborted.')
         exit()
     # if CACHED_DATASET_DIR exists, then purge
     try:
-        print(f'Purging all cached data under {CACHED_DATASET_DIR}...')
-        shutil.rmtree(CACHED_DATASET_DIR, ignore_errors=True)
+        if dataset_name is not None:
+            assert dataset_name in AVAILABLE_DATASETS, \
+                f'{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name.'
+            dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
+            if not os.path.exists(dir_to_delete):
+                print(f'Dataset {dataset_name} is not cached. Operation aborted.')
+                exit()
+        else:
+            print(f'Purging all cached data under {CACHED_DATASET_DIR}...')
+            dir_to_delete = CACHED_DATASET_DIR
+        shutil.rmtree(dir_to_delete, ignore_errors=True)
         # check if succeed
-        if not os.path.exists(CACHED_DATASET_DIR):
+        if not os.path.exists(dir_to_delete):
             print('Successfully purged.')
         else:
             raise FileExistsError(f'Deleting operation failed. {CACHED_DATASET_DIR} still exists.')
