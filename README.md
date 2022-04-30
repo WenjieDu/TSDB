@@ -1,10 +1,12 @@
-<img src="https://github.com/WenjieDu/Time_Series_Database/blob/f3a838e2d4a4640d32754e5729a8969269eaf9d0/docs/figs/TSDB%20logo.svg?sanitize=true" align='right' width='230'/>
+<a href='https://github.com/WenjieDu/TSDB'><img src="https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/figs/TSDB%20logo.svg?sanitize=true" align='right' width='235'/></a>
 
 # <p align='center'>Welcome to TSDB</p>
 ### <p align='center'>A Python Toolbox Helping Load Time-Series Datasets</p>
 <p align='center'>
 	<!-- Python version -->
     <img src='https://img.shields.io/badge/python-v3-yellowgreen'>
+    <!-- PyPI version -->
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI">
     <!-- GitHub Testing -->
     <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml'> 
         <img src='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml/badge.svg'>
