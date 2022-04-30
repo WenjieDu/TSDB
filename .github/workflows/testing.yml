@@ -35,7 +35,7 @@ jobs:
 
             - name: Test with pytest
               run: |
-                  coverage run --source=pypots -m pytest
+                  coverage run --source=tsdb -m pytest
 
             - name: Write the LCOV report
               run: |
