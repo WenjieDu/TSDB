@@ -70,9 +70,6 @@ def load_physionet2012(local_path):
                 print(f'Ignore {recordID}, because its len==1, having no time series data')
                 continue
 
-            if df_temp.shape[0] != 48:
-                print(f'df_temp.shape: {df_temp.shape[0]}')
-
             df_temp['RecordID'] = recordID
             df_temp['Age'] = df_temp.loc[0, 'Age']
             df_temp['Height'] = df_temp.loc[0, 'Height']

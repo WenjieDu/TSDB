@@ -36,10 +36,8 @@ class TestTSDB(unittest.TestCase):
     def test_dataset_purging(self):
         cached_datasets = tsdb.list_cached_data()
         assert isinstance(cached_datasets, list)
-        returned_value = tsdb.delete_cached_data('physionet_2012')  # delete single
-        assert returned_value
-        returned_value = tsdb.delete_cached_data()  # delete all
-        assert returned_value
+        tsdb.delete_cached_data('physionet_2012')  # delete single
+        tsdb.delete_cached_data()  # delete all
 
 
 if __name__ == '__main__':

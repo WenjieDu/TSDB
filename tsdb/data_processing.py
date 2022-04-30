@@ -17,7 +17,7 @@ import numpy as np
 from tsdb.data_loading_funcs import *
 from tsdb.database import DATABASE, AVAILABLE_DATASETS
 
-CACHED_DATASET_DIR = os.path.join(os.path.dirname(__file__), ".cached_datasets")
+CACHED_DATASET_DIR = os.path.join(os.path.expanduser('~'), ".tsdb_cached_datasets")
 
 
 def window_truncate(feature_vectors, seq_len):
@@ -167,8 +167,6 @@ def delete_cached_data(dataset_name=None):
             raise FileExistsError(f'Deleting operation failed. {CACHED_DATASET_DIR} still exists.')
     except shutil.Error:
         raise shutil.Error('Operation failed.')
-
-    return True
 
 
 def pickle_dump(data, path):
