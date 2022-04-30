@@ -167,14 +167,14 @@ def to_time_series(ts, remove_nans=False):
     ts_out = numpy.array(ts, copy=True)
     if ts_out.ndim <= 1:
         ts_out = ts_out.reshape((-1, 1))
-    if ts_out.dtype != numpy.float:
-        ts_out = ts_out.astype(numpy.float)
+    if ts_out.dtype != float:
+        ts_out = ts_out.astype(float)
     if remove_nans:
         ts_out = ts_out[:ts_size(ts_out)]
     return ts_out
 
 
-def to_time_series_dataset(dataset, dtype=numpy.float):
+def to_time_series_dataset(dataset, dtype=float):
     """Transforms a time series dataset so that it fits the format used in
     ``tslearn`` models.
 
@@ -183,7 +183,7 @@ def to_time_series_dataset(dataset, dtype=numpy.float):
     dataset : array-like
         The dataset of time series to be transformed. A single time series will
         be automatically wrapped into a dataset with a single entry.
-    dtype : data type (default: numpy.float)
+    dtype : data type (default: float)
         Data type for the returned dataset.
 
     Returns
