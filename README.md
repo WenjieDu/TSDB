@@ -1,7 +1,7 @@
 <img src="https://github.com/WenjieDu/Time_Series_Database/blob/f3a838e2d4a4640d32754e5729a8969269eaf9d0/docs/figs/TSDB%20logo.svg?sanitize=true" align='right' width='230'/>
 
 # <p align='center'>Welcome to TSDB</p>
-### <p align='center'>A Python Toolbox Helping Load Open-Source Time-Series Datasets</p>
+### <p align='center'>A Python Toolbox Helping Load Time-Series Datasets</p>
 <p align='center'>
 	<!-- Python version -->
     <img src='https://img.shields.io/badge/python-v3-yellowgreen'>
@@ -12,6 +12,10 @@
 	<!-- PyPI download number -->
     <a alt='PyPI download number' href='https://pypi.org/project/tsdb'>
         <img src='https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=gray&right_color=blue&left_text=Total%20Downloads'>
+    </a>
+    <!-- Code of Conduct -->
+    <a alt='CODE_OF_CONDUCT' href='CODE_OF_CONDUCT.md'> 
+        <img src='https://img.shields.io/badge/Contributor%20Covenant-v2.1-4baaaa.svg'>
     </a>
 	<!-- Visit number -->
     <img src='https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits&edge_flat=false'>
