@@ -4,10 +4,18 @@ TSDB test cases
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: GLP-v3
-
+import os
 import unittest
 
 import tsdb
+
+DATASETS_TO_TEST = [
+    'physionet_2012',
+    'physionet_2019',
+    'electricity_load_diagrams',
+    'beijing_multisite_air_quality',
+    'UCR_UEA_Wine',
+]
 
 
 class TestTSDB(unittest.TestCase):
@@ -16,13 +24,19 @@ class TestTSDB(unittest.TestCase):
         assert len(available_datasets) > 0
 
     def test_dataset_loading(self):
-        data = tsdb.load_specific_dataset('UCR_UEA_Wine')
-        assert isinstance(data, dict)
+        for d_ in DATASETS_TO_TEST:
+            data = tsdb.load_specific_dataset(d_)
+            assert isinstance(data, dict)
+
+    def test_downloading_only(self):
+        tsdb.download_and_extract('UCR_UEA_Wine', './save_it_here')
+        file_list = os.listdir()
+        assert len(file_list) > 0
 
     def test_dataset_purging(self):
         cached_datasets = tsdb.list_cached_data()
         assert isinstance(cached_datasets, list)
-        returned_value = tsdb.delete_cached_data('UCR_UEA_Wine')  # delete single
+        returned_value = tsdb.delete_cached_data('physionet_2012')  # delete single
         assert returned_value
         returned_value = tsdb.delete_cached_data()  # delete all
         assert returned_value
