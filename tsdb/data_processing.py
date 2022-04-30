@@ -155,17 +155,20 @@ def delete_cached_data(dataset_name=None):
             if not os.path.exists(dir_to_delete):
                 print(f'Dataset {dataset_name} is not cached. Operation aborted.')
                 exit()
+            print(f'Purging cached dataset {dataset_name} under {dir_to_delete}...')
         else:
-            print(f'Purging all cached data under {CACHED_DATASET_DIR}...')
             dir_to_delete = CACHED_DATASET_DIR
+            print(f'Purging all cached data under {CACHED_DATASET_DIR}...')
         shutil.rmtree(dir_to_delete, ignore_errors=True)
         # check if succeed
         if not os.path.exists(dir_to_delete):
-            print('Successfully purged.')
+            print('Purged successfully!')
         else:
             raise FileExistsError(f'Deleting operation failed. {CACHED_DATASET_DIR} still exists.')
     except shutil.Error:
         raise shutil.Error('Operation failed.')
+
+    return True
 
 
 def pickle_dump(data, path):
@@ -270,5 +273,5 @@ def load_specific_dataset(dataset_name, use_cache=True):
             )
         pickle_dump(result, cache_path)
 
-    print('Successfully loaded.')
+    print('Loaded successfully!')
     return result
