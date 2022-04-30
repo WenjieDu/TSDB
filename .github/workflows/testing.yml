@@ -43,8 +43,6 @@ jobs:
 
             - name: Submit report
               uses: coverallsapp/github-action@master
-              env:
-                  NODE_COVERALLS_DEBUG: 1
               with:
-                  github-token: ${{ secrets.ACCESS_TOKEN }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
                   path-to-lcov: 'coverage.lcov'
