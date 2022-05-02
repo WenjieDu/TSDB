@@ -136,7 +136,11 @@ def list_cached_data():
         A list contains all cached datasets' names.
 
     """
-    return os.listdir(CACHED_DATASET_DIR)
+    if not os.path.exists(CACHED_DATASET_DIR):
+        os.makedirs(CACHED_DATASET_DIR)
+        return []
+    else:
+        return os.listdir(CACHED_DATASET_DIR)
 
 
 def delete_cached_data(dataset_name=None):
