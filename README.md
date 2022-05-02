@@ -11,6 +11,10 @@
     <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml'> 
         <img src='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml/badge.svg'>
     </a>
+    <!-- Coveralls report -->
+    <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/Time_Series_Database'> 
+        <img src='https://coveralls.io/repos/github/WenjieDu/Time_Series_Database/badge.svg'>
+    </a>
 	<!-- PyPI download number -->
     <a alt='PyPI download number' href='https://pypi.org/project/tsdb'>
         <img src='https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=gray&right_color=blue&left_text=Total%20Downloads'>
@@ -23,7 +27,9 @@
     <img src='https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits&edge_flat=false'>
 </p>
 
-Project TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)). **Note that** due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples) and won't process the data (not even normalize it). So, no worries. If you only need raw datasets, TSDB allows you to download datasets only as well (take a look at [Usage Examples](https://github.com/WenjieDu/TSDB#-usage-example)).
+Project TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)). 
+
+**Note that** due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples) and won't process the data (not even normalize it). So, no worries. If you only need raw datasets, TSDB allows you to download datasets only as well (take a look at [Usage Examples](https://github.com/WenjieDu/TSDB#-usage-example) below).
 
 ## ❖ Usage Examples
 Install from PyPI: 
@@ -52,7 +58,7 @@ That's all. Simple and efficient. Enjoy it! 😃
 | [PhysioNet Challenge 2019](datasets/PhysioNet-2019)                   | Classification, Imputation              |
 | [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality) | Forecasting, Imputation                 |
 | [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)         | Forecasting, Imputation                 |
-| [All UCR & UEA Datasets](datasets/UCR_UEA_Datasets)                   | Classification                          |
+| [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 115 datasets)    | Classification                          |
 
 ## ❖ License
 Please note that TSDB is open source under [license GPL-3.0](https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_3).
