@@ -1,9 +1,10 @@
 <a href='https://github.com/WenjieDu/TSDB'><img src="https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/figs/TSDB%20logo.svg?sanitize=true" align='right' width='235'/></a>
 
 # <p align='center'>Welcome to TSDB</p>
-### <p align='center'>A Python Toolbox Helping Load Time-Series Datasets</p>
+**<p align='center'>A Python Toolbox to Ease Loading Open-Source Time-Series Datasets</p>**
+
 <p align='center'>
-	<!-- Python version -->
+    <!-- Python version -->
     <img src='https://img.shields.io/badge/python-v3-yellowgreen'>
     <!-- PyPI version -->
     <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI">
@@ -15,7 +16,7 @@
     <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/Time_Series_Database'> 
         <img src='https://coveralls.io/repos/github/WenjieDu/Time_Series_Database/badge.svg'>
     </a>
-	<!-- PyPI download number -->
+    <!-- PyPI download number -->
     <a alt='PyPI download number' href='https://pypi.org/project/tsdb'>
         <img src='https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=gray&right_color=blue&left_text=Total%20Downloads'>
     </a>
@@ -23,19 +24,23 @@
     <a alt='CODE_OF_CONDUCT' href='CODE_OF_CONDUCT.md'> 
         <img src='https://img.shields.io/badge/Contributor%20Covenant-v2.1-4baaaa.svg'>
     </a>
-	<!-- Visit number -->
+    <!-- Visit number -->
     <img src='https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits&edge_flat=false'>
 </p>
 
-Project TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)). 
+> 📣 TSDB now supports a total of 1️⃣1️⃣9️⃣ time-series datasets ‼️
 
-**Note that** due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples) and won't process the data (not even normalize it). So, no worries. If you only need raw datasets, TSDB allows you to download datasets only as well (take a look at [Usage Examples](https://github.com/WenjieDu/TSDB#-usage-example) below).
+Project TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
+
+**❕️Note that** due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples) and won't process the data (not even normalize it). So, no worries, TSDB won't affect your data preprocessing. If you only want the raw datasets, TSDB can help you download and save raw datasets as well (take a look at [Usage Examples](https://github.com/WenjieDu/TSDB#-usage-example) below).
+
+🤝 If you need TSDB to integrate an open-source dataset or want to add it into TSDB yourself, please feel free to request for it by creating an issue or make a PR to merge your code.
 
 ## ❖ Usage Examples
-Install from PyPI: 
+Install from PyPI:
 > pip install tsdb
 
-or install from source code: 
+or install from source code:
 > pip install `https://github.com/WenjieDu/TSDB/archive/main.zip`
 
 ```python
