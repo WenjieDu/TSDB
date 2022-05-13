@@ -45,8 +45,9 @@ or install from source code:
 
 ```python
 import tsdb
+
 tsdb.list_available_datasets()  # list all available datasets in TSDB
-data = tsdb.load_specific_dataset('physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
+data = tsdb.load_dataset('physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
 tsdb.download_and_extract('physionet_2012', './save_it_here')  # if you need the raw data, use download_and_extract()
 tsdb.list_cached_data()  # datasets you once loaded are cached, and you can check them with list_cached_data()
 tsdb.delete_cached_data()  # you can delete all cache with delete_cached_data() to free disk space

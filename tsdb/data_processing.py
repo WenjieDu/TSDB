@@ -221,7 +221,7 @@ def pickle_load(path):
     return data
 
 
-def load_specific_dataset(dataset_name, use_cache=True):
+def load_dataset(dataset_name, use_cache=True):
     """ Load dataset with given name.
 
     Parameters

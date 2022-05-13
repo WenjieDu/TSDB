@@ -25,7 +25,7 @@ class TestTSDB(unittest.TestCase):
 
     def test_dataset_loading(self):
         for d_ in DATASETS_TO_TEST:
-            data = tsdb.load_specific_dataset(d_)
+            data = tsdb.load_dataset(d_)
             assert isinstance(data, dict)
 
     def test_downloading_only(self):
