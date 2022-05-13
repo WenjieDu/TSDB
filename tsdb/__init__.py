@@ -11,7 +11,7 @@ from .__version__ import version as __version__
 from .data_processing import (
     window_truncate,
     download_and_extract,
-    load_specific_dataset,
+    load_dataset,
     delete_cached_data,
     list_cached_data,
     CACHED_DATASET_DIR,
