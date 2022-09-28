@@ -1,4 +1,4 @@
-name: TSDB Testing
+name: Tests
 
 on:
     push:
