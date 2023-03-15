@@ -1,0 +1,6 @@
+numpy
+scikit_learn
+pandas
+scipy
+sphinxcontrib-bibtex
+furo
