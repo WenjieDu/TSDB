@@ -31,7 +31,7 @@ class TestTSDB(unittest.TestCase):
     def test_2_dataset_loading(self):
         for d_ in DATASETS_TO_TEST:
             data = tsdb.load_dataset(d_)
-            assert isinstance(data, dict)
+            assert isinstance(data, dict), f"Loaded dataset {d_} is not a dict."
 
     def test_3_dataset_purging(self):
         cached_datasets = tsdb.list_cached_data()
