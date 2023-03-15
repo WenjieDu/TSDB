@@ -14,7 +14,7 @@ import sys
 from os.path import abspath
 
 sys.path.insert(0, abspath(".."))
-from pypots.__version__ import version
+from tsdb.__version__ import version
 
 sys.path.insert(0, abspath("../tsdb"))
 
@@ -24,6 +24,8 @@ project = 'TSDB'
 copyright = '2023, Wenjie Du'
 author = 'Wenjie Du'
 
+# The full version, including alpha/beta/rc tags
+release = version
 
 # -- General configuration ---------------------------------------------------
 
