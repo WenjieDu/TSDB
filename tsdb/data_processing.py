@@ -1,6 +1,7 @@
 """
 Utilities for loading specific datasets.
 """
+
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: GPL-v3
 
@@ -195,6 +196,7 @@ def pickle_dump(data, path):
     except pickle.PicklingError:
         print('Pickling failed. No cache will be saved.')
         return None
+    print(f'Successfully saved to {path}')
     return path
 
 
@@ -215,9 +217,9 @@ def pickle_load(path):
     try:
         with open(path, 'rb') as f:
             data = pickle.load(f)
-    except pickle.UnpicklingError:
+    except pickle.UnpicklingError as e:
         print('Cached data corrupted. Aborting...\n'
-              'Please rerun func load_specific_dataset with option use_cache=False')
+              f'{e}')
     return data
 
 
