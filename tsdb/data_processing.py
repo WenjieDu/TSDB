@@ -263,9 +263,10 @@ def load_dataset(dataset_name, use_cache=True):
     pandas.DataFrame,
         Loaded dataset.
     """
-    assert (
-            dataset_name in AVAILABLE_DATASETS
-    ), f'Input dataset name "{dataset_name}" is not in the database {AVAILABLE_DATASETS}.'
+    assert dataset_name in AVAILABLE_DATASETS, \
+        f'The given dataset name "{dataset_name}" is not in the database. ' \
+        f'Please fetch the full list of the available datasets with tsdb.list_available_datasets()'
+
     dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
     if not os.path.exists(
             dataset_saving_path
