@@ -8,6 +8,10 @@
     <img src='https://img.shields.io/badge/python-v3-yellowgreen'>
     <!-- PyPI version -->
     <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI">
+    <!-- on Anaconda -->
+    <a alt='on anaconda' href='https://anaconda.org/conda-forge/tsdb'>
+        <img alt="on anaconda" src="https://img.shields.io/badge/Conda-TSDB-lightgreen?style=social&logo=anaconda" />
+    </a>
     <!-- GitHub Testing -->
     <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml'> 
         <img src='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml/badge.svg'>
@@ -35,7 +39,9 @@ Project TSDB is created to help researchers and engineers get rid of data collec
 🤝 If you need TSDB to integrate an open-source dataset or want to add it into TSDB yourself, please feel free to request for it by creating an issue or make a PR to merge your code.
 
 ## ❖ Usage Examples
-Install from PyPI:
+TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️ Install it with `conda install tsdb`, you may need to specify the channel with option `-c conda-forge`. 
+
+or install from PyPI:
 > pip install tsdb
 
 or install from source code:
