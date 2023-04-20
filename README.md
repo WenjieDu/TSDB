@@ -1,4 +1,4 @@
-<a href='https://github.com/WenjieDu/TSDB'><img src="https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/figs/TSDB%20logo.svg?sanitize=true" align='right' width='235'/></a>
+<a href='https://github.com/WenjieDu/TSDB'><img src="https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/_static/figs/TSDB_logo.svg?sanitize=true" align='right' width='235'/></a>
 
 # <p align='center'>Welcome to TSDB</p>
 **<p align='center'>A Python Toolbox to Ease Loading Open-Source Time-Series Datasets</p>**
@@ -7,7 +7,7 @@
     <!-- Python version -->
     <img src='https://img.shields.io/badge/python-v3-yellowgreen'>
     <!-- PyPI version -->
-    <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi">
     <!-- on Anaconda -->
     <a alt='on anaconda' href='https://anaconda.org/conda-forge/tsdb'>
         <img alt="on anaconda" src="https://img.shields.io/badge/Conda-TSDB-lightgreen?style=social&logo=anaconda" />
@@ -17,8 +17,8 @@
         <img src='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml/badge.svg'>
     </a>
     <!-- Coveralls report -->
-    <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/Time_Series_Database'> 
-        <img src='https://coveralls.io/repos/github/WenjieDu/Time_Series_Database/badge.svg'>
+    <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/TSDB'> 
+        <img src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls'>
     </a>
     <!-- PyPI download number -->
     <a alt='PyPI download number' href='https://pypi.org/project/tsdb'>
@@ -32,8 +32,8 @@
 
 > 📣 TSDB now supports a total of 1️⃣1️⃣9️⃣ time-series datasets ‼️
 
-<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/figs/PyPOTS%20logo.svg?sanitize=true' width='160' align='left' /></a>
-Project TSDB was separated from [PyPOTS](https://github.com/WenjieDu/PyPOTS). 
+<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
+Project TSDB was separated from [PyPOTS](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series). 
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
 
