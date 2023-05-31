@@ -300,7 +300,7 @@ def load_dataset(dataset_name, use_cache=True):
             elif dataset_name == "beijing_multisite_air_quality":
                 result = load_beijing_air_quality(dataset_saving_path)
             elif dataset_name == "vessel_AIS":
-                result = load_AIS(dataset_saving_path)
+                result = load_ais(dataset_saving_path)
             elif "UCR_UEA_" in dataset_name:
                 actual_dataset_name = dataset_name.replace(
                     "UCR_UEA_", ""
