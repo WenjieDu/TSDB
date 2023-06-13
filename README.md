@@ -33,13 +33,14 @@
 > 📣 TSDB now supports a total of 1️⃣1️⃣9️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
-Project TSDB was separated from [PyPOTS](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series). 
+TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
 
 ❗️Please note that due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples) and won't process the data (not even normalize it). So, no worries, TSDB won't affect your data preprocessing. If you only want the raw datasets, TSDB can help you download and save raw datasets as well (take a look at [Usage Examples](https://github.com/WenjieDu/TSDB#-usage-example) below).
 
 🤝 If you need TSDB to integrate an open-source dataset or want to add it into TSDB yourself, please feel free to request for it by creating an issue or make a PR to merge your code.
+
 
 ## ❖ Usage Examples
 TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️ 
@@ -65,6 +66,7 @@ tsdb.delete_cached_data(dataset_name='physionet_2012')  # or you can delete only
 
 That's all. Simple and efficient. Enjoy it! 😃
 
+
 ## ❖ List of Available Datasets
 
 | Name                                                                  | Main Tasks                              |
@@ -75,8 +77,32 @@ That's all. Simple and efficient. Enjoy it! 😃
 | [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)         | Forecasting, Imputation                 |
 | [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 115 datasets)    | Classification                          |
 
-## ❖ License
-Please note that TSDB is open source under [license GPL-3.0](https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_3).
+
+## ❖ Citing TSDB
+The paper introducing PyPOTS project is available on arXiv at [this URL](https://arxiv.org/abs/2305.18811),
+and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
+[Machine Learning Open Source Software](https://www.jmlr.org/mloss/)). If you use TSDB in your work,
+please cite PyPOTS project as below and 🌟star this repository to make others notice this library. 🤗 Thank you!
+
+``` bibtex
+@article{du2023PyPOTS,
+title={{PyPOTS: A Python Toolbox for Data Mining on Partially-Observed Time Series}},
+author={Wenjie Du},
+year={2023},
+eprint={2305.18811},
+archivePrefix={arXiv},
+primaryClass={cs.LG},
+url={https://arxiv.org/abs/2305.18811},
+doi={10.48550/arXiv.2305.18811},
+}
+```
+
+or
+
+> Wenjie Du. (2023).
+> PyPOTS: A Python Toolbox for Data Mining on Partially-Observed Time Series.
+> arXiv, abs/2305.18811. https://doi.org/10.48550/arXiv.2305.18811
+
 
 <details>
 <summary>🏠 Visits</summary>
