@@ -1,4 +1,3 @@
-#https://doi.org/10.5281/zenodo.8064564
 import numpy as np
 import pandas as pd
 import time
@@ -44,7 +43,7 @@ def load_AIS(local_path):
 
     for p in filenames:
         
-        path = path_to_parquets + '/' + p
+        path =os.path.join(path_to_parquets, p)
         df = pd.read_parquet(path, engine='pyarrow')
         
         print(f'Reading {path}, data shape {df.shape}')
