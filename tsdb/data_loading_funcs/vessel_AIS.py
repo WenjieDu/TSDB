@@ -41,8 +41,8 @@ def load_AIS(local_path):
     """
 
     start_time = time.time()
-    print('Please wait for 3-4 min')
-    path_to_parquets = local_path
+    print('Please wait...')
+    path_to_parquets = os.path.join(local_path, 'parquets')
 
     filenames= os.listdir (path_to_parquets)
 
@@ -50,13 +50,13 @@ def load_AIS(local_path):
     s = list()
     a = list()
     data = dict()
+    i = 0
 
     for p in filenames:
         
-        path =os.path.join(path_to_parquets, p)
+        path = os.path.join(path_to_parquets, p)
         df = pd.read_parquet(path, engine='pyarrow')
-        
-        print(f'Reading {path}, data shape {df.shape}')
+        print(f'Reading group of vessel trajectories {i}/40 from {path}, data shape {df.shape}')
         
         vessels = list(df["mmsi"].unique())
 

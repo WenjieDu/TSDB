@@ -18,7 +18,7 @@ import numpy
 from tsdb.data_loading_funcs import *
 from tsdb.database import DATABASE, AVAILABLE_DATASETS
 
-CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
+CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), "tsdb_cached_datasets")
 
 
 def window_truncate(feature_vectors, seq_len):

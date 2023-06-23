@@ -1,4 +1,4 @@
-s"""
+"""
 List available datasets and their official download links.
 """
 
