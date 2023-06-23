@@ -1,3 +1,13 @@
+"""
+Scripts related to dataset vessel_AIS.
+
+For more information please refer to:
+https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel AIS data
+"""
+
+# Created by Grgicevic Luka <luka.grgicevic@ntnu.no>
+# License: GLP-v3
+
 import numpy as np
 import pandas as pd
 import time
