@@ -31,6 +31,15 @@ tsdb.data\_loading\_funcs.physionet\_2012 module
    :show-inheritance:
    :inherited-members:
 
+tsdb.data\_loading\_funcs.vessel_AIS module
+------------------------------------------------
+
+.. automodule:: tsdb.data_loading_funcs.vessel_AIS
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+
 tsdb.data\_loading\_funcs.physionet\_2019 module
 ------------------------------------------------
 
