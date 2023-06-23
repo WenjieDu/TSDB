@@ -34,7 +34,7 @@ def load_AIS(local_path):
     print('Please wait for 3-4 min')
     path_to_parquets = local_path
 
-    filenames= os.listdir (path_to_parquets) # get all files' and folders' names in the current directory
+    filenames= os.listdir (path_to_parquets)
 
     mmsis = list()
     s = list()
