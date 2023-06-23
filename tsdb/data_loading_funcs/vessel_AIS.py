@@ -33,7 +33,7 @@ def load_AIS(local_path):
 
     start_time = time.time()
 
-    path_to_parquets = "/content/drive/My Drive/Colab Notebooks/parquets"
+    path_to_parquets = local_path
 
     filenames= os.listdir (path_to_parquets) # get all files' and folders' names in the current directory
 
