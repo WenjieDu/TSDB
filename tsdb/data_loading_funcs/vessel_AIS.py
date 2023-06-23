@@ -43,10 +43,12 @@ def load_AIS(local_path):
     data = dict()
 
     for p in filenames:
-
+        
         path = path_to_parquets + '/' + p
         df = pd.read_parquet(path, engine='pyarrow')
-
+        
+        print(f'Reading {path}, data shape {df.shape}')
+        
         vessels = list(df["mmsi"].unique())
 
         for k in vessels:
@@ -87,5 +89,6 @@ def load_AIS(local_path):
     data['y'].set_index("MMSI", inplace=True)
 
     print("--- %s seconds ---" % (time.time() - start_time))
+    print (f'Number of unique vessel trajectories for training is {len(mmsis)}')
 
     return data
