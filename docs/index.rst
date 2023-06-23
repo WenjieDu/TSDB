@@ -71,7 +71,7 @@ That's all. Simple and efficient. Enjoy it! 😃
  [PhysioNet Challenge 2019](datasets/PhysioNet-2019)                     Classification, Imputation
  [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality)   Forecasting, Imputation
  [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)           Forecasting, Imputation
- [Vessel AIS data](datasets/VesselAISdata)                               Imputation, Forecasting, Classification
+ [Vessel AIS data](datasets/Vessel AIS data)                             Imputation, Forecasting, Classification
  [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 115 datasets)      Classification
 ======================================================================== ==========================================
 
