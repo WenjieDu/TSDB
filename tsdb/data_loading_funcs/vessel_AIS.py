@@ -5,7 +5,7 @@ For more information please refer to:
 https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel AIS data
 """
 
-# Created by Grgicevic Luka <luka.grgicevic@ntnu.no>
+# Created by Grgičević Luka <luka.grgicevic@ntnu.no>
 # License: GLP-v3
 
 import numpy as np
@@ -31,11 +31,11 @@ def load_AIS(local_path):
     -----
     All samples (vessels) contain 6000 time steps each. Raw data is filtered by speed over ground > 0.2 to
     make sure moving vessels are taken into account only.
-    This could also be done usong navigational status number. To make sure data is regulary sampled each vessel
+    This could also be done using a navigational status number. To make sure data is regularly sampled each vessel
     sequence is sliced on 2000 samples and resampled with 3S buckets. The mean value is taken inside.
     Course and heading are wrapped to {-180,180}, so "cog" and "true_heading" are turned into "course" and "heading" respectively.
-    Column "date_time_utc" is converted to float and index is set as timeindex starting
-    from 0 for each vessel. Imputation could be made in lat,lon,sog and cog column and classification could
+    Column "date_time_utc" is converted to float and the index is set as timeindex starting
+    from 0 for each vessel. Imputation could be made in lat,long, sog and cog column and classification could
     be to find vessel length class based on observed positional and velocity data. 
     Other features such as "nav_status", "message_nr" and "imo_nr" are removed.
     """
@@ -57,7 +57,7 @@ def load_AIS(local_path):
         path = os.path.join(path_to_parquets, p)
         df = pd.read_parquet(path, engine='pyarrow')
         print(f'Reading group of vessel trajectories {i}/40 from {path}, data shape {df.shape}')
-        
+        i += 1
         vessels = list(df["mmsi"].unique())
 
         for k in vessels:
