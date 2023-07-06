@@ -30,7 +30,7 @@ _DATABASE = {
     'beijing_multisite_air_quality':
         'https://archive.ics.uci.edu/ml/machine-learning-databases/00501/PRSA2017_Data_20130301-20170228.zip',
     
-    # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel AIS data
+    # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel_AIS
     'vessel_AIS': 
         'https://zenodo.org/record/8064564/files/parquets.zip'
 }
