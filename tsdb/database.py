@@ -155,7 +155,7 @@ _UCR_UEA_datasets = [
 
 UCR_UEA_datasets = {}
 for i in _UCR_UEA_datasets:
-    UCR_UEA_datasets['UCR_UEA_' + i] = f'https://www.timeseriesclassification.com/Downloads/{i}.zip'
+    UCR_UEA_datasets['UCR_UEA_' + i] = f'https://www.timeseriesclassification.com/ClassificationDownloads/{i}.zip'
 
 DATABASE = {**_DATABASE, **UCR_UEA_datasets}
 AVAILABLE_DATASETS = list(DATABASE.keys())
