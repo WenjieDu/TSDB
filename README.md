@@ -30,7 +30,7 @@
     </a>
 </p>
 
-> 📣 TSDB now supports a total of 1️⃣1️⃣9️⃣ time-series datasets ‼️
+> 📣 TSDB now supports a total of 1️⃣6️⃣5️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
 TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
@@ -73,13 +73,13 @@ That's all. Simple and efficient. Enjoy it! 😃
 |-----------------------------------------------------------------------|-----------------------------------------|
 | [PhysioNet Challenge 2012](datasets/PhysioNet-2012)                   | Classification, Forecasting, Imputation |
 | [PhysioNet Challenge 2019](datasets/PhysioNet-2019)                   | Classification, Imputation              |
-| [Vessel AIS](datasets/Vessel_AIS)                                     | Imputation, Forecasting, Classification |
+| [Vessel AIS](datasets/Vessel_AIS)                                     | Classification, Forecasting, Imputation |
 | [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality) | Forecasting, Imputation                 |
 | [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)         | Forecasting, Imputation                 |
-| [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 115 datasets)    | Classification                          |
+| [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 160 datasets)    | Classification                          |
 
 
-## ❖ Citing TSDB
+## ❖ Citing TSDB/PyPOTS
 The paper introducing PyPOTS project is available on arXiv at [this URL](https://arxiv.org/abs/2305.18811),
 and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
 [Machine Learning Open Source Software](https://www.jmlr.org/mloss/)). If you use TSDB in your work,
