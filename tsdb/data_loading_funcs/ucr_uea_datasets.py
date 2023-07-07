@@ -16,10 +16,8 @@ from sklearn.utils.estimator_checks import _NotAnArray as NotAnArray
 
 try:
     from scipy.io import arff
-
     HAS_ARFF = True
-
-except:
+except Exception:
     HAS_ARFF = False
 
 
