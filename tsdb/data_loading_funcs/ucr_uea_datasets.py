@@ -313,5 +313,5 @@ def _load_txt_uea(dataset_path):
     """
     data = numpy.loadtxt(dataset_path)
     X = to_time_series_dataset(data[:, 1:])
-    y = data[:, 0].astype(numpy.int)
+    y = data[:, 0].astype(int)
     return X, y
