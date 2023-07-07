@@ -15,15 +15,20 @@ _DATABASE = {
         "https://www.physionet.org/files/challenge-2012/1.0.0/Outcomes-b.txt",
         "https://www.physionet.org/files/challenge-2012/1.0.0/Outcomes-c.txt",
     ],
+    #
     # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/PhysioNet-2019
     "physionet_2019": [
         "https://archive.physionet.org/users/shared/challenge-2019/training_setA.zip",
         "https://archive.physionet.org/users/shared/challenge-2019/training_setB.zip",
     ],
+    #
     # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/ElectricityLoadDiagrams
     "electricity_load_diagrams": "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip",
+    #
     # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/BeijingMultiSiteAirQuality
-    "beijing_multisite_air_quality": "https://archive.ics.uci.edu/ml/machine-learning-databases/00501/PRSA2017_Data_20130301-20170228.zip",
+    "beijing_multisite_air_quality": "https://archive.ics.uci.edu/ml/machine-learning-databases/00501/"
+    "PRSA2017_Data_20130301-20170228.zip",
+    #
     # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel_AIS
     "vessel_AIS": "https://zenodo.org/record/8064564/files/parquets.zip",
 }

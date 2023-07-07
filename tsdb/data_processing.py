@@ -15,7 +15,14 @@ import warnings
 
 import numpy
 
-from tsdb.data_loading_funcs import *
+from tsdb.data_loading_funcs import (
+    load_physionet2012,
+    load_physionet2019,
+    load_electricity,
+    load_beijing_air_quality,
+    load_ucr_uea_dataset,
+    load_ais,
+)
 from tsdb.database import DATABASE, AVAILABLE_DATASETS
 
 CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
