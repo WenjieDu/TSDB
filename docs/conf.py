@@ -14,18 +14,18 @@ import sys
 from os.path import abspath
 
 sys.path.insert(0, abspath(".."))
-from tsdb.__version__ import version
+from tsdb import __version__
 
 sys.path.insert(0, abspath("../tsdb"))
 
 # -- Project information -----------------------------------------------------
 
-project = 'TSDB'
-copyright = '2023, Wenjie Du'
-author = 'Wenjie Du'
+project = "TSDB"
+copyright = "2023, Wenjie Du"
+author = "Wenjie Du"
 
 # The full version, including alpha/beta/rc tags
-release = version
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 
