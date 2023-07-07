@@ -33,7 +33,7 @@ def load_physionet2012(local_path):
 
     Notes
     -----
-    The preprocessing workflow is the same with the one used in paper :cite:`du2022SAITS`.
+    The preprocessing workflow is the same with the one used in paper :cite:`du2023SAITS`.
     All samples contain 48 time steps. Truncated if the sample has more than 48 steps. Padded if
     the sample has less than 48 steps. Static features such as 'Age', 'Gender', 'ICUType', 'Height',
     are removed. Column 'Time' also gets removed. Following 12 samples are dropped because of containing
