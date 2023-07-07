@@ -43,25 +43,30 @@ def load_ucr_uea_dataset(local_path, dataset_name):
                 os.path.join(local_path, dataset_name + "_TEST.arff")
             )
         else:
-            warnings.warn("dataset \"%s\" is not provided in either TXT "
-                          "or ARFF format and thus could not be loaded"
-                          % dataset_name,
-                          category=RuntimeWarning, stacklevel=2)
+            warnings.warn(
+                'dataset "%s" is not provided in either TXT '
+                "or ARFF format and thus could not be loaded" % dataset_name,
+                category=RuntimeWarning,
+                stacklevel=2,
+            )
             return None
 
         data = {
-            'X_train': X_train,
-            'y_train': y_train,
-            'X_test': X_test,
-            'y_test': y_test
+            "X_train": X_train,
+            "y_train": y_train,
+            "X_test": X_test,
+            "y_test": y_test,
         }
 
         return data
 
     except Exception as exception:
-        warnings.warn("dataset \"%s\" could be downloaded but not "
-                      "parsed: %s" % (dataset_name, str(exception)),
-                      category=RuntimeWarning, stacklevel=2)
+        warnings.warn(
+            'dataset "%s" could be downloaded but not '
+            "parsed: %s" % (dataset_name, str(exception)),
+            category=RuntimeWarning,
+            stacklevel=2,
+        )
 
 
 def _has_files(data_dir, dataset_name, ext):
@@ -84,8 +89,9 @@ def _has_files(data_dir, dataset_name, ext):
         file extension
     """
     basename = os.path.join(data_dir, dataset_name)
-    return (os.path.exists(basename + "_TRAIN.%s" % ext) and
-            os.path.exists(basename + "_TEST.%s" % ext))
+    return os.path.exists(basename + "_TRAIN.%s" % ext) and os.path.exists(
+        basename + "_TEST.%s" % ext
+    )
 
 
 def ts_size(ts):
@@ -170,7 +176,7 @@ def to_time_series(ts, remove_nans=False):
     if ts_out.dtype != float:
         ts_out = ts_out.astype(float)
     if remove_nans:
-        ts_out = ts_out[:ts_size(ts_out)]
+        ts_out = ts_out[: ts_size(ts_out)]
     return ts_out
 
 
@@ -216,6 +222,7 @@ def to_time_series_dataset(dataset, dtype=float):
     """
     try:
         import pandas as pd
+
         if isinstance(dataset, pd.DataFrame):
             return to_time_series_dataset(numpy.array(dataset))
     except ImportError:
@@ -227,13 +234,12 @@ def to_time_series_dataset(dataset, dtype=float):
     if numpy.array(dataset[0]).ndim == 0:
         dataset = [dataset]
     n_ts = len(dataset)
-    max_sz = max([ts_size(to_time_series(ts, remove_nans=True))
-                  for ts in dataset])
+    max_sz = max([ts_size(to_time_series(ts, remove_nans=True)) for ts in dataset])
     d = to_time_series(dataset[0]).shape[1]
     dataset_out = numpy.zeros((n_ts, max_sz, d), dtype=dtype) + numpy.nan
     for i in range(n_ts):
         ts = to_time_series(dataset[i], remove_nans=True)
-        dataset_out[i, :ts.shape[0]] = ts
+        dataset_out[i, : ts.shape[0]] = ts
     return dataset_out.astype(dtype)
 
 
@@ -259,8 +265,10 @@ def _load_arff_uea(dataset_path):
                corrupted
     """
     if not HAS_ARFF:
-        raise ImportError("scipy 1.3.0 or newer is required to load "
-                          "time series datasets from arff format.")
+        raise ImportError(
+            "scipy 1.3.0 or newer is required to load "
+            "time series datasets from arff format."
+        )
     data, meta = arff.loadarff(dataset_path)
     names = meta.names()  # ["input", "class"] for multi-variate
 
