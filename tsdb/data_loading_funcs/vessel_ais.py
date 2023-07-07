@@ -59,7 +59,8 @@ def load_ais(local_path):
     i = 0
 
     """
-    There are 40 parquet files with around 200 vessels per file, with unknown trajectory length and possible duplicates of vessels (car ferries)
+    There are 40 parquet files with around 200 vessels per file, with unknown trajectory length and possible duplicates
+    of vessels (car ferries)
     """
     for p in filenames:
 

@@ -10,13 +10,15 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+import os
 import sys
-from os.path import abspath
 
-sys.path.insert(0, abspath(".."))
-from tsdb import __version__
+try:
+    sys.path.insert(0, os.path.abspath(".."))
+except IndexError:
+    pass
 
-sys.path.insert(0, abspath("../tsdb"))
+import tsdb
 
 # -- Project information -----------------------------------------------------
 
@@ -25,7 +27,7 @@ copyright = "2023, Wenjie Du"
 author = "Wenjie Du"
 
 # The full version, including alpha/beta/rc tags
-release = __version__
+release = tsdb.__version__
 
 # -- General configuration ---------------------------------------------------
 
