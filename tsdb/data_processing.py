@@ -15,7 +15,14 @@ import warnings
 
 import numpy
 
-from tsdb.data_loading_funcs import *
+from tsdb.data_loading_funcs import (
+    load_physionet2012,
+    load_physionet2019,
+    load_electricity,
+    load_beijing_air_quality,
+    load_ucr_uea_dataset,
+    load_ais,
+)
 from tsdb.database import DATABASE, AVAILABLE_DATASETS
 
 CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
@@ -39,7 +46,7 @@ def window_truncate(feature_vectors, seq_len):
     start_indices = numpy.asarray(range(feature_vectors.shape[0] // seq_len)) * seq_len
     sample_collector = []
     for idx in start_indices:
-        sample_collector.append(feature_vectors[idx: idx + seq_len])
+        sample_collector.append(feature_vectors[idx : idx + seq_len])
 
     return numpy.asarray(sample_collector).astype("float32")
 
@@ -90,7 +97,7 @@ def _download_and_extract(url, saving_path):
     print(f"Successfully downloaded data to {raw_data_saving_path}.")
 
     if (
-            suffix in supported_compression_format
+        suffix in supported_compression_format
     ):  # if the file is compressed, then unpack it
         try:
             os.makedirs(saving_path, exist_ok=True)
@@ -156,7 +163,7 @@ def delete_cached_data(dataset_name=None):
     # if CACHED_DATASET_DIR exists, then purge
     if dataset_name is not None:
         assert (
-                dataset_name in AVAILABLE_DATASETS
+            dataset_name in AVAILABLE_DATASETS
         ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
         dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
         if not os.path.exists(dir_to_delete):
@@ -263,13 +270,14 @@ def load_dataset(dataset_name, use_cache=True):
     pandas.DataFrame,
         Loaded dataset.
     """
-    assert dataset_name in AVAILABLE_DATASETS, \
-        f'The given dataset name "{dataset_name}" is not in the database. ' \
-        f'Please fetch the full list of the available datasets with tsdb.list_available_datasets()'
+    assert dataset_name in AVAILABLE_DATASETS, (
+        f'The given dataset name "{dataset_name}" is not in the database. '
+        f"Please fetch the full list of the available datasets with tsdb.list_available_datasets()"
+    )
 
     dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
     if not os.path.exists(
-            dataset_saving_path
+        dataset_saving_path
     ):  # if the dataset is not cached, then download it
         download_and_extract(dataset_name, dataset_saving_path)
     else:

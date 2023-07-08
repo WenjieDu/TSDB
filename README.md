@@ -5,24 +5,30 @@
 
 <p align='center'>
     <!-- Python version -->
-    <img src='https://img.shields.io/badge/python-v3-yellowgreen'>
+    <img src='https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white'>
     <!-- PyPI version -->
-    <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi">
-    <!-- on Anaconda -->
-    <a alt='on anaconda' href='https://anaconda.org/conda-forge/tsdb'>
-        <img alt="on anaconda" src="https://img.shields.io/badge/Conda-TSDB-lightgreen?style=social&logo=anaconda" />
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi&logoColor=white">
+    <!-- License -->
+    <a href="https://github.com/WenjieDu/TSDB/blob/main/LICENSE">
+        <img alt="GPL-v3 license" src="https://img.shields.io/badge/License-GPL--v3-E9BB41">
     </a>
     <!-- GitHub Testing -->
     <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml'> 
-        <img src='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml/badge.svg'>
+        <img src='https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI'>
+    </a>
+    <a href="https://codeclimate.com/github/WenjieDu/TSDB">
+        <img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability-percentage/WenjieDu/TSDB?color=3C7699&label=Maintainability&logo=codeclimate">
     </a>
     <!-- Coveralls report -->
     <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/TSDB'> 
-        <img src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls'>
+        <img src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage'>
+    </a>
+    <a href="https://anaconda.org/conda-forge/tsdb">
+        <img alt="Conda downloads" src="https://img.shields.io/conda/dn/conda-forge/tsdb?label=Conda%20Downloads&color=AED0ED&logo=anaconda&logoColor=white">
     </a>
     <!-- PyPI download number -->
     <a alt='PyPI download number' href='https://pypi.org/project/tsdb'>
-        <img src='https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=gray&right_color=blue&left_text=Downloads'>
+        <img src='https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=grey&right_color=blue&left_text=PyPI%20Downloads'>
     </a>
     <!-- Code of Conduct -->
     <a alt='CODE_OF_CONDUCT' href='CODE_OF_CONDUCT.md'> 
@@ -32,14 +38,15 @@
 
 > 📣 TSDB now supports a total of 1️⃣6️⃣5️⃣ time-series datasets ‼️
 
-<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
-TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
-
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
 
 ❗️Please note that due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples) and won't process the data (not even normalize it). So, no worries, TSDB won't affect your data preprocessing. If you only want the raw datasets, TSDB can help you download and save raw datasets as well (take a look at [Usage Examples](https://github.com/WenjieDu/TSDB#-usage-example) below).
 
 🤝 If you need TSDB to integrate an open-source dataset or want to add it into TSDB yourself, please feel free to request for it by creating an issue or make a PR to merge your code.
+
+🤗 **Please** star this repo to help others notice TSDB if you think it is a useful toolkit.
+**Please** properly [cite TSDB](https://github.com/WenjieDu/TSDB#-citing-tsdbpypots) in your publications
+if it helps with your research. This really means a lot to our open-source research. Thank you!
 
 
 ## ❖ Usage Examples
@@ -73,13 +80,16 @@ That's all. Simple and efficient. Enjoy it! 😃
 |-----------------------------------------------------------------------|-----------------------------------------|
 | [PhysioNet Challenge 2012](datasets/PhysioNet-2012)                   | Classification, Forecasting, Imputation |
 | [PhysioNet Challenge 2019](datasets/PhysioNet-2019)                   | Classification, Imputation              |
-| [Vessel AIS](datasets/Vessel_AIS)                                     | Classification, Forecasting, Imputation |
 | [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality) | Forecasting, Imputation                 |
 | [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)         | Forecasting, Imputation                 |
 | [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 160 datasets)    | Classification                          |
+| [Vessel AIS](datasets/Vessel_AIS)                                     | Classification, Forecasting, Imputation |
 
 
 ## ❖ Citing TSDB/PyPOTS
+<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
+TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
+
 The paper introducing PyPOTS project is available on arXiv at [this URL](https://arxiv.org/abs/2305.18811),
 and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
 [Machine Learning Open Source Software](https://www.jmlr.org/mloss/)). If you use TSDB in your work,
