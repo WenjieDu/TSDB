@@ -14,7 +14,7 @@ import pandas as pd
 
 
 def load_beijing_air_quality(local_path):
-    """ Load dataset Beijing Multi-site Air Quality.
+    """Load dataset Beijing Multi-site Air Quality.
 
     Parameters
     ----------
@@ -28,16 +28,16 @@ def load_beijing_air_quality(local_path):
             X : pandas.DataFrame
                 The time-series data of Beijing Multi-site Air Quality.
     """
-    dir_path = os.path.join(local_path, 'PRSA_Data_20130301-20170228')
+    dir_path = os.path.join(local_path, "PRSA_Data_20130301-20170228")
     df_collector = []
     file_list = os.listdir(dir_path)
     for filename in file_list:
         file_path = os.path.join(dir_path, filename)
         current_df = pd.read_csv(file_path)
         df_collector.append(current_df)
-        print(f'Reading {file_path}, data shape {current_df.shape}')
+        print(f"Reading {file_path}, data shape {current_df.shape}")
     df = pd.concat(df_collector, axis=0)
     data = {
-        'X': df,
+        "X": df,
     }
     return data

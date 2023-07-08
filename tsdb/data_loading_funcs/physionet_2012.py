@@ -15,7 +15,7 @@ import pandas as pd
 
 
 def load_physionet2012(local_path):
-    """ Load dataset PhysioNet Challenge 2012, which is a time-series classification dataset.
+    """Load dataset PhysioNet Challenge 2012, which is a time-series classification dataset.
 
     Parameters
     ----------
@@ -41,16 +41,18 @@ def load_physionet2012(local_path):
     140936, 141264, 150649, 142998.
     """
 
-    time_series_measurements_dir = ['set-a', 'set-b', 'set-c']
-    outcome_files = ['Outcomes-a.txt', 'Outcomes-b.txt', 'Outcomes-c.txt']
+    time_series_measurements_dir = ["set-a", "set-b", "set-c"]
+    outcome_files = ["Outcomes-a.txt", "Outcomes-b.txt", "Outcomes-c.txt"]
 
     outcome_collector = []
     for o_ in outcome_files:
         outcome_file_path = os.path.join(local_path, o_)
-        with open(outcome_file_path, 'r') as f:
-            outcome = pd.read_csv(f)[['In-hospital_death', 'RecordID']]
-        outcome['RecordID'] = outcome['RecordID'].astype(int)  # ensure RecordID's type is int
-        outcome = outcome.set_index('RecordID')
+        with open(outcome_file_path, "r") as f:
+            outcome = pd.read_csv(f)[["In-hospital_death", "RecordID"]]
+        outcome["RecordID"] = outcome["RecordID"].astype(
+            int
+        )  # ensure RecordID's type is int
+        outcome = outcome.set_index("RecordID")
         outcome_collector.append(outcome)
     y = pd.concat(outcome_collector)
 
@@ -60,29 +62,27 @@ def load_physionet2012(local_path):
     for m_ in time_series_measurements_dir:
         raw_data_dir = os.path.join(local_path, m_)
         for filename in os.listdir(raw_data_dir):
-            recordID = int(filename.split('.txt')[0])
-            with open(os.path.join(raw_data_dir, filename), 'r') as f:
+            recordID = int(filename.split(".txt")[0])
+            with open(os.path.join(raw_data_dir, filename), "r") as f:
                 df_temp = pd.read_csv(f)
-            df_temp['Time'] = df_temp['Time'].apply(lambda x: int(x.split(':')[0]))
-            df_temp = df_temp.pivot_table('Value', 'Time', 'Parameter')
+            df_temp["Time"] = df_temp["Time"].apply(lambda x: int(x.split(":")[0]))
+            df_temp = df_temp.pivot_table("Value", "Time", "Parameter")
             df_temp = df_temp.reset_index()  # take Time from index as a col
             if len(df_temp) == 1:
-                print(f'Ignore {recordID}, because its len==1, having no time series data')
+                print(
+                    f"Ignore {recordID}, because its len==1, having no time series data"
+                )
                 continue
 
-            df_temp['RecordID'] = recordID
-            df_temp['Age'] = df_temp.loc[0, 'Age']
-            df_temp['Height'] = df_temp.loc[0, 'Height']
+            df_temp["RecordID"] = recordID
+            df_temp["Age"] = df_temp.loc[0, "Age"]
+            df_temp["Height"] = df_temp.loc[0, "Height"]
             df_collector.append(df_temp)
 
     df = pd.concat(df_collector, sort=True)
     X = df.reset_index(drop=True)
-    unique_ids = df['RecordID'].unique()
+    unique_ids = df["RecordID"].unique()
     y = y.loc[unique_ids]
 
-    data = {
-        'X': X,
-        'y': y,
-        'static_features': ['Age', 'Gender', 'ICUType', 'Height']
-    }
+    data = {"X": X, "y": y, "static_features": ["Age", "Gender", "ICUType", "Height"]}
     return data
