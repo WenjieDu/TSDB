@@ -5,7 +5,7 @@
 
 Welcome to TSDB's documentation!
 ================================
-.. image:: https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/figs/TSDB%20logo.svg?sanitize=true
+.. image:: https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/_static/figs/TSDB_logo.svg?sanitize=true
    :height: 235
    :align: right
    :target: https://github.com/WenjieDu/TSDB
@@ -93,7 +93,8 @@ That's all. Simple and efficient. Enjoy it! 😃
  [Vessel AIS data](datasets/Vessel AIS data)                             Imputation, Forecasting, Classification
 ======================================================================== ==========================================
 
-## ❖ Citing TSDB/PyPOTS
+❖ Citing TSDB/PyPOTS
+^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true
    :height: 160
