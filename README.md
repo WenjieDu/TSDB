@@ -30,10 +30,6 @@
     <a alt='PyPI download number' href='https://pypi.org/project/tsdb'>
         <img src='https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=grey&right_color=blue&left_text=PyPI%20Downloads'>
     </a>
-    <!-- Code of Conduct -->
-    <a alt='CODE_OF_CONDUCT' href='CODE_OF_CONDUCT.md'> 
-        <img src='https://img.shields.io/badge/Contributor%20Covenant-v2.1-4baaaa.svg'>
-    </a>
 </p>
 
 > 📣 TSDB now supports a total of 1️⃣6️⃣5️⃣ time-series datasets ‼️
