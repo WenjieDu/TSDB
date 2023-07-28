@@ -92,8 +92,15 @@ def _download_and_extract(url, saving_path):
     # except Exception as e:
     except Exception as e:
         shutil.rmtree(saving_path, ignore_errors=True)
+        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
         print(f"Exception: {e}\n" f"Download failed. Aborting.")
-        sys.exit()
+        raise
+    except KeyboardInterrupt:
+        shutil.rmtree(saving_path, ignore_errors=True)
+        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
+        print("Download cancelled by the user.")
+        raise
+
     print(f"Successfully downloaded data to {raw_data_saving_path}.")
 
     if (
