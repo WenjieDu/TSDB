@@ -98,7 +98,7 @@ def _download_and_extract(url, saving_path):
     except KeyboardInterrupt:
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        print(f"Download cancelled by the user.")
+        print("Download cancelled by the user.")
         raise
 
     print(f"Successfully downloaded data to {raw_data_saving_path}.")
