@@ -7,13 +7,15 @@
     <!-- Python version -->
     <img src='https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white'>
     <!-- PyPI version -->
-    <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi&logoColor=white">
+    <a href="https://pypi.python.org/pypi/tsdb">
+        <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi&logoColor=white">
+    </a>
     <!-- License -->
     <a href="https://github.com/WenjieDu/TSDB/blob/main/LICENSE">
         <img alt="GPL-v3 license" src="https://img.shields.io/badge/License-GPL--v3-E9BB41">
     </a>
     <!-- GitHub Testing -->
-    <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing.yml'> 
+    <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml'> 
         <img src='https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI'>
     </a>
     <a href="https://codeclimate.com/github/WenjieDu/TSDB">
@@ -72,14 +74,14 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 ## ❖ List of Available Datasets
 
-| Name                                                                  | Main Tasks                              |
-|-----------------------------------------------------------------------|-----------------------------------------|
-| [PhysioNet Challenge 2012](datasets/PhysioNet-2012)                   | Classification, Forecasting, Imputation |
-| [PhysioNet Challenge 2019](datasets/PhysioNet-2019)                   | Classification, Imputation              |
-| [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality) | Forecasting, Imputation                 |
-| [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)         | Forecasting, Imputation                 |
-| [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 160 datasets)    | Classification                          |
-| [Vessel AIS](datasets/Vessel_AIS)                                     | Classification, Forecasting, Imputation |
+| Name                                                                             | Main Tasks                              |
+|----------------------------------------------------------------------------------|-----------------------------------------|
+| [PhysioNet Challenge 2012](dataset_profiles/physionet_2012)                      | Classification, Forecasting, Imputation |
+| [PhysioNet Challenge 2019](dataset_profiles/physionet_2019)                      | Classification, Imputation              |
+| [Beijing Multi-Site Air-Quality](dataset_profiles/beijing_multisite_air_quality) | Forecasting, Imputation                 |
+| [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)          | Forecasting, Imputation                 |
+| [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 160 datasets)       | Classification                          |
+| [Vessel AIS](dataset_profiles/vessel_ais)                                        | Classification, Forecasting, Imputation |
 
 
 ## ❖ Citing TSDB/PyPOTS
