@@ -24,6 +24,7 @@ from tsdb.data_loading_funcs import (
     load_ais,
 )
 from tsdb.database import DATABASE, AVAILABLE_DATASETS
+from tsdb.utils.logging import logger
 
 CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
 
@@ -93,15 +94,15 @@ def _download_and_extract(url, saving_path):
     except Exception as e:
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        print(f"Exception: {e}\n" f"Download failed. Aborting.")
+        logger.info(f"Exception: {e}\n" f"Download failed. Aborting.")
         raise
     except KeyboardInterrupt:
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        print("Download cancelled by the user.")
+        logger.info("Download cancelled by the user.")
         raise
 
-    print(f"Successfully downloaded data to {raw_data_saving_path}.")
+    logger.info(f"Successfully downloaded data to {raw_data_saving_path}.")
 
     if (
         suffix in supported_compression_format
@@ -109,7 +110,7 @@ def _download_and_extract(url, saving_path):
         try:
             os.makedirs(saving_path, exist_ok=True)
             shutil.unpack_archive(raw_data_saving_path, saving_path)
-            print(f"Successfully extracted data to {saving_path}")
+            logger.info(f"Successfully extracted data to {saving_path}")
         except shutil.Error:
             warnings.warn(
                 "The compressed file is corrupted, aborting.", category=RuntimeWarning
@@ -136,7 +137,7 @@ def download_and_extract(dataset_name, dataset_saving_path):
     -------
 
     """
-    print("Start downloading...")
+    logger.info("Start downloading...")
     os.makedirs(dataset_saving_path)
     if isinstance(DATABASE[dataset_name], list):
         for link in DATABASE[dataset_name]:
@@ -158,14 +159,20 @@ def list_cached_data():
         os.makedirs(CACHED_DATASET_DIR)
         return []
     else:
-        return os.listdir(CACHED_DATASET_DIR)
+        dir_content = os.listdir(CACHED_DATASET_DIR)
+
+        # remove unrelated content
+        if ".DS_Store" in dir_content:
+            dir_content.remove(".DS_Store")
+
+        return dir_content
 
 
 def delete_cached_data(dataset_name=None):
     """Delete CACHED_DATASET_DIR if exists."""
     # if CACHED_DATASET_DIR does not exist, abort
     if not os.path.exists(CACHED_DATASET_DIR):
-        print("No cached data. Operation aborted.")
+        logger.info("No cached data. Operation aborted.")
         sys.exit()
     # if CACHED_DATASET_DIR exists, then purge
     if dataset_name is not None:
@@ -174,12 +181,12 @@ def delete_cached_data(dataset_name=None):
         ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
         dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
         if not os.path.exists(dir_to_delete):
-            print(f"Dataset {dataset_name} is not cached. Operation aborted.")
+            logger.info(f"Dataset {dataset_name} is not cached. Operation aborted.")
             sys.exit()
-        print(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
+        logger.info(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
     else:
         dir_to_delete = CACHED_DATASET_DIR
-        print(f"Purging all cached data under {CACHED_DATASET_DIR}...")
+        logger.info(f"Purging all cached data under {CACHED_DATASET_DIR}...")
     purge_given_path(dir_to_delete)
 
 
@@ -204,7 +211,7 @@ def purge_given_path(path):
             os.remove(path)
         # check if succeed
         if not os.path.exists(path):
-            print(f"Successfully deleted {path}.")
+            logger.info(f"Successfully deleted {path}.")
         else:
             raise FileExistsError(
                 f"Deleting operation failed. {CACHED_DATASET_DIR} still exists."
@@ -233,9 +240,9 @@ def pickle_dump(data, path):
         with open(path, "wb") as f:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
     except pickle.PicklingError:
-        print("Pickling failed. No cache will be saved.")
+        logger.info("Pickling failed. No cache will be saved.")
         return None
-    print(f"Successfully saved to {path}")
+    logger.info(f"Successfully saved to {path}")
     return path
 
 
@@ -257,7 +264,7 @@ def pickle_load(path):
         with open(path, "rb") as f:
             data = pickle.load(f)
     except pickle.UnpicklingError as e:
-        print("Cached data corrupted. Aborting...\n" f"{e}")
+        logger.info("Cached data corrupted. Aborting...\n" f"{e}")
     return data
 
 
@@ -279,8 +286,12 @@ def load_dataset(dataset_name, use_cache=True):
     """
     assert dataset_name in AVAILABLE_DATASETS, (
         f'The given dataset name "{dataset_name}" is not in the database. '
-        f"Please fetch the full list of the available datasets with tsdb.list_available_datasets()"
+        f"Please fetch the full list of the available dataset_profiles with tsdb.list_available_datasets()"
     )
+
+    logger.info(f"You're using dataset {dataset_name}, please cite it properly in your work.\n"
+                f"You can find its reference information at https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/")
+
 
     dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
     if not os.path.exists(
@@ -289,7 +300,7 @@ def load_dataset(dataset_name, use_cache=True):
         download_and_extract(dataset_name, dataset_saving_path)
     else:
         if use_cache:
-            print(
+            logger.info(
                 f"Dataset {dataset_name} has already been downloaded. Processing directly..."
             )
         else:
@@ -300,7 +311,7 @@ def load_dataset(dataset_name, use_cache=True):
     # if cached, then load directly
     cache_path = os.path.join(dataset_saving_path, dataset_name + "_cache.pkl")
     if os.path.exists(cache_path):
-        print(
+        logger.info(
             f"Dataset {dataset_name} has already been cached. Loading from cache directly..."
         )
         result = pickle_load(cache_path)
@@ -329,5 +340,5 @@ def load_dataset(dataset_name, use_cache=True):
             )
         pickle_dump(result, cache_path)
 
-    print("Loaded successfully!")
+    logger.info("Loaded successfully!")
     return result

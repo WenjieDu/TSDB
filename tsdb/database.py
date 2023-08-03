@@ -5,6 +5,7 @@ List available datasets and their official download links.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: GLP-v3
 
+
 _DATABASE = {
     # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/PhysioNet-2012
     "physionet_2012": [
@@ -27,13 +28,13 @@ _DATABASE = {
     #
     # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/BeijingMultiSiteAirQuality
     "beijing_multisite_air_quality": "https://archive.ics.uci.edu/ml/machine-learning-databases/00501/"
-    "PRSA2017_Data_20130301-20170228.zip",
+                                     "PRSA2017_Data_20130301-20170228.zip",
     #
     # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel_AIS
-    "vessel_AIS": "https://zenodo.org/record/8064564/files/parquets.zip",
+    "vessel_ais": "https://zenodo.org/record/8064564/files/parquets.zip",
 }
 
-_UCR_UEA_datasets = [
+_ucr_uea_datasets = [
     "Adiac",
     "ArrowHead",
     "Beef",
@@ -196,13 +197,13 @@ _UCR_UEA_datasets = [
     "UMD",
 ]
 
-UCR_UEA_datasets = {}
-for i in _UCR_UEA_datasets:
-    UCR_UEA_datasets[
-        "UCR_UEA_" + i
-    ] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
+UCR_UEA_DATASETS = {}
+for i in _ucr_uea_datasets:
+    UCR_UEA_DATASETS[
+        "ucr_uea_" + i
+        ] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
 
-DATABASE = {**_DATABASE, **UCR_UEA_datasets}
+DATABASE = {**_DATABASE, **UCR_UEA_DATASETS}
 AVAILABLE_DATASETS = list(DATABASE.keys())
 
 
