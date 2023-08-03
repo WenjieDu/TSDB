@@ -47,7 +47,7 @@ def window_truncate(feature_vectors, seq_len):
     start_indices = numpy.asarray(range(feature_vectors.shape[0] // seq_len)) * seq_len
     sample_collector = []
     for idx in start_indices:
-        sample_collector.append(feature_vectors[idx : idx + seq_len])
+        sample_collector.append(feature_vectors[idx: idx + seq_len])
 
     return numpy.asarray(sample_collector).astype("float32")
 
@@ -105,7 +105,7 @@ def _download_and_extract(url, saving_path):
     logger.info(f"Successfully downloaded data to {raw_data_saving_path}.")
 
     if (
-        suffix in supported_compression_format
+            suffix in supported_compression_format
     ):  # if the file is compressed, then unpack it
         try:
             os.makedirs(saving_path, exist_ok=True)
@@ -177,7 +177,7 @@ def delete_cached_data(dataset_name=None):
     # if CACHED_DATASET_DIR exists, then purge
     if dataset_name is not None:
         assert (
-            dataset_name in AVAILABLE_DATASETS
+                dataset_name in AVAILABLE_DATASETS
         ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
         dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
         if not os.path.exists(dir_to_delete):
@@ -289,13 +289,14 @@ def load_dataset(dataset_name, use_cache=True):
         f"Please fetch the full list of the available dataset_profiles with tsdb.list_available_datasets()"
     )
 
+    profile_dir = dataset_name if "ucr_uea_" not in dataset_name else "ucr_uea_datasets"
     logger.info(f"You're using dataset {dataset_name}, please cite it properly in your work.\n"
-                f"You can find its reference information at https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/")
-
+                f"You can find its reference information at the below link: \n"
+                f"https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile_dir}")
 
     dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
     if not os.path.exists(
-        dataset_saving_path
+            dataset_saving_path
     ):  # if the dataset is not cached, then download it
         download_and_extract(dataset_name, dataset_saving_path)
     else:
@@ -325,12 +326,12 @@ def load_dataset(dataset_name, use_cache=True):
                 result = load_electricity(dataset_saving_path)
             elif dataset_name == "beijing_multisite_air_quality":
                 result = load_beijing_air_quality(dataset_saving_path)
-            elif dataset_name == "vessel_AIS":
+            elif dataset_name == "vessel_ais":
                 result = load_ais(dataset_saving_path)
-            elif "UCR_UEA_" in dataset_name:
+            elif "ucr_uea_" in dataset_name:
                 actual_dataset_name = dataset_name.replace(
-                    "UCR_UEA_", ""
-                )  # delete 'UCR_UEA_' in the name
+                    "ucr_uea_", ""
+                )  # delete 'ucr_uea_' in the name
                 result = load_ucr_uea_dataset(dataset_saving_path, actual_dataset_name)
 
         except FileExistsError:
