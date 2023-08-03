@@ -14,7 +14,7 @@ DATASETS_TO_TEST = [
     "physionet_2019",
     "electricity_load_diagrams",
     "beijing_multisite_air_quality",
-    "UCR_UEA_Wine",
+    "ucr_uea_Wine",
 ]
 
 
@@ -24,7 +24,7 @@ class TestTSDB(unittest.TestCase):
         assert len(available_datasets) > 0
 
     def test_1_downloading_only(self):
-        tsdb.download_and_extract("UCR_UEA_Wine", "./save_it_here")
+        tsdb.download_and_extract("ucr_uea_Wine", "./save_it_here")
         file_list = os.listdir()
         assert len(file_list) > 0
         tsdb.purge_given_path("save_it_here")
