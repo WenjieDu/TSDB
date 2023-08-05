@@ -1,8 +1,18 @@
-# [Time-Series Database](https://github.com/WenjieDu/Time_Series_Database) ![](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits&edge_flat=false)
+# PhysioNet Challenge 2012
 
+## Citing this dataset 🤗
+`Silva I, Moody G, Scott DJ, Celi LA, Mark RG. Predicting In-Hospital Mortality of ICU Patients: The PhysioNet/Computing in Cardiology Challenge 2012. Comput Cardiol (2010). 2012;39:245-248. PMID: 24678516; PMCID: PMC3965265.`
 
-| <ins>*PhysioNet Challenge 2012*</ins> | URL                                                                                                                                                         |
-|:-------------------------------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|               HomePage                | [Link to Homepage](https://physionet.org/content/challenge-2012/1.0.0/)                                                                                     |
-|               Reference               | [Predicting In-Hospital Mortality of Patients in ICU: The PhysioNet/Computing in Cardiology Challenge 2012](http://www.cinc.org/archives/2012/pdf/0245.pdf) |
-|      Available on PaperWithCode       | ✅ [Link to PaperWithCode](https://paperswithcode.com/dataset/physionet-challenge-2012)                                                                      |
+or
+
+```bibtex
+@article{silva2012physionet,
+title={Predicting in-hospital mortality of icu patients: The physionet/computing in cardiology challenge 2012},
+author={Silva, Ikaro and Moody, George and Scott, Daniel J and Celi, Leo A and Mark, Roger G},
+journal={Computing in cardiology},
+volume={39},
+pages={245},
+year={2012},
+publisher={NIH Public Access}
+}
+```

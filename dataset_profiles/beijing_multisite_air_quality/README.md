@@ -1,7 +1,18 @@
-# [Time-Series Database](https://github.com/WenjieDu/Time_Series_Database) ![](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits&edge_flat=false)
+# Beijing Multi-Site Air-Quality
 
-| <ins> *Beijing Multi-Site Air-Quality*</ins> | URL                                                                                                                         |
-|:--------------------------------------------:|-----------------------------------------------------------------------------------------------------------------------------|
-|                   HomePage                   | [Link to Homepage](https://archive.ics.uci.edu/ml/datasets/Beijing+Multi-Site+Air-Quality+Data)                             |
-|                  Reference                   | [Cautionary Tales on Air-Quality Improvement in Beijing](https://royalsocietypublishing.org/doi/pdf/10.1098/rspa.2017.0457) |
-|          Available on PaperWithCode          | ✅ [Link to PaperWithCode](https://paperswithcode.com/dataset/beijing-air-quality)                                           |
+## Citing this dataset 🤗
+
+`Zhang Shuyi, Guo Bin, Dong Anlan, He Jing, Xu Ziping and Chen Song Xi . 2017 Cautionary tales on air-quality improvement in Beijing. Proc. R. Soc. A. 473: 20170457. 20170457. http://doi.org/10.1098/rspa.2017.0457`
+
+or
+
+```bibtex
+@article{zhang2017airquality,
+title={Cautionary tales on air-quality improvement in Beijing},
+author={Shuyi Zhang and Bin Guo and Anlan Dong and Jing He and Ziping Xu and Song Xi Chen},
+journal={Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences},
+year={2017},
+volume={473},
+url={https://api.semanticscholar.org/CorpusID:37683936}
+}
+```
