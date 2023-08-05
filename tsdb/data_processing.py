@@ -47,7 +47,7 @@ def window_truncate(feature_vectors, seq_len):
     start_indices = numpy.asarray(range(feature_vectors.shape[0] // seq_len)) * seq_len
     sample_collector = []
     for idx in start_indices:
-        sample_collector.append(feature_vectors[idx: idx + seq_len])
+        sample_collector.append(feature_vectors[idx : idx + seq_len])
 
     return numpy.asarray(sample_collector).astype("float32")
 
@@ -105,7 +105,7 @@ def _download_and_extract(url, saving_path):
     logger.info(f"Successfully downloaded data to {raw_data_saving_path}.")
 
     if (
-            suffix in supported_compression_format
+        suffix in supported_compression_format
     ):  # if the file is compressed, then unpack it
         try:
             os.makedirs(saving_path, exist_ok=True)
@@ -177,7 +177,7 @@ def delete_cached_data(dataset_name=None):
     # if CACHED_DATASET_DIR exists, then purge
     if dataset_name is not None:
         assert (
-                dataset_name in AVAILABLE_DATASETS
+            dataset_name in AVAILABLE_DATASETS
         ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
         dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
         if not os.path.exists(dir_to_delete):
@@ -290,13 +290,15 @@ def load_dataset(dataset_name, use_cache=True):
     )
 
     profile_dir = dataset_name if "ucr_uea_" not in dataset_name else "ucr_uea_datasets"
-    logger.info(f"You're using dataset {dataset_name}, please cite it properly in your work.\n"
-                f"You can find its reference information at the below link: \n"
-                f"https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile_dir}")
+    logger.info(
+        f"You're using dataset {dataset_name}, please cite it properly in your work. "
+        f"You can find its reference information at the below link: \n"
+        f"https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile_dir}"
+    )
 
     dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
     if not os.path.exists(
-            dataset_saving_path
+        dataset_saving_path
     ):  # if the dataset is not cached, then download it
         download_and_extract(dataset_name, dataset_saving_path)
     else:
@@ -320,7 +322,7 @@ def load_dataset(dataset_name, use_cache=True):
         try:
             if dataset_name == "physionet_2012":
                 result = load_physionet2012(dataset_saving_path)
-            if dataset_name == "physionet_2019":
+            elif dataset_name == "physionet_2019":
                 result = load_physionet2019(dataset_saving_path)
             elif dataset_name == "electricity_load_diagrams":
                 result = load_electricity(dataset_saving_path)
