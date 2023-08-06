@@ -2,7 +2,7 @@
 Scripts related to dataset Electricity Load Diagrams.
 
 For more information please refer to:
-https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/ElectricityLoadDiagrams
+https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams
 
 """
 

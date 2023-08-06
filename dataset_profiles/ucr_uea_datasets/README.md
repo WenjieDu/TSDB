@@ -1,6 +1,6 @@
 # UCR & UEA Datasets
 
-## All 161 datasets
+## All 160 datasets
 ```
 "Adiac",
 "ArrowHead",

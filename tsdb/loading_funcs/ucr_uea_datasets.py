@@ -3,6 +3,9 @@ Scripts related to UCR&UAE datasets http://timeseriesclassification.com/index.ph
 
 Most of code comes from library tslearn https://github.com/tslearn-team/tslearn.
 
+For more information please refer to:
+https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets
+
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
@@ -16,6 +19,7 @@ from sklearn.utils.estimator_checks import _NotAnArray as NotAnArray
 
 try:
     from scipy.io import arff
+
     HAS_ARFF = True
 except Exception:
     HAS_ARFF = False
