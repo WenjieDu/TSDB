@@ -2,7 +2,7 @@
 Scripts related to dataset vessel_AIS.
 
 For more information please refer to:
-https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel_AIS
+https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais
 """
 
 # Created by Grgičević Luka <luka.grgicevic@ntnu.no>

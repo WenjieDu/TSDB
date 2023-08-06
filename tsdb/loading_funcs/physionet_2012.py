@@ -2,7 +2,7 @@
 Scripts related to dataset PhysioNet Challenge 2012.
 
 For more information please refer to:
-https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/PhysioNet-2012
+https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012
 
 """
 

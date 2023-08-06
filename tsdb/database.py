@@ -5,8 +5,12 @@ List available datasets and their official download links.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: GLP-v3
 
+import os
+
+CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
+
 _DATABASE = {
-    # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/PhysioNet-2012
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012
     "physionet_2012": [
         "https://www.physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz",
         "https://www.physionet.org/files/challenge-2012/1.0.0/set-b.tar.gz",
@@ -15,25 +19,22 @@ _DATABASE = {
         "https://www.physionet.org/files/challenge-2012/1.0.0/Outcomes-b.txt",
         "https://www.physionet.org/files/challenge-2012/1.0.0/Outcomes-c.txt",
     ],
-    #
-    # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/PhysioNet-2019
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019
     "physionet_2019": [
         "https://archive.physionet.org/users/shared/challenge-2019/training_setA.zip",
         "https://archive.physionet.org/users/shared/challenge-2019/training_setB.zip",
     ],
-    #
-    # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/ElectricityLoadDiagrams
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams
     "electricity_load_diagrams": "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip",
-    #
-    # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/BeijingMultiSiteAirQuality
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality
     "beijing_multisite_air_quality": "https://archive.ics.uci.edu/ml/machine-learning-databases/00501/"
     "PRSA2017_Data_20130301-20170228.zip",
-    #
-    # https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/Vessel_AIS
-    "vessel_AIS": "https://zenodo.org/record/8064564/files/parquets.zip",
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais
+    "vessel_ais": "https://zenodo.org/record/8064564/files/parquets.zip",
 }
 
-_UCR_UEA_datasets = [
+# https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets
+_ucr_uea_datasets = [
     "Adiac",
     "ArrowHead",
     "Beef",
@@ -196,35 +197,11 @@ _UCR_UEA_datasets = [
     "UMD",
 ]
 
-UCR_UEA_datasets = {}
-for i in _UCR_UEA_datasets:
-    UCR_UEA_datasets[
-        "UCR_UEA_" + i
+UCR_UEA_DATASETS = {}
+for i in _ucr_uea_datasets:
+    UCR_UEA_DATASETS[
+        "ucr_uea_" + i
     ] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
 
-DATABASE = {**_DATABASE, **UCR_UEA_datasets}
+DATABASE = {**_DATABASE, **UCR_UEA_DATASETS}
 AVAILABLE_DATASETS = list(DATABASE.keys())
-
-
-def list_database():
-    """List the database.
-
-    Returns
-    -------
-    DATABASE : dict
-        A dict contains all datasets' names and download links.
-
-    """
-    return DATABASE
-
-
-def list_available_datasets():
-    """List all available datasets.
-
-    Returns
-    -------
-    AVAILABLE_DATASETS : list
-        A list contains all datasets' names.
-
-    """
-    return AVAILABLE_DATASETS

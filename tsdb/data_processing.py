@@ -1,5 +1,5 @@
 """
-Utilities for loading specific datasets.
+Functions for loading datasets.
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
@@ -9,13 +9,12 @@ import os
 import pickle
 import shutil
 import sys
-import tempfile
-import urllib.request
 import warnings
 
 import numpy
 
-from tsdb.data_loading_funcs import (
+from tsdb.database import DATABASE, AVAILABLE_DATASETS, CACHED_DATASET_DIR
+from tsdb.loading_funcs import (
     load_physionet2012,
     load_physionet2019,
     load_electricity,
@@ -23,9 +22,33 @@ from tsdb.data_loading_funcs import (
     load_ucr_uea_dataset,
     load_ais,
 )
-from tsdb.database import DATABASE, AVAILABLE_DATASETS
+from tsdb.utils.downloading import download_and_extract
+from tsdb.utils.file import purge_given_path
+from tsdb.utils.logging import logger
 
-CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
+
+def list_database():
+    """List the database.
+
+    Returns
+    -------
+    DATABASE : dict
+        A dict contains all datasets' names and download links.
+
+    """
+    return DATABASE
+
+
+def list_available_datasets():
+    """List all available datasets.
+
+    Returns
+    -------
+    AVAILABLE_DATASETS : list
+        A list contains all datasets' names.
+
+    """
+    return AVAILABLE_DATASETS
 
 
 def window_truncate(feature_vectors, seq_len):
@@ -51,100 +74,6 @@ def window_truncate(feature_vectors, seq_len):
     return numpy.asarray(sample_collector).astype("float32")
 
 
-def _download_and_extract(url, saving_path):
-    """Download dataset from the given url and extract to the given saving path.
-
-    Parameters
-    ----------
-    url : str,
-        URL of the dataset to be downloaded.
-    saving_path : str,
-        Path to save extracted dataset.
-
-    Returns
-    -------
-    saving_path if successful else None
-    """
-    no_need_decompression_format = ["csv", "txt"]
-    supported_compression_format = ["zip", "tar", "gz", "bz", "xz"]
-
-    # truncate the file name from url
-    file_name = os.path.basename(url)
-    suffix = file_name.split(".")[-1]
-
-    if suffix in no_need_decompression_format:
-        raw_data_saving_path = os.path.join(saving_path, file_name)
-    elif suffix in supported_compression_format:
-        # create temp dir for raw data saving
-        tmp_dir = tempfile.mkdtemp()
-        raw_data_saving_path = os.path.join(tmp_dir, file_name)
-    else:
-        warnings.warn(
-            "The compression format is not supported, aborting. "
-            "If necessary, please create a pull request to add according supports.",
-            category=RuntimeWarning,
-        )
-        return None
-
-    # download and save the raw dataset
-    try:
-        urllib.request.urlretrieve(url, raw_data_saving_path)
-    # except Exception as e:
-    except Exception as e:
-        shutil.rmtree(saving_path, ignore_errors=True)
-        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        print(f"Exception: {e}\n" f"Download failed. Aborting.")
-        raise
-    except KeyboardInterrupt:
-        shutil.rmtree(saving_path, ignore_errors=True)
-        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        print("Download cancelled by the user.")
-        raise
-
-    print(f"Successfully downloaded data to {raw_data_saving_path}.")
-
-    if (
-        suffix in supported_compression_format
-    ):  # if the file is compressed, then unpack it
-        try:
-            os.makedirs(saving_path, exist_ok=True)
-            shutil.unpack_archive(raw_data_saving_path, saving_path)
-            print(f"Successfully extracted data to {saving_path}")
-        except shutil.Error:
-            warnings.warn(
-                "The compressed file is corrupted, aborting.", category=RuntimeWarning
-            )
-            return None
-        finally:
-            shutil.rmtree(tmp_dir, ignore_errors=True)
-
-    return saving_path
-
-
-def download_and_extract(dataset_name, dataset_saving_path):
-    """Wrapper of _download_and_extract.
-
-    Parameters
-    ----------
-    dataset_name : str,
-        The name of a dataset available in tsdb.
-
-    dataset_saving_path : str,
-        The local path for dataset saving.
-
-    Returns
-    -------
-
-    """
-    print("Start downloading...")
-    os.makedirs(dataset_saving_path)
-    if isinstance(DATABASE[dataset_name], list):
-        for link in DATABASE[dataset_name]:
-            _download_and_extract(link, dataset_saving_path)
-    else:
-        _download_and_extract(DATABASE[dataset_name], dataset_saving_path)
-
-
 def list_cached_data():
     """List names of all cached datasets.
 
@@ -158,14 +87,20 @@ def list_cached_data():
         os.makedirs(CACHED_DATASET_DIR)
         return []
     else:
-        return os.listdir(CACHED_DATASET_DIR)
+        dir_content = os.listdir(CACHED_DATASET_DIR)
+
+        # remove unrelated content
+        if ".DS_Store" in dir_content:
+            dir_content.remove(".DS_Store")
+
+        return dir_content
 
 
 def delete_cached_data(dataset_name=None):
     """Delete CACHED_DATASET_DIR if exists."""
     # if CACHED_DATASET_DIR does not exist, abort
     if not os.path.exists(CACHED_DATASET_DIR):
-        print("No cached data. Operation aborted.")
+        logger.info("No cached data. Operation aborted.")
         sys.exit()
     # if CACHED_DATASET_DIR exists, then purge
     if dataset_name is not None:
@@ -174,43 +109,13 @@ def delete_cached_data(dataset_name=None):
         ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
         dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
         if not os.path.exists(dir_to_delete):
-            print(f"Dataset {dataset_name} is not cached. Operation aborted.")
+            logger.info(f"Dataset {dataset_name} is not cached. Operation aborted.")
             sys.exit()
-        print(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
+        logger.info(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
     else:
         dir_to_delete = CACHED_DATASET_DIR
-        print(f"Purging all cached data under {CACHED_DATASET_DIR}...")
+        logger.info(f"Purging all cached data under {CACHED_DATASET_DIR}...")
     purge_given_path(dir_to_delete)
-
-
-def purge_given_path(path):
-    """Delete the given path.
-    It will be deleted if a file is given. Itself and all its contents will be purged will a fold is given.
-
-    Parameters
-    ----------
-    path: str,
-        It could be a file or a fold.
-
-    """
-    assert os.path.exists(
-        path
-    ), f"The given path {path} does not exists. Operation aborted."
-
-    try:
-        if os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
-        else:
-            os.remove(path)
-        # check if succeed
-        if not os.path.exists(path):
-            print(f"Successfully deleted {path}.")
-        else:
-            raise FileExistsError(
-                f"Deleting operation failed. {CACHED_DATASET_DIR} still exists."
-            )
-    except shutil.Error:
-        raise shutil.Error("Operation failed.")
 
 
 def pickle_dump(data, path):
@@ -233,9 +138,9 @@ def pickle_dump(data, path):
         with open(path, "wb") as f:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
     except pickle.PicklingError:
-        print("Pickling failed. No cache will be saved.")
+        logger.info("Pickling failed. No cache will be saved.")
         return None
-    print(f"Successfully saved to {path}")
+    logger.info(f"Successfully saved to {path}")
     return path
 
 
@@ -257,7 +162,7 @@ def pickle_load(path):
         with open(path, "rb") as f:
             data = pickle.load(f)
     except pickle.UnpicklingError as e:
-        print("Cached data corrupted. Aborting...\n" f"{e}")
+        logger.info("Cached data corrupted. Aborting...\n" f"{e}")
     return data
 
 
@@ -279,7 +184,14 @@ def load_dataset(dataset_name, use_cache=True):
     """
     assert dataset_name in AVAILABLE_DATASETS, (
         f'The given dataset name "{dataset_name}" is not in the database. '
-        f"Please fetch the full list of the available datasets with tsdb.list_available_datasets()"
+        f"Please fetch the full list of the available dataset_profiles with tsdb.list_available_datasets()"
+    )
+
+    profile_dir = dataset_name if "ucr_uea_" not in dataset_name else "ucr_uea_datasets"
+    logger.info(
+        f"You're using dataset {dataset_name}, please cite it properly in your work. "
+        f"You can find its reference information at the below link: \n"
+        f"https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile_dir}"
     )
 
     dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
@@ -289,7 +201,7 @@ def load_dataset(dataset_name, use_cache=True):
         download_and_extract(dataset_name, dataset_saving_path)
     else:
         if use_cache:
-            print(
+            logger.info(
                 f"Dataset {dataset_name} has already been downloaded. Processing directly..."
             )
         else:
@@ -300,7 +212,7 @@ def load_dataset(dataset_name, use_cache=True):
     # if cached, then load directly
     cache_path = os.path.join(dataset_saving_path, dataset_name + "_cache.pkl")
     if os.path.exists(cache_path):
-        print(
+        logger.info(
             f"Dataset {dataset_name} has already been cached. Loading from cache directly..."
         )
         result = pickle_load(cache_path)
@@ -308,18 +220,18 @@ def load_dataset(dataset_name, use_cache=True):
         try:
             if dataset_name == "physionet_2012":
                 result = load_physionet2012(dataset_saving_path)
-            if dataset_name == "physionet_2019":
+            elif dataset_name == "physionet_2019":
                 result = load_physionet2019(dataset_saving_path)
             elif dataset_name == "electricity_load_diagrams":
                 result = load_electricity(dataset_saving_path)
             elif dataset_name == "beijing_multisite_air_quality":
                 result = load_beijing_air_quality(dataset_saving_path)
-            elif dataset_name == "vessel_AIS":
+            elif dataset_name == "vessel_ais":
                 result = load_ais(dataset_saving_path)
-            elif "UCR_UEA_" in dataset_name:
+            elif "ucr_uea_" in dataset_name:
                 actual_dataset_name = dataset_name.replace(
-                    "UCR_UEA_", ""
-                )  # delete 'UCR_UEA_' in the name
+                    "ucr_uea_", ""
+                )  # delete 'ucr_uea_' in the name
                 result = load_ucr_uea_dataset(dataset_saving_path, actual_dataset_name)
 
         except FileExistsError:
@@ -329,5 +241,5 @@ def load_dataset(dataset_name, use_cache=True):
             )
         pickle_dump(result, cache_path)
 
-    print("Loaded successfully!")
+    logger.info("Loaded successfully!")
     return result

@@ -2,7 +2,7 @@
 Scripts related to dataset Beijing Multi-site Air Quality.
 
 For more information please refer to:
-https://github.com/WenjieDu/Time_Series_Database/tree/main/datasets/BeijingMultiSiteAirQuality
+https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
