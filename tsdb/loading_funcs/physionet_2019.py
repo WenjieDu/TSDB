@@ -1,6 +1,9 @@
 """
 Scripts related to dataset PhysioNet Challenge 2019.
 
+For more information please refer to:
+https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019
+
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>

@@ -25,12 +25,9 @@ __version__ = "0.1"
 
 
 try:
-    from tsdb.database import (
+    from tsdb.data_processing import (
         list_database,
         list_available_datasets,
-    )
-
-    from tsdb.data_processing import (
         window_truncate,
         download_and_extract,
         load_dataset,

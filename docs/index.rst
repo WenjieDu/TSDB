@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to TSDB's documentation!
+Welcome to TSDB documentation!
 ================================
 .. image:: https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/_static/figs/TSDB_logo.svg?sanitize=true
    :height: 235
@@ -32,11 +32,13 @@ Welcome to TSDB's documentation!
 .. image:: https://img.shields.io/conda/dn/conda-forge/tsdb?label=Conda%20Downloads&color=AED0ED&logo=anaconda&logoColor=white
    :alt: Conda downloads
    :target: https://anaconda.org/conda-forge/pypots
-.. image:: https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Downloads
+.. image:: https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=grey&right_color=blue&left_text=PyPI%20Downloads
    :alt: PyPI downloads
    :target: https://pypi.org/project/tsdb
 .. image:: https://img.shields.io/badge/Contributor%20Covenant-v2.1-4baaaa.svg
    :alt: CODE of CONDUCT
+.. image:: https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits+since+April+2022&edge_flat=false
+   :alt: Visit num
 
 
 📣 TSDB now supports a total of 1️⃣6️⃣5️⃣ time-series datasets ‼️
@@ -89,7 +91,7 @@ That's all. Simple and efficient. Enjoy it! 😃
  [PhysioNet Challenge 2019](datasets/PhysioNet-2019)                     Classification, Imputation
  [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality)   Forecasting, Imputation
  [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)           Forecasting, Imputation
- [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 115 datasets)      Classification
+ [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 160 datasets)      Classification
  [Vessel AIS data](datasets/Vessel AIS data)                             Imputation, Forecasting, Classification
 ======================================================================== ==========================================
 
@@ -132,13 +134,6 @@ or
 
 .. toctree::
    :maxdepth: 2
-   :caption: Getting Started
-
-   install
-   examples
-
-.. toctree::
-   :maxdepth: 2
    :hidden:
    :caption: Code Documentation
 
@@ -149,10 +144,4 @@ or
    :hidden:
    :caption: Additional Information
 
-   faq
-   about_us
-
-
-References
-""""""""""
-.. bibliography::
+   references

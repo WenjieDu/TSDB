@@ -1,5 +1,5 @@
 """
-Utilities for loading specific datasets.
+Functions for loading datasets.
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
@@ -9,13 +9,12 @@ import os
 import pickle
 import shutil
 import sys
-import tempfile
-import urllib.request
 import warnings
 
 import numpy
 
-from tsdb.data_loading_funcs import (
+from tsdb.database import DATABASE, AVAILABLE_DATASETS, CACHED_DATASET_DIR
+from tsdb.loading_funcs import (
     load_physionet2012,
     load_physionet2019,
     load_electricity,
@@ -23,10 +22,33 @@ from tsdb.data_loading_funcs import (
     load_ucr_uea_dataset,
     load_ais,
 )
-from tsdb.database import DATABASE, AVAILABLE_DATASETS
+from tsdb.utils.downloading import download_and_extract
+from tsdb.utils.file import purge_given_path
 from tsdb.utils.logging import logger
 
-CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
+
+def list_database():
+    """List the database.
+
+    Returns
+    -------
+    DATABASE : dict
+        A dict contains all datasets' names and download links.
+
+    """
+    return DATABASE
+
+
+def list_available_datasets():
+    """List all available datasets.
+
+    Returns
+    -------
+    AVAILABLE_DATASETS : list
+        A list contains all datasets' names.
+
+    """
+    return AVAILABLE_DATASETS
 
 
 def window_truncate(feature_vectors, seq_len):
@@ -50,100 +72,6 @@ def window_truncate(feature_vectors, seq_len):
         sample_collector.append(feature_vectors[idx : idx + seq_len])
 
     return numpy.asarray(sample_collector).astype("float32")
-
-
-def _download_and_extract(url, saving_path):
-    """Download dataset from the given url and extract to the given saving path.
-
-    Parameters
-    ----------
-    url : str,
-        URL of the dataset to be downloaded.
-    saving_path : str,
-        Path to save extracted dataset.
-
-    Returns
-    -------
-    saving_path if successful else None
-    """
-    no_need_decompression_format = ["csv", "txt"]
-    supported_compression_format = ["zip", "tar", "gz", "bz", "xz"]
-
-    # truncate the file name from url
-    file_name = os.path.basename(url)
-    suffix = file_name.split(".")[-1]
-
-    if suffix in no_need_decompression_format:
-        raw_data_saving_path = os.path.join(saving_path, file_name)
-    elif suffix in supported_compression_format:
-        # create temp dir for raw data saving
-        tmp_dir = tempfile.mkdtemp()
-        raw_data_saving_path = os.path.join(tmp_dir, file_name)
-    else:
-        warnings.warn(
-            "The compression format is not supported, aborting. "
-            "If necessary, please create a pull request to add according supports.",
-            category=RuntimeWarning,
-        )
-        return None
-
-    # download and save the raw dataset
-    try:
-        urllib.request.urlretrieve(url, raw_data_saving_path)
-    # except Exception as e:
-    except Exception as e:
-        shutil.rmtree(saving_path, ignore_errors=True)
-        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        logger.info(f"Exception: {e}\n" f"Download failed. Aborting.")
-        raise
-    except KeyboardInterrupt:
-        shutil.rmtree(saving_path, ignore_errors=True)
-        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        logger.info("Download cancelled by the user.")
-        raise
-
-    logger.info(f"Successfully downloaded data to {raw_data_saving_path}.")
-
-    if (
-        suffix in supported_compression_format
-    ):  # if the file is compressed, then unpack it
-        try:
-            os.makedirs(saving_path, exist_ok=True)
-            shutil.unpack_archive(raw_data_saving_path, saving_path)
-            logger.info(f"Successfully extracted data to {saving_path}")
-        except shutil.Error:
-            warnings.warn(
-                "The compressed file is corrupted, aborting.", category=RuntimeWarning
-            )
-            return None
-        finally:
-            shutil.rmtree(tmp_dir, ignore_errors=True)
-
-    return saving_path
-
-
-def download_and_extract(dataset_name, dataset_saving_path):
-    """Wrapper of _download_and_extract.
-
-    Parameters
-    ----------
-    dataset_name : str,
-        The name of a dataset available in tsdb.
-
-    dataset_saving_path : str,
-        The local path for dataset saving.
-
-    Returns
-    -------
-
-    """
-    logger.info("Start downloading...")
-    os.makedirs(dataset_saving_path)
-    if isinstance(DATABASE[dataset_name], list):
-        for link in DATABASE[dataset_name]:
-            _download_and_extract(link, dataset_saving_path)
-    else:
-        _download_and_extract(DATABASE[dataset_name], dataset_saving_path)
 
 
 def list_cached_data():
@@ -188,36 +116,6 @@ def delete_cached_data(dataset_name=None):
         dir_to_delete = CACHED_DATASET_DIR
         logger.info(f"Purging all cached data under {CACHED_DATASET_DIR}...")
     purge_given_path(dir_to_delete)
-
-
-def purge_given_path(path):
-    """Delete the given path.
-    It will be deleted if a file is given. Itself and all its contents will be purged will a fold is given.
-
-    Parameters
-    ----------
-    path: str,
-        It could be a file or a fold.
-
-    """
-    assert os.path.exists(
-        path
-    ), f"The given path {path} does not exists. Operation aborted."
-
-    try:
-        if os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
-        else:
-            os.remove(path)
-        # check if succeed
-        if not os.path.exists(path):
-            logger.info(f"Successfully deleted {path}.")
-        else:
-            raise FileExistsError(
-                f"Deleting operation failed. {CACHED_DATASET_DIR} still exists."
-            )
-    except shutil.Error:
-        raise shutil.Error("Operation failed.")
 
 
 def pickle_dump(data, path):
