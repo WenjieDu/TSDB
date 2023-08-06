@@ -2,5 +2,8 @@ numpy
 scikit_learn
 pandas
 scipy
+sphinx
+docutils
 sphinxcontrib-bibtex
+sphinx-autodoc-typehints
 furo

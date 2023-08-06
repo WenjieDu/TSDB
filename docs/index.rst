@@ -6,12 +6,12 @@
 Welcome to TSDB documentation!
 ================================
 .. image:: https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/_static/figs/TSDB_logo.svg?sanitize=true
-   :height: 235
+   :height: 160
    :align: right
    :target: https://github.com/WenjieDu/TSDB
    :alt: TSDB logo
 
-.. centered:: A Python Toolbox to Ease Loading Open-Source Time-Series Datasets
+.. centered:: A Python Toolbox Helping Load Time-Series Datasets Easily
 
 .. image:: https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white
    :alt: Python version
@@ -43,9 +43,12 @@ Welcome to TSDB documentation!
 
 📣 TSDB now supports a total of 1️⃣6️⃣5️⃣ time-series datasets ‼️
 
-TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
+TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details.
+TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed `below <https://github.com/WenjieDu/TSDB#-list-of-available-datasets>`_).
 
-❗️Please note that due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples) and won't process the data (not even normalize it). So, no worries, TSDB won't affect your data preprocessing. If you only want the raw datasets, TSDB can help you download and save raw datasets as well (take a look at [Usage Examples](https://github.com/WenjieDu/TSDB#-usage-example) below).
+❗️Please note that due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples)
+and won't process the data (not even normalize it). So, no worries, TSDB won't affect your data preprocessing. If you only want the raw datasets,
+TSDB can help you download and save raw datasets as well (take a look at `Usage Examples <https://github.com/WenjieDu/TSDB#-usage-example>`_ below).
 
 🤝 If you need TSDB to integrate an open-source dataset or want to add it into TSDB yourself, please feel free to request for it by creating an issue or make a PR to merge your code.
 
@@ -56,15 +59,17 @@ if it helps with your research. This really means a lot to our open-source resea
 
 ❖ Usage Examples
 ^^^^^^^^^^^^^^^^^
-TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️
+TSDB is available on both `PyPI <https://pypi.python.org/pypi/tsdb>`_ and `Anaconda <https://anaconda.org/conda-forge/tsdb>`_.
 
 Install it with `conda install tsdb`, you may need to specify the channel with option `-c conda-forge`
 
 or install from PyPI:
-> pip install tsdb
+
+   pip install tsdb
 
 or install from source code:
-> pip install `https://github.com/WenjieDu/TSDB/archive/main.zip`
+
+   pip install `https://github.com/WenjieDu/TSDB/archive/main.zip`
 
 .. code-block:: python
    :linenos:
@@ -84,16 +89,16 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 ❖ List of Available Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======================================================================== ==========================================
- Name                                                                    Main Tasks
-======================================================================== ==========================================
- [PhysioNet Challenge 2012](datasets/PhysioNet-2012)                     Classification, Forecasting, Imputation
- [PhysioNet Challenge 2019](datasets/PhysioNet-2019)                     Classification, Imputation
- [Beijing Multi-Site Air-Quality](datasets/BeijingMultiSiteAirQuality)   Forecasting, Imputation
- [Electricity Load Diagrams](datasets/ElectricityLoadDiagrams)           Forecasting, Imputation
- [UCR & UEA Datasets](datasets/UCR_UEA_Datasets) (all 160 datasets)      Classification
- [Vessel AIS data](datasets/Vessel AIS data)                             Imputation, Forecasting, Classification
-======================================================================== ==========================================
+=============================================================================================================================== ==========================================
+ Name                                                                                                                            Main Tasks
+=============================================================================================================================== ==========================================
+ `PhysioNet Challenge 2012 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012>`_                       Classification, Forecasting, Imputation
+ `PhysioNet Challenge 2019 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019>`_                       Classification, Imputation
+ `Beijing Multi-Site Air-Quality <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality>`_  Forecasting, Imputation
+ `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_           Forecasting, Imputation
+ `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 160 datasets)         Classification
+ `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_                                    Imputation, Forecasting, Classification
+=============================================================================================================================== ==========================================
 
 ❖ Citing TSDB/PyPOTS
 ^^^^^^^^^^^^^^^^^^^^^
