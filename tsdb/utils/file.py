@@ -1,5 +1,5 @@
 """
-
+Functions manipulating files.
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
@@ -7,10 +7,59 @@
 
 
 import os
+import pickle
 import shutil
 
-from tsdb.utils.logging import logger
 from tsdb.database import CACHED_DATASET_DIR
+from tsdb.utils.logging import logger
+
+
+def pickle_dump(data, path):
+    """Pickle the given object.
+
+    Parameters
+    ----------
+    data : object
+        The object to be pickled.
+
+    path : string,
+        Saving path.
+
+    Returns
+    -------
+    `path` if succeed else None
+
+    """
+    try:
+        with open(path, "wb") as f:
+            pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+    except pickle.PicklingError:
+        logger.info("Pickling failed. No cache will be saved.")
+        return None
+    logger.info(f"Successfully saved to {path}")
+    return path
+
+
+def pickle_load(path):
+    """Load pickled object from file.
+
+    Parameters
+    ----------
+    path : string,
+        Local path of the pickled object.
+
+    Returns
+    -------
+    Object
+        Pickled object.
+
+    """
+    try:
+        with open(path, "rb") as f:
+            data = pickle.load(f)
+    except pickle.UnpicklingError as e:
+        logger.info("Cached data corrupted. Aborting...\n" f"{e}")
+    return data
 
 
 def purge_given_path(path):

@@ -6,7 +6,6 @@ Functions for loading datasets.
 # License: GPL-v3
 
 import os
-import pickle
 import shutil
 import sys
 import warnings
@@ -23,7 +22,7 @@ from tsdb.loading_funcs import (
     load_ais,
 )
 from tsdb.utils.downloading import download_and_extract
-from tsdb.utils.file import purge_given_path
+from tsdb.utils.file import purge_given_path, pickle_load, pickle_dump
 from tsdb.utils.logging import logger
 
 
@@ -116,54 +115,6 @@ def delete_cached_data(dataset_name=None):
         dir_to_delete = CACHED_DATASET_DIR
         logger.info(f"Purging all cached data under {CACHED_DATASET_DIR}...")
     purge_given_path(dir_to_delete)
-
-
-def pickle_dump(data, path):
-    """Pickle the given object.
-
-    Parameters
-    ----------
-    data : object
-        The object to be pickled.
-
-    path : string,
-        Saving path.
-
-    Returns
-    -------
-    `path` if succeed else None
-
-    """
-    try:
-        with open(path, "wb") as f:
-            pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except pickle.PicklingError:
-        logger.info("Pickling failed. No cache will be saved.")
-        return None
-    logger.info(f"Successfully saved to {path}")
-    return path
-
-
-def pickle_load(path):
-    """Load pickled object from file.
-
-    Parameters
-    ----------
-    path : string,
-        Local path of the pickled object.
-
-    Returns
-    -------
-    Object
-        Pickled object.
-
-    """
-    try:
-        with open(path, "rb") as f:
-            data = pickle.load(f)
-    except pickle.UnpicklingError as e:
-        logger.info("Cached data corrupted. Aborting...\n" f"{e}")
-    return data
 
 
 def load_dataset(dataset_name, use_cache=True):
