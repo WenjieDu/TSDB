@@ -20,8 +20,10 @@ DATASETS_TO_TEST = [
 
 class TestTSDB(unittest.TestCase):
     def test_0_available_datasets(self):
+        all_datasets_in_database = tsdb.list_database()
         available_datasets = tsdb.list_available_datasets()
         assert len(available_datasets) > 0
+        assert len(all_datasets_in_database) == len(available_datasets)
 
     def test_1_downloading_only(self):
         tsdb.download_and_extract("ucr_uea_Wine", "./save_it_here")
