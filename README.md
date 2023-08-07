@@ -34,7 +34,10 @@
     </a>
 </p>
 
-> 📣 TSDB now supports a total of 1️⃣6️⃣5️⃣ time-series datasets ‼️
+> 📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
+
+<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
+TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
 
@@ -80,14 +83,11 @@ That's all. Simple and efficient. Enjoy it! 😃
 | [PhysioNet Challenge 2019](dataset_profiles/physionet_2019)                      | Classification, Imputation              |
 | [Beijing Multi-Site Air-Quality](dataset_profiles/beijing_multisite_air_quality) | Forecasting, Imputation                 |
 | [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)          | Forecasting, Imputation                 |
-| [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 160 datasets)       | Classification                          |
+| [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)       | Classification                          |
 | [Vessel AIS](dataset_profiles/vessel_ais)                                        | Classification, Forecasting, Imputation |
 
 
 ## ❖ Citing TSDB/PyPOTS
-<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
-TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
-
 The paper introducing PyPOTS project is available on arXiv at [this URL](https://arxiv.org/abs/2305.18811),
 and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
 [Machine Learning Open Source Software](https://www.jmlr.org/mloss/)). If you use TSDB in your work,

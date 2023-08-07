@@ -41,7 +41,7 @@ Welcome to TSDB documentation!
    :alt: Visit num
 
 
-📣 TSDB now supports a total of 1️⃣6️⃣5️⃣ time-series datasets ‼️
+📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details.
 TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed `below <https://github.com/WenjieDu/TSDB#-list-of-available-datasets>`_).
@@ -96,7 +96,7 @@ That's all. Simple and efficient. Enjoy it! 😃
  `PhysioNet Challenge 2019 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019>`_                       Classification, Imputation
  `Beijing Multi-Site Air-Quality <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality>`_  Forecasting, Imputation
  `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_           Forecasting, Imputation
- `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 160 datasets)         Classification
+ `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)        Classification
  `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_                                    Imputation, Forecasting, Classification
 =============================================================================================================================== ==========================================
 
