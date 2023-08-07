@@ -80,8 +80,8 @@ or install from source code:
    data = tsdb.load_dataset('physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
    tsdb.download_and_extract('physionet_2012', './save_it_here')  # if you need the raw data, use download_and_extract()
    tsdb.list_cached_data()  # datasets you once loaded are cached, and you can check them with list_cached_data()
-   tsdb.delete_cached_data()  # you can delete all cache with delete_cached_data() to free disk space
-   tsdb.delete_cached_data(dataset_name='physionet_2012')  # or you can delete only one specific dataset and preserve others
+   tsdb.delete_cached_data(dataset_name='physionet_2012')  # you can delete only one specific dataset and preserve others
+   tsdb.delete_cached_data()  # or you can delete all cache with delete_cached_data() to free disk space
 
 
 That's all. Simple and efficient. Enjoy it! 😃
@@ -89,16 +89,16 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 ❖ List of Available Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-=============================================================================================================================== ==========================================
- Name                                                                                                                            Main Tasks
-=============================================================================================================================== ==========================================
- `PhysioNet Challenge 2012 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012>`_                       Classification, Forecasting, Imputation
- `PhysioNet Challenge 2019 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019>`_                       Classification, Imputation
- `Beijing Multi-Site Air-Quality <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality>`_  Forecasting, Imputation
- `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_           Forecasting, Imputation
- `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)        Classification
- `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_                                    Imputation, Forecasting, Classification
-=============================================================================================================================== ==========================================
+=================================================================================================================================================================== ==========================================
+ Name                                                                                                                                                               Main Tasks
+=================================================================================================================================================================== ==========================================
+ `PhysioNet Challenge 2012 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012>`_  :cite:`silva2012physionet`                               Classification, Forecasting, Imputation
+ `PhysioNet Challenge 2019 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019>`_  :cite:`reyna2019physionet`                               Classification, Imputation
+ `Beijing Multi-Site Air-Quality <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality>`_  :cite:`zhang2017airquality`         Forecasting, Imputation
+ `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_  :cite:`trindade2015electricity`              Forecasting, Imputation
+ `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)  :cite:`bagnall2018uea` :cite:`dau2018ucr` Classification
+ `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_  :cite:`grgicevic2023ais`                                              Imputation, Forecasting, Classification
+=================================================================================================================================================================== ==========================================
 
 ❖ Citing TSDB/PyPOTS
 ^^^^^^^^^^^^^^^^^^^^^
