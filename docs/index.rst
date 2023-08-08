@@ -5,7 +5,7 @@
 
 Welcome to TSDB documentation!
 ================================
-.. image:: https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/_static/figs/TSDB_logo.svg?sanitize=true
+.. image:: https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/TSDB_logo_FFBG.svg?sanitize=true
    :height: 160
    :align: right
    :target: https://github.com/WenjieDu/TSDB
@@ -42,6 +42,14 @@ Welcome to TSDB documentation!
 
 
 📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
+
+.. image:: https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS_logo_FFBG.svg?sanitize=true
+   :height: 160
+   :align: left
+   :target: https://github.com/WenjieDu/PyPOTS
+   :alt: PyPOTS logo
+
+TSDB is a part of `PyPOTS project <https://github.com/WenjieDu/PyPOTS>`_ (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details.
 TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed `below <https://github.com/WenjieDu/TSDB#-list-of-available-datasets>`_).
@@ -102,15 +110,6 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 ❖ Citing TSDB/PyPOTS
 ^^^^^^^^^^^^^^^^^^^^^
-
-.. image:: https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true
-   :height: 160
-   :align: left
-   :target: https://github.com/WenjieDu/PyPOTS
-   :alt: PyPOTS logo
-
-TSDB is a part of `PyPOTS project <https://github.com/WenjieDu/PyPOTS>`_ (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
-
 The paper introducing PyPOTS is available on arXiv at `this URL <https://arxiv.org/abs/2305.18811>`_.,
 and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
 `Machine Learning Open Source Software <https://www.jmlr.org/mloss/>`_). If you use PyPOTS in your work,
