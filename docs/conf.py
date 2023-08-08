@@ -65,7 +65,6 @@ intersphinx_mapping = {
 bibtex_bibfiles = ["references.bib"]
 bibtex_default_style = "unsrt"
 
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -91,7 +90,10 @@ html_context = {
     "last_updated": f"{date_now.year}/{date_now.month}/{date_now.day}",
 }
 
-# html_favicon = "_static/figs/PyPOTS_logo.svg"
+html_favicon = (
+    "https://raw.githubusercontent.com/"
+    "PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS_logo_FFBG.svg"
+)
 
 html_sidebars = {
     "**": [

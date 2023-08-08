@@ -1,4 +1,4 @@
-<a href='https://github.com/WenjieDu/TSDB'><img src="https://raw.githubusercontent.com/WenjieDu/TSDB/main/docs/_static/figs/TSDB_logo.svg?sanitize=true" align='right' width='235'/></a>
+<a href='https://github.com/WenjieDu/TSDB'><img src="https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/TSDB_logo_FFBG.svg?sanitize=truee" align='right' width='235'/></a>
 
 # <p align='center'>Welcome to TSDB</p>
 **<p align='center'>A Python Toolbox to Ease Loading Open-Source Time-Series Datasets</p>**
@@ -15,14 +15,14 @@
         <img alt="GPL-v3 license" src="https://img.shields.io/badge/License-GPL--v3-E9BB41">
     </a>
     <!-- GitHub Testing -->
-    <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml'> 
+    <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml'>
         <img src='https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI'>
     </a>
     <a href="https://codeclimate.com/github/WenjieDu/TSDB">
         <img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability-percentage/WenjieDu/TSDB?color=3C7699&label=Maintainability&logo=codeclimate">
     </a>
     <!-- Coveralls report -->
-    <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/TSDB'> 
+    <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/TSDB'>
         <img src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage'>
     </a>
     <a href="https://anaconda.org/conda-forge/tsdb">
@@ -36,7 +36,7 @@
 
 > 📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
 
-<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/WenjieDu/PyPOTS/main/docs/_static/figs/PyPOTS_logo.svg?sanitize=true' width='160' align='left' /></a>
+<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS_logo_FFBG.svg?sanitize=true' width='160' align='left' /></a>
 TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
@@ -51,7 +51,7 @@ if it helps with your research. This really means a lot to our open-source resea
 
 
 ## ❖ Usage Examples
-TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️ 
+TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️
 
 Install it with `conda install tsdb`, you may need to specify the channel with option `-c conda-forge`
 
@@ -68,8 +68,8 @@ tsdb.list_available_datasets()  # list all available datasets in TSDB
 data = tsdb.load_dataset('physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
 tsdb.download_and_extract('physionet_2012', './save_it_here')  # if you need the raw data, use download_and_extract()
 tsdb.list_cached_data()  # datasets you once loaded are cached, and you can check them with list_cached_data()
-tsdb.delete_cached_data()  # you can delete all cache with delete_cached_data() to free disk space
-tsdb.delete_cached_data(dataset_name='physionet_2012')  # or you can delete only one specific dataset and preserve others
+tsdb.delete_cached_data(dataset_name='physionet_2012')  # you can delete only one specific dataset and preserve others
+tsdb.delete_cached_data()  # or you can delete all cache with delete_cached_data() to free disk space
 ```
 
 That's all. Simple and efficient. Enjoy it! 😃
