@@ -13,6 +13,8 @@ import os
 
 import pandas as pd
 
+from tsdb.utils.logging import logger
+
 
 def load_physionet2012(local_path):
     """Load dataset PhysioNet Challenge 2012, which is a time-series classification dataset.
@@ -69,7 +71,7 @@ def load_physionet2012(local_path):
             df_temp = df_temp.pivot_table("Value", "Time", "Parameter")
             df_temp = df_temp.reset_index()  # take Time from index as a col
             if len(df_temp) == 1:
-                print(
+                logger.warning(
                     f"Ignore {recordID}, because its len==1, having no time series data"
                 )
                 continue

@@ -12,6 +12,8 @@ import os
 
 import pandas as pd
 
+from tsdb.utils.logging import logger
+
 
 def load_beijing_air_quality(local_path):
     """Load dataset Beijing Multi-site Air Quality.
@@ -35,7 +37,7 @@ def load_beijing_air_quality(local_path):
         file_path = os.path.join(dir_path, filename)
         current_df = pd.read_csv(file_path)
         df_collector.append(current_df)
-        print(f"Reading {file_path}, data shape {current_df.shape}")
+        logger.info(f"Reading {file_path}, data shape {current_df.shape}")
     df = pd.concat(df_collector, axis=0)
     data = {
         "X": df,

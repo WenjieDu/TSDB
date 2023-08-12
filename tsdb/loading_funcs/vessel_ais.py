@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 from pandas.errors import UnsupportedFunctionCall
 
+from tsdb.utils.logging import logger
+
 
 def load_ais(local_path):
     """Load dataset AIS data, which is a time-series imputation and classification dataset.
@@ -47,7 +49,7 @@ def load_ais(local_path):
     """
 
     start_time = time.time()
-    print("Please wait...")
+    logger.info("Please wait...")
     path_to_parquets = os.path.join(local_path, "parquets")
 
     filenames = os.listdir(path_to_parquets)
@@ -66,7 +68,7 @@ def load_ais(local_path):
 
         path = os.path.join(path_to_parquets, p)
         df = pd.read_parquet(path, engine="pyarrow")
-        print(
+        logger.info(
             f"Reading group of vessel trajectories {i}/40 from {path}, data shape {df.shape}"
         )
         i += 1
@@ -157,7 +159,7 @@ def load_ais(local_path):
     data["y"] = pd.concat(a)
     data["y"].set_index("MMSI", inplace=True)
 
-    print("--- %s seconds ---" % (time.time() - start_time))
-    print(f"Number of unique vessel trajectories for training is {len(mmsis)}")
+    logger.info(f"--- {(time.time() - start_time)} seconds ---")
+    logger.info(f"Number of unique vessel trajectories for training is {len(mmsis)}")
 
     return data
