@@ -1,0 +1,18 @@
+name: tsdb-test
+
+channels:
+    - conda-forge
+    - nodefaults
+
+dependencies:
+    # basic
+    - conda-forge::python
+    - conda-forge::pip
+    - conda-forge::scipy
+    - conda-forge::numpy
+    - conda-forge::scikit-learn
+    - conda-forge::pandas
+
+    # test
+    - conda-forge::pytest-cov
+    - conda-forge::pytest-xdist

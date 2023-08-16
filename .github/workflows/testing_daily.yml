@@ -1,0 +1,50 @@
+name: Daily Testing
+
+on:
+    schedule:
+        # https://crontab.guru. Run everyday at 0:00AM UTC, i.e. 08:00AM Beijing, i.e. 08:00PM Montreal (summer time)
+        - cron: "0 0 * * *"
+
+jobs:
+    Daily-testing:
+        runs-on: ${{ matrix.os }}
+        defaults:
+            run:
+                shell: bash {0}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, windows-latest, macOS-latest]
+                python-version: ["3.7", "3.10"]
+
+        steps:
+            - name: Check out the repo code
+              uses: actions/checkout@v3
+
+            - name: Set up Conda
+              uses: conda-incubator/setup-miniconda@v2
+              with:
+                  activate-environment: pypots-test
+                  python-version: ${{ matrix.python-version }}
+                  environment-file: tests/environment_for_conda_test.yml
+                  auto-activate-base: false
+
+            - name: Fetch the test environment details
+              run: |
+                  which python
+                  conda info
+                  conda list
+
+            - name: Test with pytest
+              run: |
+                  python -m pytest -rA tests/test_tsdb.py -n auto --cov=pypots --dist=loadgroup --cov-config=.coveragerc
+
+            - name: Generate the LCOV report
+              run: |
+                  python -m coverage lcov
+
+            - name: Submit the report
+              uses: coverallsapp/github-action@master
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  path-to-lcov: 'coverage.lcov'
