@@ -16,10 +16,11 @@ Welcome to TSDB documentation!
 .. image:: https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white
    :alt: Python version
 .. image:: https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi&logoColor=white
-   :alt: PyPI version
-   :target: https://pypi.org/project/tsdb
-.. image:: https://img.shields.io/badge/License-GPL--v3-E9BB41
+   :alt: the latest release version
+   :target: https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white
+.. image:: https://img.shields.io/badge/License-GPL--v3-E9BB41?logo=opensourceinitiative&logoColor=white
    :alt: License
+   :target: https://github.com/WenjieDu/TSDB/blob/main/LICENSE
 .. image:: https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI
    :alt: GitHub Testing
    :target: https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml
@@ -32,9 +33,9 @@ Welcome to TSDB documentation!
 .. image:: https://img.shields.io/conda/dn/conda-forge/tsdb?label=Conda%20Downloads&color=AED0ED&logo=anaconda&logoColor=white
    :alt: Conda downloads
    :target: https://anaconda.org/conda-forge/pypots
-.. image:: https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=grey&right_color=blue&left_text=PyPI%20Downloads
+.. image:: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FWenjieDu%2FWenjieDu%2Fmain%2Ffigs%2Fprojects%2Ftsdb_downloads.json
    :alt: PyPI downloads
-   :target: https://pypi.org/project/tsdb
+   :target: https://pepy.tech/project/tsdb
 .. image:: https://img.shields.io/badge/Contributor%20Covenant-v2.1-4baaaa.svg
    :alt: CODE of CONDUCT
 .. image:: https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits+since+April+2022&edge_flat=false

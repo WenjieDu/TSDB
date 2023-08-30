@@ -6,13 +6,12 @@
 <p align='center'>
     <!-- Python version -->
     <img src='https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white'>
-    <!-- PyPI version -->
-    <a href="https://pypi.python.org/pypi/tsdb">
-        <img alt="PyPI" src="https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi&logoColor=white">
+    <a href="https://github.com/WenjieDu/TSDB/releases">
+        <img alt="the latest release version" src="https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white">
     </a>
     <!-- License -->
     <a href="https://github.com/WenjieDu/TSDB/blob/main/LICENSE">
-        <img alt="GPL-v3 license" src="https://img.shields.io/badge/License-GPL--v3-E9BB41">
+        <img alt="GPL-v3 license" src="https://img.shields.io/badge/License-GPL--v3-E9BB41?logo=opensourceinitiative&logoColor=white">
     </a>
     <!-- GitHub Testing -->
     <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml'>
@@ -29,8 +28,8 @@
         <img alt="Conda downloads" src="https://img.shields.io/conda/dn/conda-forge/tsdb?label=Conda%20Downloads&color=AED0ED&logo=anaconda&logoColor=white">
     </a>
     <!-- PyPI download number -->
-    <a alt='PyPI download number' href='https://pypi.org/project/tsdb'>
-        <img src='https://static.pepy.tech/personalized-badge/tsdb?period=total&units=international_system&left_color=grey&right_color=blue&left_text=PyPI%20Downloads'>
+    <a alt='PyPI download number' href='https://pepy.tech/project/tsdb'>
+        <img src='https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FWenjieDu%2FWenjieDu%2Fmain%2Ffigs%2Fprojects%2Ftsdb_downloads.json'>
     </a>
 </p>
 
