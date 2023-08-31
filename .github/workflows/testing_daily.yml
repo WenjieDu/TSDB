@@ -24,7 +24,7 @@ jobs:
             - name: Set up Conda
               uses: conda-incubator/setup-miniconda@v2
               with:
-                  activate-environment: pypots-test
+                  activate-environment: tsdb-test
                   python-version: ${{ matrix.python-version }}
                   environment-file: tests/environment_for_conda_test.yml
                   auto-activate-base: false
@@ -37,7 +37,7 @@ jobs:
 
             - name: Test with pytest
               run: |
-                  python -m pytest -rA tests/test_tsdb.py -n auto --cov=pypots --dist=loadgroup --cov-config=.coveragerc
+                  python -m pytest -rA tests/test_tsdb.py -n auto --cov=tsdb --dist=loadgroup --cov-config=.coveragerc
 
             - name: Generate the LCOV report
               run: |
