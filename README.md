@@ -4,32 +4,29 @@
 **<p align='center'>A Python Toolbox to Ease Loading Open-Source Time-Series Datasets</p>**
 
 <p align='center'>
-    <!-- Python version -->
-    <img src='https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white'>
+    <a href='https://github.com/WenjieDu/TSDB'>
+        <img alt='Python version' src='https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white'>
+    </a>
     <a href="https://github.com/WenjieDu/TSDB/releases">
         <img alt="the latest release version" src="https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white">
     </a>
-    <!-- License -->
     <a href="https://github.com/WenjieDu/TSDB/blob/main/LICENSE">
         <img alt="GPL-v3 license" src="https://img.shields.io/badge/License-GPL--v3-E9BB41?logo=opensourceinitiative&logoColor=white">
     </a>
-    <!-- GitHub Testing -->
-    <a alt='GitHub Testing' href='https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml'>
-        <img src='https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI'>
+    <a  href='https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml'>
+        <img alt='GitHub Testing' src='https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI'>
     </a>
     <a href="https://codeclimate.com/github/WenjieDu/TSDB">
         <img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability-percentage/WenjieDu/TSDB?color=3C7699&label=Maintainability&logo=codeclimate">
     </a>
-    <!-- Coveralls report -->
-    <a alt='Coveralls report' href='https://coveralls.io/github/WenjieDu/TSDB'>
-        <img src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage'>
+    <a href='https://coveralls.io/github/WenjieDu/TSDB'>
+        <img alt='Coveralls report' src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage'>
     </a>
     <a href="https://anaconda.org/conda-forge/tsdb">
         <img alt="Conda downloads" src="https://img.shields.io/conda/dn/conda-forge/tsdb?label=Conda%20Downloads&color=AED0ED&logo=anaconda&logoColor=white">
     </a>
-    <!-- PyPI download number -->
-    <a alt='PyPI download number' href='https://pepy.tech/project/tsdb'>
-        <img src='https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FWenjieDu%2FWenjieDu%2Fmain%2Ffigs%2Fprojects%2Ftsdb_downloads.json'>
+    <a href='https://pepy.tech/project/tsdb'>
+        <img alt='PyPI download number' src='https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FWenjieDu%2FWenjieDu%2Fmain%2Ffigs%2Fprojects%2Ftsdb_downloads.json'>
     </a>
 </p>
 
