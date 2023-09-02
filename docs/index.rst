@@ -11,11 +11,11 @@ Welcome to TSDB documentation!
    :target: https://github.com/WenjieDu/TSDB
    :alt: TSDB logo
 
-.. centered:: A Python Toolbox Helping Load Time-Series Datasets Easily
+**A Python Toolbox Helping Load Time-Series Datasets Easily**
 
 .. image:: https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white
    :alt: Python version
-.. image:: https://img.shields.io/pypi/v/tsdb?color=green&label=PyPI&logo=pypi&logoColor=white
+.. image:: https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white
    :alt: the latest release version
    :target: https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white
 .. image:: https://img.shields.io/badge/License-GPL--v3-E9BB41?logo=opensourceinitiative&logoColor=white
