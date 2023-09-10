@@ -4,6 +4,9 @@ on:
     schedule:
         # https://crontab.guru. Run everyday at 0:00AM UTC, i.e. 08:00AM Beijing, i.e. 08:00PM Montreal (summer time)
         - cron: "0 0 * * *"
+    push:
+        branches:
+            - run_daily_testing  # if in need, create such a temporary branch to run daily testing
 
 jobs:
     Daily-testing:
