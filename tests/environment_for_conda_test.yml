@@ -15,4 +15,3 @@ dependencies:
 
     # test
     - conda-forge::pytest-cov
-    - conda-forge::pytest-xdist
