@@ -1,4 +1,4 @@
-name: Autoreply to Issues Opened for TSDB
+name: Auto reply to new issues and PRs
 
 on:
   issues:
@@ -21,14 +21,13 @@ jobs:
         repo-token: ${{ secrets.ACCESS_TOKEN }}
         issue-message: |
           Hi there 👋,
-          
-          Thank you so much for your attention to TSDB! You can follow me on GitHub to receive the latest news of TSDB. If you find TSDB helpful to your work, please star⭐️ this repository. Your star is your recognition, which can help more people notice TSDB. It matters and is definitely a kind of contribution to the PyPOTS community.
+
+          Thank you so much for your attention to TSDB and PyPOTS! You can follow me on GitHub to receive the latest news of TSDB and PyPOTS. If you find TSDB helpful to your work, please star⭐️ this repository. Your star is your recognition, which can help more people notice PyPOTS and grow PyPOTS community. It matters and is definitely a kind of contribution to the community.
 
           I have received your message and will respond ASAP. Thank you for your patience! 😃
 
           Best,
           Wenjie
-
         pr-message: |
           Hi there 👋,
 
