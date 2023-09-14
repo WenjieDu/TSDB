@@ -1,4 +1,4 @@
-<a href='https://github.com/WenjieDu/TSDB'><img src="https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/TSDB_logo_FFBG.svg?sanitize=truee" align='right' width='235'/></a>
+<a href='https://github.com/WenjieDu/TSDB'><img src="https://pypots.com/figs/pypots_logos/TSDB_logo_FFBG.svg?sanitize=truee" align='right' width='235'/></a>
 
 # <p align='center'>Welcome to TSDB</p>
 **<p align='center'>A Python Toolbox to Ease Loading Open-Source Time-Series Datasets</p>**
@@ -23,16 +23,16 @@
         <img alt='Coveralls report' src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage'>
     </a>
     <a href="https://anaconda.org/conda-forge/tsdb">
-        <img alt="Conda downloads" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/downloads_badges/conda_tsdb_downloads.json">
+        <img alt="Conda downloads" src="https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/conda_tsdb_downloads.json">
     </a>
     <a href='https://pepy.tech/project/tsdb'>
-        <img alt='PyPI download number' src='https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/downloads_badges/pypi_tsdb_downloads.json'>
+        <img alt='PyPI downloads' src='https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/pypi_tsdb_downloads.json'>
     </a>
 </p>
 
 > 📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
 
-<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS_logo_FFBG.svg?sanitize=true' width='160' align='left' /></a>
+<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS_logo_FFBG.svg?sanitize=true' width='160' align='left' /></a>
 TSDB is a part of [PyPOTS project](https://github.com/WenjieDu/PyPOTS) (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
