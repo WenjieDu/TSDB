@@ -117,6 +117,25 @@ def delete_cached_data(dataset_name=None):
     purge_given_path(dir_to_delete)
 
 
+def load(dataset_name, use_cache=True):
+    """Load dataset with given name. Work the same with the func `load_dataset()` but with a short name.
+
+    Parameters
+    ----------
+    dataset_name : str,
+        The name of the specific dataset in database.DATABASE.
+
+    use_cache : bool,
+        Whether to use cache (including data downloading and processing)
+
+    Returns
+    -------
+    pandas.DataFrame,
+        Loaded dataset.
+    """
+    return load_dataset(dataset_name, use_cache)
+
+
 def load_dataset(dataset_name, use_cache=True):
     """Load dataset with given name.
 
