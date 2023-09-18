@@ -55,9 +55,9 @@ def load_ucr_uea_dataset(local_path, dataset_name):
 
         data = {
             "X_train": X_train,
-            "y_train": y_train,
+            "y_train": y_train.astype(float),
             "X_test": X_test,
-            "y_test": y_test,
+            "y_test": y_test.astype(float),
         }
 
         return data
