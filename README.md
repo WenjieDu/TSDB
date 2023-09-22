@@ -1,6 +1,7 @@
 <a href='https://github.com/WenjieDu/TSDB'><img src="https://pypots.com/figs/pypots_logos/TSDB_logo_FFBG.svg?sanitize=truee" align='right' width='235'/></a>
 
-# <p align='center'>Welcome to TSDB</p>
+<h2 align="center">Welcome to TSDB</h2>
+
 **<p align='center'>A Python Toolbox to Ease Loading Open-Source Time-Series Datasets</p>**
 
 <p align='center'>
