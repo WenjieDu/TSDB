@@ -5,18 +5,18 @@ Downloading functions.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: GLP-v3
 
-
 import os
 import shutil
 import tempfile
 import urllib.request
 import warnings
+from typing import Optional
 
 from tsdb.database import DATABASE
 from tsdb.utils.logging import logger
 
 
-def _download_and_extract(url, saving_path):
+def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
     """Download dataset from the given url and extract to the given saving path.
 
     Parameters
@@ -85,7 +85,7 @@ def _download_and_extract(url, saving_path):
     return saving_path
 
 
-def download_and_extract(dataset_name, dataset_saving_path):
+def download_and_extract(dataset_name: str, dataset_saving_path: str) -> Optional[str]:
     """Wrapper of _download_and_extract.
 
     Parameters
@@ -98,12 +98,13 @@ def download_and_extract(dataset_name, dataset_saving_path):
 
     Returns
     -------
+    saving_path if successful else None
 
     """
     logger.info("Start downloading...")
     os.makedirs(dataset_saving_path)
     if isinstance(DATABASE[dataset_name], list):
         for link in DATABASE[dataset_name]:
-            _download_and_extract(link, dataset_saving_path)
+            return _download_and_extract(link, dataset_saving_path)
     else:
-        _download_and_extract(DATABASE[dataset_name], dataset_saving_path)
+        return _download_and_extract(DATABASE[dataset_name], dataset_saving_path)

@@ -10,9 +10,7 @@ import shutil
 import sys
 import warnings
 
-import numpy
-
-from tsdb.database import DATABASE, AVAILABLE_DATASETS, CACHED_DATASET_DIR
+from tsdb.database import AVAILABLE_DATASETS, CACHED_DATASET_DIR
 from tsdb.loading_funcs import (
     load_physionet2012,
     load_physionet2019,
@@ -22,11 +20,11 @@ from tsdb.loading_funcs import (
     load_ais,
 )
 from tsdb.utils.downloading import download_and_extract
-from tsdb.utils.file import purge_given_path, pickle_load, pickle_dump
+from tsdb.utils.file import purge_path, pickle_load, pickle_dump
 from tsdb.utils.logging import logger
 
 
-def list_database():
+def list() -> list:
     """List the database.
 
     Returns
@@ -35,108 +33,10 @@ def list_database():
         A dict contains all datasets' names and download links.
 
     """
-    return DATABASE
-
-
-def list_available_datasets():
-    """List all available datasets.
-
-    Returns
-    -------
-    AVAILABLE_DATASETS : list
-        A list contains all datasets' names.
-
-    """
     return AVAILABLE_DATASETS
 
 
-def window_truncate(feature_vectors, seq_len):
-    """Generate time series samples, truncating windows from time-series data with a given sequence length.
-
-    Parameters
-    ----------
-    feature_vectors : array, shape of [total_length, feature_num]
-        Time-series data.
-    seq_len : int,
-        Sequence length.
-
-    Returns
-    -------
-    array,
-        Truncated time series with given sequence length.
-    """
-    start_indices = numpy.asarray(range(feature_vectors.shape[0] // seq_len)) * seq_len
-    sample_collector = []
-    for idx in start_indices:
-        sample_collector.append(feature_vectors[idx : idx + seq_len])
-
-    return numpy.asarray(sample_collector).astype("float32")
-
-
-def list_cached_data():
-    """List names of all cached datasets.
-
-    Returns
-    -------
-    list,
-        A list contains all cached datasets' names.
-
-    """
-    if not os.path.exists(CACHED_DATASET_DIR):
-        os.makedirs(CACHED_DATASET_DIR)
-        return []
-    else:
-        dir_content = os.listdir(CACHED_DATASET_DIR)
-
-        # remove unrelated content
-        if ".DS_Store" in dir_content:
-            dir_content.remove(".DS_Store")
-
-        return dir_content
-
-
-def delete_cached_data(dataset_name=None):
-    """Delete CACHED_DATASET_DIR if exists."""
-    # if CACHED_DATASET_DIR does not exist, abort
-    if not os.path.exists(CACHED_DATASET_DIR):
-        logger.info("No cached data. Operation aborted.")
-        sys.exit()
-    # if CACHED_DATASET_DIR exists, then purge
-    if dataset_name is not None:
-        assert (
-            dataset_name in AVAILABLE_DATASETS
-        ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
-        dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
-        if not os.path.exists(dir_to_delete):
-            logger.info(f"Dataset {dataset_name} is not cached. Operation aborted.")
-            sys.exit()
-        logger.info(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
-    else:
-        dir_to_delete = CACHED_DATASET_DIR
-        logger.info(f"Purging all cached data under {CACHED_DATASET_DIR}...")
-    purge_given_path(dir_to_delete)
-
-
-def load(dataset_name, use_cache=True):
-    """Load dataset with given name. Work the same with the func `load_dataset()` but with a short name.
-
-    Parameters
-    ----------
-    dataset_name : str,
-        The name of the specific dataset in database.DATABASE.
-
-    use_cache : bool,
-        Whether to use cache (including data downloading and processing)
-
-    Returns
-    -------
-    pandas.DataFrame,
-        Loaded dataset.
-    """
-    return load_dataset(dataset_name, use_cache)
-
-
-def load_dataset(dataset_name, use_cache=True):
+def load(dataset_name: str, use_cache: bool = True) -> dict:
     """Load dataset with given name.
 
     Parameters
@@ -149,8 +49,8 @@ def load_dataset(dataset_name, use_cache=True):
 
     Returns
     -------
-    pandas.DataFrame,
-        Loaded dataset.
+    result:
+        Loaded dataset in a Python dict.
     """
     assert dataset_name in AVAILABLE_DATASETS, (
         f'The given dataset name "{dataset_name}" is not in the database. '
@@ -213,3 +113,146 @@ def load_dataset(dataset_name, use_cache=True):
 
     logger.info("Loaded successfully!")
     return result
+
+
+def list_cache() -> list:
+    """List names of all cached datasets.
+
+    Returns
+    -------
+    list,
+        A list contains all cached datasets' names.
+
+    """
+    if not os.path.exists(CACHED_DATASET_DIR):
+        os.makedirs(CACHED_DATASET_DIR)
+        return []
+    else:
+        dir_content = os.listdir(CACHED_DATASET_DIR)
+
+        # remove unrelated content
+        if ".DS_Store" in dir_content:
+            dir_content.remove(".DS_Store")
+
+        return dir_content
+
+
+def delete_cache(dataset_name=None) -> None:
+    """Delete CACHED_DATASET_DIR if exists."""
+    # if CACHED_DATASET_DIR does not exist, abort
+    if not os.path.exists(CACHED_DATASET_DIR):
+        logger.info("No cached data. Operation aborted.")
+        sys.exit()
+    # if CACHED_DATASET_DIR exists, then purge
+    if dataset_name is not None:
+        assert (
+            dataset_name in AVAILABLE_DATASETS
+        ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
+        dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
+        if not os.path.exists(dir_to_delete):
+            logger.info(f"Dataset {dataset_name} is not cached. Operation aborted.")
+            sys.exit()
+        logger.info(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
+    else:
+        dir_to_delete = CACHED_DATASET_DIR
+        logger.info(f"Purging all cached data under {CACHED_DATASET_DIR}...")
+    purge_path(dir_to_delete)
+
+
+# deprecated functions below
+
+
+def list_available_datasets():
+    """List all available datasets.
+
+    Returns
+    -------
+    AVAILABLE_DATASETS : list
+        A list contains all datasets' names.
+
+    Warnings
+    --------
+    The method list_available_datasets is deprecated. Please use ``list()`` instead.
+
+    """
+    logger.warning(
+        "🚨DeprecationWarning: The method list_available_datasets is deprecated. Please use `list()` instead."
+    )
+    return list()
+
+
+def list_database():
+    """List the database.
+
+    Returns
+    -------
+    DATABASE : dict
+        A dict contains all datasets' names and download links.
+
+    Warnings
+    --------
+    The method list_available_datasets is deprecated. Please use `list()` instead.
+
+    """
+    logger.warning(
+        "🚨DeprecationWarning: The method list_available_datasets is deprecated. Please use `list()` instead."
+    )
+    return list()
+
+
+def list_cached_data():
+    """List names of all cached datasets.
+
+    Returns
+    -------
+    list,
+        A list contains all cached datasets' names.
+
+    Warnings
+    --------
+    The method list_cached_data is deprecated. Please use `list_cache()` instead.
+
+    """
+    logger.warning(
+        "🚨DeprecationWarning: The method list_cached_data is deprecated. Please use `list_cache()` instead."
+    )
+    return list_cache()
+
+
+def load_dataset(dataset_name, use_cache=True):
+    """Load dataset with given name.
+
+    Parameters
+    ----------
+    dataset_name : str,
+        The name of the specific dataset in database.DATABASE.
+
+    use_cache : bool,
+        Whether to use cache (including data downloading and processing)
+
+    Returns
+    -------
+    result:
+        Loaded dataset in a Python dict.
+
+    Warnings
+    --------
+    The method load_dataset is deprecated. Please use `load()` instead.
+    """
+    logger.warning(
+        "🚨DeprecationWarning: The method load_dataset is deprecated. Please use `load()` instead."
+    )
+    return load(dataset_name, use_cache)
+
+
+def delete_cached_data(dataset_name=None):
+    """Delete CACHED_DATASET_DIR if exists.
+
+    Warnings
+    --------
+    The method delete_cached_data is deprecated. Please use `delete_cache()` instead.
+    """
+    logger.warning(
+        "🚨DeprecationWarning: The method delete_cached_data is deprecated. Please use `delete_cache()` instead."
+    )
+    delete_cache(dataset_name)

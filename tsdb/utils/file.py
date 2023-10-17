@@ -9,20 +9,21 @@ Functions manipulating files.
 import os
 import pickle
 import shutil
+from typing import Optional
 
 from tsdb.database import CACHED_DATASET_DIR
 from tsdb.utils.logging import logger
 
 
-def pickle_dump(data, path):
+def pickle_dump(data: object, path: str) -> Optional[str]:
     """Pickle the given object.
 
     Parameters
     ----------
-    data : object
+    data:
         The object to be pickled.
 
-    path : string,
+    path:
         Saving path.
 
     Returns
@@ -40,12 +41,12 @@ def pickle_dump(data, path):
     return path
 
 
-def pickle_load(path):
+def pickle_load(path: str) -> object:
     """Load pickled object from file.
 
     Parameters
     ----------
-    path : string,
+    path :
         Local path of the pickled object.
 
     Returns
@@ -62,14 +63,17 @@ def pickle_load(path):
     return data
 
 
-def purge_given_path(path):
+def purge_path(path: str, ignore_errors: bool = True) -> None:
     """Delete the given path.
     It will be deleted if a file is given. Itself and all its contents will be purged will a fold is given.
 
     Parameters
     ----------
-    path: str,
+    path:
         It could be a file or a fold.
+
+    ignore_errors:
+        Errors are ignored if ignore_errors is set.
 
     """
     assert os.path.exists(
@@ -78,7 +82,7 @@ def purge_given_path(path):
 
     try:
         if os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
+            shutil.rmtree(path, ignore_errors=ignore_errors)
         else:
             os.remove(path)
         # check if succeed
