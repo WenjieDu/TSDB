@@ -1,5 +1,5 @@
 """
-tsdb package
+TSDB (Time Series Data Beans): a Python toolbox to ease loading public time-series datasets.
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
@@ -21,38 +21,42 @@ tsdb package
 #
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
-__version__ = "0.1"
+__version__ = "0.1.1"
 
 
-try:
-    from tsdb.data_processing import (
-        list_database,
-        list_available_datasets,
-        window_truncate,
-        download_and_extract,
-        load_dataset,
-        delete_cached_data,
-        purge_given_path,
-        list_cached_data,
-        CACHED_DATASET_DIR,
-        pickle_dump,
-        pickle_load,
-    )
-
-except Exception as e:
-    print(e)
+from tsdb.data_processing import (
+    list,
+    load,
+    download_and_extract,
+    list_cache,
+    delete_cache,
+    purge_path,
+    CACHED_DATASET_DIR,
+    pickle_dump,
+    pickle_load,
+    # below are deprecated functions, import for now, will be removed in v0.2
+    list_database,
+    list_available_datasets,
+    list_cached_data,
+    load_dataset,
+    delete_cached_data,
+)
 
 __all__ = [
     "__version__",
-    "list_database",
-    "list_available_datasets",
-    "window_truncate",
+    "list",
+    "load",
     "download_and_extract",
-    "load_dataset",
-    "delete_cached_data",
-    "purge_given_path",
-    "list_cached_data",
+    "list_cache",
+    "delete_cache",
+    "purge_path",
     "CACHED_DATASET_DIR",
     "pickle_dump",
     "pickle_load",
+    # below are deprecated functions, import for now, will be removed in v0.2
+    "list_database",
+    "list_available_datasets",
+    "list_cached_data",
+    "load_dataset",
+    "delete_cached_data",
 ]

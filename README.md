@@ -1,8 +1,8 @@
-<a href='https://github.com/WenjieDu/TSDB'><img src="https://pypots.com/figs/pypots_logos/TSDB_logo_FFBG.svg?sanitize=truee" align='right' width='235'/></a>
+<a href='https://github.com/WenjieDu/TSDB'><img src="https://pypots.com/figs/pypots_logos/TSDB_logo_FFBG.svg" align='right' width='235'/></a>
 
 <h2 align="center">Welcome to TSDB</h2>
 
-**<p align='center'>A Python Toolbox to Ease Loading Open-Source Time-Series Datasets</p>**
+*<p align='center'>a Python toolbox to ease loading public time-series datasets</p>*
 
 <p align='center'>
     <a href='https://github.com/WenjieDu/TSDB'>
@@ -43,14 +43,14 @@ TSDB is created to help researchers and engineers get rid of data collecting and
 🤝 If you need TSDB to integrate an open-source dataset or want to add it into TSDB yourself, please feel free to request for it by creating an issue or make a PR to merge your code.
 
 🤗 **Please** star this repo to help others notice TSDB if you think it is a useful toolkit.
-**Please** properly [cite TSDB](https://github.com/WenjieDu/TSDB#-citing-tsdbpypots) in your publications
+**Please** properly [cite TSDB and PyPOTS](https://github.com/WenjieDu/TSDB#-citing-tsdbpypots) in your publications
 if it helps with your research. This really means a lot to our open-source research. Thank you!
 
 
 ## ❖ Usage Examples
 TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️
 
-Install it with `conda install tsdb`, you may need to specify the channel with option `-c conda-forge`
+Install it with `conda install tsdb `, you may need to specify the channel with option `-c conda-forge`
 
 or install from PyPI:
 > pip install tsdb
@@ -62,11 +62,12 @@ or install from source code:
 import tsdb
 
 tsdb.list_available_datasets()  # list all available datasets in TSDB
-data = tsdb.load_dataset('physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
+data = tsdb.load(
+    'physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
 tsdb.download_and_extract('physionet_2012', './save_it_here')  # if you need the raw data, use download_and_extract()
-tsdb.list_cached_data()  # datasets you once loaded are cached, and you can check them with list_cached_data()
-tsdb.delete_cached_data(dataset_name='physionet_2012')  # you can delete only one specific dataset and preserve others
-tsdb.delete_cached_data()  # or you can delete all cache with delete_cached_data() to free disk space
+tsdb.list_cache()  # datasets you once loaded are cached, and you can check them with list_cached_data()
+tsdb.delete_cache(dataset_name='physionet_2012')  # you can delete only one specific dataset and preserve others
+tsdb.delete_cache()  # or you can delete all cache with delete_cached_data() to free disk space
 ```
 
 That's all. Simple and efficient. Enjoy it! 😃
@@ -92,7 +93,7 @@ please cite PyPOTS project as below and 🌟star this repository to make others 
 
 ``` bibtex
 @article{du2023PyPOTS,
-title={{PyPOTS: A Python Toolbox for Data Mining on Partially-Observed Time Series}},
+title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
 author={Wenjie Du},
 year={2023},
 eprint={2305.18811},
@@ -103,11 +104,25 @@ doi={10.48550/arXiv.2305.18811},
 }
 ```
 
+> Wenjie Du. (2023).
+> PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
+> arXiv, abs/2305.18811.https://arxiv.org/abs/2305.18811
+
 or
 
+``` bibtex
+@inproceedings{du2023PyPOTS,
+title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
+booktitle={9th SIGKDD workshop on Mining and Learning from Time Series (MiLeTS'23)},
+author={Wenjie Du},
+year={2023},
+url={https://arxiv.org/abs/2305.18811},
+}
+```
+
 > Wenjie Du. (2023).
-> PyPOTS: A Python Toolbox for Data Mining on Partially-Observed Time Series.
-> arXiv, abs/2305.18811. https://doi.org/10.48550/arXiv.2305.18811
+> PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
+> In *9th SIGKDD workshop on Mining and Learning from Time Series (MiLeTS'23)*. https://arxiv.org/abs/2305.18811
 
 
 <details>
