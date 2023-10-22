@@ -54,7 +54,7 @@ def load(dataset_name: str, use_cache: bool = True) -> dict:
     """
     assert dataset_name in AVAILABLE_DATASETS, (
         f'The given dataset name "{dataset_name}" is not in the database. '
-        f"Please fetch the full list of the available dataset_profiles with tsdb.list_available_datasets()"
+        f"Please fetch the full list of the available dataset_profiles with tsdb.list()"
     )
 
     profile_dir = dataset_name if "ucr_uea_" not in dataset_name else "ucr_uea_datasets"
@@ -103,11 +103,17 @@ def load(dataset_name: str, use_cache: bool = True) -> dict:
                     "ucr_uea_", ""
                 )  # delete 'ucr_uea_' in the name
                 result = load_ucr_uea_dataset(dataset_saving_path, actual_dataset_name)
+            else:
+                raise NotImplementedError(
+                    f"Dataset {dataset_name} is not supported yet. "
+                    f"Please check the dataset name or contribute it to TSDB https://github.com/WenjieDu/TSDB/."
+                )
 
         except FileExistsError:
             shutil.rmtree(dataset_saving_path, ignore_errors=True)
             warnings.warn(
-                "Dataset corrupted, already deleted. Please rerun load_specific_dataset() to re-download the raw data."
+                "Dataset corrupted. Just deleted it. "
+                "Please rerun the function tsdb.load(dataset_name) to re-download the raw data."
             )
         pickle_dump(result, cache_path)
 
