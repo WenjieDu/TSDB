@@ -7,7 +7,7 @@ https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_dia
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
-# License: GLP-v3
+# License: BSD-3-Clause
 
 import os
 
@@ -32,9 +32,6 @@ def load_electricity(local_path):
     file_path = os.path.join(local_path, "LD2011_2014.txt")
     df = pd.read_csv(file_path, index_col=0, sep=";", decimal=",")
     df.index = pd.to_datetime(df.index)
-    # feature_names = df.columns.tolist()
-    # feature_num = len(feature_names)
-    df["datetime"] = pd.to_datetime(df.index)
     data = {
         "X": df,
     }

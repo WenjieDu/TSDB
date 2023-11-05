@@ -6,7 +6,7 @@ https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_ai
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
-# License: GLP-v3
+# License: BSD-3-Clause
 
 import os
 

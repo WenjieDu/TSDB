@@ -3,7 +3,7 @@ TSDB unit testing cases.
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
-# License: GLP-v3
+# License: BSD-3-Clause
 
 import os
 import unittest
@@ -13,10 +13,6 @@ from tsdb.database import DATABASE
 from tsdb.utils.logging import Logger
 
 DATASETS_TO_TEST = [
-    "physionet_2012",
-    "physionet_2019",
-    "electricity_load_diagrams",
-    "beijing_multisite_air_quality",
     "ucr_uea_Wine",
 ]
 
@@ -44,7 +40,7 @@ class TestTSDB(unittest.TestCase):
     def test_3_dataset_purging(self):
         cached_datasets = tsdb.list_cache()
         assert isinstance(cached_datasets, list)
-        tsdb.delete_cache("physionet_2012")  # delete single
+        tsdb.delete_cache("ucr_uea_Wine")  # delete single
         tsdb.delete_cache()  # delete all
 
     def test_4_logging(self):
@@ -75,7 +71,6 @@ class TestTSDB(unittest.TestCase):
         # save log into file
         self.logger_creator.set_saving_path("test_log", "testing.log")
         assert os.path.exists("test_log/testing.log")
-        tsdb.purge_path("test_log/testing.log", ignore_errors=True)
 
 
 if __name__ == "__main__":

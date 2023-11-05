@@ -3,7 +3,7 @@ TSDB (Time Series Data Beans): a Python toolbox to ease loading public time-seri
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
-# License: GLP-v3
+# License: BSD-3-Clause
 
 # TSDB version
 #
