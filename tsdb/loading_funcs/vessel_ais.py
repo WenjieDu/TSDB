@@ -7,7 +7,7 @@ https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais
 
 # Created by Grgičević Luka <luka.grgicevic@ntnu.no>
 # Modified by Wenjie Du <wenjay.du@gmail.com>
-# License: GLP-v3
+# License: BSD-3-Clause
 
 import os
 import time

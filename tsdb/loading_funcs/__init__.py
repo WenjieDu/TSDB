@@ -3,7 +3,7 @@ Functions to load specific datasets.
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
-# License: GLP-v3
+# License: BSD-3-Clause
 
 from tsdb.loading_funcs.beijing_multisite_air_quality import (
     load_beijing_air_quality,
