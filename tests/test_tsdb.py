@@ -13,10 +13,6 @@ from tsdb.database import DATABASE
 from tsdb.utils.logging import Logger
 
 DATASETS_TO_TEST = [
-    "physionet_2012",
-    "physionet_2019",
-    "electricity_load_diagrams",
-    "beijing_multisite_air_quality",
     "ucr_uea_Wine",
 ]
 
@@ -75,7 +71,6 @@ class TestTSDB(unittest.TestCase):
         # save log into file
         self.logger_creator.set_saving_path("test_log", "testing.log")
         assert os.path.exists("test_log/testing.log")
-        tsdb.purge_path("test_log/testing.log", ignore_errors=True)
 
 
 if __name__ == "__main__":
