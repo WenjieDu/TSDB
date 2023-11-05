@@ -40,7 +40,7 @@ class TestTSDB(unittest.TestCase):
     def test_3_dataset_purging(self):
         cached_datasets = tsdb.list_cache()
         assert isinstance(cached_datasets, list)
-        tsdb.delete_cache("physionet_2012")  # delete single
+        tsdb.delete_cache("ucr_uea_Wine")  # delete single
         tsdb.delete_cache()  # delete all
 
     def test_4_logging(self):
