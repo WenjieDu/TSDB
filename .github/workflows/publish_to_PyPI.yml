@@ -23,9 +23,6 @@ permissions:
 jobs:
   PyPI-deployment:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
 
     steps:
     - uses: actions/checkout@v3
@@ -33,7 +30,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.9'
         check-latest: true
         cache-dependency-path: |
           requirements.txt
