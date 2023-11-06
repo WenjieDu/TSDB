@@ -32,11 +32,61 @@ _DATABASE = {
     #
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality
     "beijing_multisite_air_quality": "https://archive.ics.uci.edu/ml/machine-learning-databases/00501/"
-                                     "PRSA2017_Data_20130301-20170228.zip",
+    "PRSA2017_Data_20130301-20170228.zip",
     #
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais
     "vessel_ais": "https://zenodo.org/record/8064564/files/parquets.zip",
 }
+
+
+# The list of raw data files to be downloaded
+MATR_LINKS = (
+    (
+        "https://data.matr.io/1/api/v1/file/5c86c0b5fa2ede00015ddf66/download",
+        "2017-05-12_batchdata_updated_struct_errorcorrect.mat",
+    ),
+    (
+        "https://data.matr.io/1/api/v1/file/5c86bf13fa2ede00015ddd82/download",
+        "2017-06-30_batchdata_updated_struct_errorcorrect.mat",
+    ),
+    (
+        "https://data.matr.io/1/api/v1/file/5c86bd64fa2ede00015ddbb2/download",
+        "2018-04-12_batchdata_updated_struct_errorcorrect.mat",
+    ),
+    (
+        "https://data.matr.io/1/api/v1/file/5dcef152110002c7215b2c90/download",
+        "2019-01-24_batchdata_updated_struct_errorcorrect.mat",
+    ),
+)
+
+HUST_LINKS = (
+    (
+        "https://data.mendeley.com/public-files/datasets/nsc7hnsg4s/"
+        "files/5ca0ac3e-d598-4d07-8dcb-879aa047e98b/file_downloaded",
+        "hust_data.zip",
+    ),
+)
+
+CALCE_LINKS = (
+    ("https://web.calce.umd.edu/batteries/data/CS2_33.zip", "CS2_33.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CS2_34.zip", "CS2_34.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CS2_35.zip", "CS2_35.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CS2_36.zip", "CS2_36.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CS2_37.zip", "CS2_37.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CS2_38.zip", "CS2_38.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CX2_16.zip", "CX2_16.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CX2_33.zip", "CX2_33.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CX2_35.zip", "CX2_35.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CX2_34.zip", "CX2_34.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CX2_36.zip", "CX2_36.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CX2_37.zip", "CX2_37.zip"),
+    ("https://web.calce.umd.edu/batteries/data/CX2_38.zip", "CX2_38.zip"),
+)
+
+
+RWTH_LINKS = (
+    ("https://publications.rwth-aachen.de/record/818642/files/Rawdata.zip", "raw.zip"),
+)
 
 # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets
 # 128 UCR + 33 UEA + 2 old removed (NonInvasiveFatalECGThorax1 and 2) = 163
@@ -210,7 +260,7 @@ UCR_UEA_DATASETS = {}
 for i in _ucr_uea_datasets:
     UCR_UEA_DATASETS[
         "ucr_uea_" + i
-        ] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
+    ] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
 
 DATABASE = {**_DATABASE, **UCR_UEA_DATASETS}
 AVAILABLE_DATASETS = list(DATABASE.keys())

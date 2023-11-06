@@ -12,7 +12,7 @@ import os
 
 import pandas as pd
 
-from tsdb.utils.logging import logger
+from ..utils.logging import logger
 
 
 def load_beijing_air_quality(local_path):

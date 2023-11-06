@@ -10,8 +10,8 @@ import shutil
 import sys
 import warnings
 
-from tsdb.database import AVAILABLE_DATASETS, CACHED_DATASET_DIR
-from tsdb.loading_funcs import (
+from .database import AVAILABLE_DATASETS, CACHED_DATASET_DIR
+from .loading_funcs import (
     load_physionet2012,
     load_physionet2019,
     load_electricity,
@@ -19,9 +19,9 @@ from tsdb.loading_funcs import (
     load_ucr_uea_dataset,
     load_ais,
 )
-from tsdb.utils.downloading import download_and_extract
-from tsdb.utils.file import purge_path, pickle_load, pickle_dump
-from tsdb.utils.logging import logger
+from .utils.downloading import download_and_extract
+from .utils.file import purge_path, pickle_load, pickle_dump
+from .utils.logging import logger
 
 
 def list() -> list:
