@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 from pandas.errors import UnsupportedFunctionCall
 
-from tsdb.utils.logging import logger
+from ..utils.logging import logger
 
 
 def load_ais(local_path):

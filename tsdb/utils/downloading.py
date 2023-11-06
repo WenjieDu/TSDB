@@ -12,8 +12,8 @@ import urllib.request
 import warnings
 from typing import Optional
 
-from tsdb.database import DATABASE
-from tsdb.utils.logging import logger
+from ..database import DATABASE
+from .logging import logger
 
 
 def _download_and_extract(url: str, saving_path: str) -> Optional[str]:

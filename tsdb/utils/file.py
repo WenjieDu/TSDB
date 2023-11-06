@@ -11,8 +11,8 @@ import pickle
 import shutil
 from typing import Optional
 
-from tsdb.database import CACHED_DATASET_DIR
-from tsdb.utils.logging import logger
+from ..database import CACHED_DATASET_DIR
+from .logging import logger
 
 
 def pickle_dump(data: object, path: str) -> Optional[str]:
