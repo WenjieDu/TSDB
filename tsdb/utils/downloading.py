@@ -85,7 +85,7 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
     return saving_path
 
 
-def download_and_extract(dataset_name: str, dataset_saving_path: str) -> Optional[str]:
+def download_and_extract(dataset_name: str, dataset_saving_path: str) -> None:
     """Wrapper of _download_and_extract.
 
     Parameters
@@ -96,15 +96,11 @@ def download_and_extract(dataset_name: str, dataset_saving_path: str) -> Optiona
     dataset_saving_path : str,
         The local path for dataset saving.
 
-    Returns
-    -------
-    saving_path if successful else None
-
     """
     logger.info("Start downloading...")
     os.makedirs(dataset_saving_path)
     if isinstance(DATABASE[dataset_name], list):
         for link in DATABASE[dataset_name]:
-            return _download_and_extract(link, dataset_saving_path)
+            _download_and_extract(link, dataset_saving_path)
     else:
-        return _download_and_extract(DATABASE[dataset_name], dataset_saving_path)
+        _download_and_extract(DATABASE[dataset_name], dataset_saving_path)
