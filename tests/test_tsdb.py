@@ -14,6 +14,8 @@ from tsdb.utils.logging import Logger
 
 DATASETS_TO_TEST = [
     "ucr_uea_Wine",
+    "physionet_2012",
+    "beijing_multisite_air_quality",
 ]
 
 
@@ -40,7 +42,7 @@ class TestTSDB(unittest.TestCase):
     def test_3_dataset_purging(self):
         cached_datasets = tsdb.list_cache()
         assert isinstance(cached_datasets, list)
-        tsdb.delete_cache("ucr_uea_Wine")  # delete single
+        tsdb.delete_cache("physionet_2012")  # delete single
         tsdb.delete_cache()  # delete all
 
     def test_4_logging(self):
