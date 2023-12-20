@@ -48,7 +48,7 @@ def load_ett(local_path):
         file_path = os.path.join(local_path, sub_set)
         df = pd.read_csv(file_path, index_col="date")
         df.index = pd.to_datetime(df.index)
-        df_name = sub_set.removesuffix(".csv")
+        df_name = sub_set.split(".csv")[0]
         data[df_name] = df
 
     return data
