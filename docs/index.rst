@@ -98,16 +98,17 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 ❖ List of Available Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-=================================================================================================================================================================== ==========================================
- Name                                                                                                                                                               Main Tasks
-=================================================================================================================================================================== ==========================================
- `PhysioNet Challenge 2012 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012>`_  :cite:`silva2012physionet`                               Classification, Forecasting, Imputation
- `PhysioNet Challenge 2019 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019>`_  :cite:`reyna2019physionet`                               Classification, Imputation
- `Beijing Multi-Site Air-Quality <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality>`_  :cite:`zhang2017airquality`         Forecasting, Imputation
- `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_  :cite:`trindade2015electricity`              Forecasting, Imputation
- `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)  :cite:`bagnall2018uea` :cite:`dau2018ucr` Classification
- `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_  :cite:`grgicevic2023ais`                                              Imputation, Forecasting, Classification
-=================================================================================================================================================================== ==========================================
+========================================================================================================================================================================== ==========================================
+ Name                                                                                                                                                                      Main Tasks
+========================================================================================================================================================================== ==========================================
+ `PhysioNet Challenge 2012 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012>`_  :cite:`silva2012physionet`                                      Forecasting, Imputation, Classification
+ `PhysioNet Challenge 2019 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019>`_  :cite:`reyna2019physionet`                                      Forecasting, Imputation, Classification
+ `Beijing Multi-Site Air-Quality <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality>`_  :cite:`zhang2017airquality`                Forecasting, Imputation
+ `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_  :cite:`trindade2015electricity`                     Forecasting, Imputation
+ `Electricity Transformer Temperature (ETT) <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_transformer_temperature>`_  :cite:`zhou2021informer`  Forecasting, Imputation
+ `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_  :cite:`grgicevic2023ais`                                                     Forecasting, Imputation, Classification
+ `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)  :cite:`bagnall2018uea` :cite:`dau2018ucr`        Classification
+========================================================================================================================================================================== ==========================================
 
 ❖ Citing TSDB/PyPOTS
 ^^^^^^^^^^^^^^^^^^^^^

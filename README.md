@@ -99,14 +99,15 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 ## ❖ List of Available Datasets
 
-| Name                                                                             | Main Tasks                              |
-|----------------------------------------------------------------------------------|-----------------------------------------|
-| [PhysioNet Challenge 2012](dataset_profiles/physionet_2012)                      | Classification, Forecasting, Imputation |
-| [PhysioNet Challenge 2019](dataset_profiles/physionet_2019)                      | Classification, Imputation              |
-| [Beijing Multi-Site Air-Quality](dataset_profiles/beijing_multisite_air_quality) | Forecasting, Imputation                 |
-| [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)          | Forecasting, Imputation                 |
-| [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)       | Classification                          |
-| [Vessel AIS](dataset_profiles/vessel_ais)                                        | Classification, Forecasting, Imputation |
+| Name                                                                                              | Main Tasks                              |
+|---------------------------------------------------------------------------------------------------|-----------------------------------------|
+| [PhysioNet Challenge 2012](dataset_profiles/physionet_2012)                                       | Forecasting, Imputation, Classification |
+| [PhysioNet Challenge 2019](dataset_profiles/physionet_2019)                                       | Forecasting, Imputation, Classification |
+| [Beijing Multi-Site Air-Quality](dataset_profiles/beijing_multisite_air_quality)                  | Forecasting, Imputation                 |
+| [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)                           | Forecasting, Imputation                 |
+| [Electricity Transformer Temperature (ETT)](dataset_profiles/electricity_transformer_temperature) | Forecasting, Imputation                 |
+| [Vessel AIS](dataset_profiles/vessel_ais)                                                         | Forecasting, Imputation, Classification |
+| [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)                        | Classification                          |
 
 
 ## ❖ Citing TSDB/PyPOTS
