@@ -15,6 +15,7 @@ from .loading_funcs import (
     load_physionet2012,
     load_physionet2019,
     load_electricity,
+    load_ett,
     load_beijing_air_quality,
     load_ucr_uea_dataset,
     load_ais,
@@ -94,6 +95,8 @@ def load(dataset_name: str, use_cache: bool = True) -> dict:
                 result = load_physionet2019(dataset_saving_path)
             elif dataset_name == "electricity_load_diagrams":
                 result = load_electricity(dataset_saving_path)
+            elif dataset_name == "electricity_transformer_temperature":
+                result = load_ett(dataset_saving_path)
             elif dataset_name == "beijing_multisite_air_quality":
                 result = load_beijing_air_quality(dataset_saving_path)
             elif dataset_name == "vessel_ais":
