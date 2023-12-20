@@ -12,6 +12,7 @@ dependencies:
     - conda-forge::numpy
     - conda-forge::scikit-learn
     - conda-forge::pandas
+    - conda-forge::pyarrow
 
     # test
     - conda-forge::pytest-cov

@@ -48,6 +48,7 @@ setup(
         "scikit-learn",
         "pandas",
         "scipy",
+        "pyarrow",
     ],
     setup_requires=["setuptools>=38.6.0"],
     classifiers=[
