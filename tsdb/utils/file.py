@@ -112,6 +112,7 @@ def migrate(old_path: str, new_path: str) -> None:
     """
     if not os.path.exists(old_path):
         raise FileNotFoundError(f"Given old_path {old_path} does not exist.")
+
     if os.path.exists(new_path):
         logger.warning(f"Please note that new_path {new_path} already exists.")
         # if new_path exists, we have to move everything from old_path into it
@@ -123,10 +124,12 @@ def migrate(old_path: str, new_path: str) -> None:
                 shutil.copytree(old_f_path, new_f_path)
             else:
                 shutil.move(old_f_path, new_path)
-
         shutil.rmtree(old_path, ignore_errors=True)
     else:
         # if new_path does not exist, just rename the old_path into it
+        new_parent_dir = os.path.abspath(os.path.join(new_path, ".."))
+        if not os.path.exists(new_parent_dir):
+            os.makedirs(new_parent_dir, exist_ok=True)
         os.rename(old_path, new_path)
 
     config = ConfigParser()
