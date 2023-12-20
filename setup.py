@@ -34,7 +34,7 @@ setup(
         "classification",
         "forecasting",
         "partially observed",
-        "irregular sampled",
+        "irregularly sampled",
         "partially-observed time series",
         "incomplete time series",
         "missing data",
@@ -48,6 +48,7 @@ setup(
         "scikit-learn",
         "pandas",
         "scipy",
+        "pyarrow",
     ],
     setup_requires=["setuptools>=38.6.0"],
     classifiers=[

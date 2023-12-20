@@ -13,9 +13,13 @@ from tsdb.database import DATABASE
 from tsdb.utils.logging import Logger
 
 DATASETS_TO_TEST = [
-    "ucr_uea_Wine",
     "physionet_2012",
+    "physionet_2019",
     "beijing_multisite_air_quality",
+    "electricity_load_diagrams",
+    "electricity_transformer_temperature",
+    "vessel_ais",
+    "ucr_uea_Wine",
 ]
 
 
@@ -45,7 +49,13 @@ class TestTSDB(unittest.TestCase):
         tsdb.delete_cache("physionet_2012")  # delete single
         tsdb.delete_cache()  # delete all
 
-    def test_4_logging(self):
+    def test_4_migrate(self):
+        os.makedirs("dir_for_migration")
+        with open("dir_for_migration/test.txt", "a") as f:
+            f.write("hello world")
+        tsdb.migrate("dir_for_migration", "new_dir/put_it_here")
+
+    def test_5_logging(self):
         # different level logging
         self.logger.debug("debug")
         self.logger.info("info")
