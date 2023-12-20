@@ -46,13 +46,13 @@
     </a>
 </p>
 
-> 📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
+> 📣 TSDB now supports a total of 1️⃣6️⃣9️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS_logo_FFBG.svg?sanitize=true' width='160' align='left' /></a>
-TSDB is a part of 
+TSDB is a part of
 <a href="https://github.com/WenjieDu/PyPOTS">
 PyPOTS <img align="center" src="https://img.shields.io/github/stars/WenjieDu/PyPOTS?style=social">
-</a> 
+</a>
 (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
 
 TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details. TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed [below](https://github.com/WenjieDu/TSDB#-list-of-available-datasets)).
@@ -99,14 +99,15 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 ## ❖ List of Available Datasets
 
-| Name                                                                             | Main Tasks                              |
-|----------------------------------------------------------------------------------|-----------------------------------------|
-| [PhysioNet Challenge 2012](dataset_profiles/physionet_2012)                      | Classification, Forecasting, Imputation |
-| [PhysioNet Challenge 2019](dataset_profiles/physionet_2019)                      | Classification, Imputation              |
-| [Beijing Multi-Site Air-Quality](dataset_profiles/beijing_multisite_air_quality) | Forecasting, Imputation                 |
-| [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)          | Forecasting, Imputation                 |
-| [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)       | Classification                          |
-| [Vessel AIS](dataset_profiles/vessel_ais)                                        | Classification, Forecasting, Imputation |
+| Name                                                                                              | Main Tasks                              |
+|---------------------------------------------------------------------------------------------------|-----------------------------------------|
+| [PhysioNet Challenge 2012](dataset_profiles/physionet_2012)                                       | Forecasting, Imputation, Classification |
+| [PhysioNet Challenge 2019](dataset_profiles/physionet_2019)                                       | Forecasting, Imputation, Classification |
+| [Beijing Multi-Site Air-Quality](dataset_profiles/beijing_multisite_air_quality)                  | Forecasting, Imputation                 |
+| [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)                           | Forecasting, Imputation                 |
+| [Electricity Transformer Temperature (ETT)](dataset_profiles/electricity_transformer_temperature) | Forecasting, Imputation                 |
+| [Vessel AIS](dataset_profiles/vessel_ais)                                                         | Forecasting, Imputation, Classification |
+| [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)                        | Classification                          |
 
 
 ## ❖ Citing TSDB/PyPOTS

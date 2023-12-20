@@ -65,7 +65,7 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
         logger.info("Download cancelled by the user.")
         raise
 
-    logger.info(f"Successfully downloaded data to {raw_data_saving_path}.")
+    logger.info(f"Successfully downloaded data to {raw_data_saving_path}")
 
     if (
         suffix in supported_compression_format
