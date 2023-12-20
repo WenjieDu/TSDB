@@ -13,9 +13,13 @@ from tsdb.database import DATABASE
 from tsdb.utils.logging import Logger
 
 DATASETS_TO_TEST = [
-    "ucr_uea_Wine",
     "physionet_2012",
+    "physionet_2019",
     "beijing_multisite_air_quality",
+    "electricity_load_diagrams",
+    "electricity_transformer_temperature",
+    "vessel_ais",
+    "ucr_uea_Wine",
 ]
 
 
