@@ -1,1 +1,2 @@
+include tsdb/config.ini
 prune tests

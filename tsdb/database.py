@@ -6,8 +6,27 @@ List available datasets and their official download links.
 # License: BSD-3-Clause
 
 import os
+from configparser import ConfigParser
 
-CACHED_DATASET_DIR = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
+from .utils.logging import logger
+
+config = ConfigParser()
+tsdb_config_path = os.path.join(os.path.dirname(__file__), "config.ini")
+config.read(tsdb_config_path)
+
+old_cached_dataset_dir = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
+CACHED_DATASET_DIR = os.path.join(
+    os.path.expanduser("~"), config.get("path", "data_home")
+)
+if os.path.exists(old_cached_dataset_dir):
+    logger.warning(
+        "‼️ Detected the home dir of the old version TSDB. "
+        "Since v0.3, TSDB has changed the default cache dir to '~/.tsdb'. "
+        "You can migrate downloaded datasets by invoking the new function "
+        f"tsdb.migrate(old='~/.tsdb_cached_datasets', new={CACHED_DATASET_DIR})"
+    )
+    CACHED_DATASET_DIR = old_cached_dataset_dir
+
 
 _DATABASE = {
     # http://www.physionet.org/challenge/2012

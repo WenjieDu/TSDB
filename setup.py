@@ -34,7 +34,7 @@ setup(
         "classification",
         "forecasting",
         "partially observed",
-        "irregular sampled",
+        "irregularly sampled",
         "partially-observed time series",
         "incomplete time series",
         "missing data",
