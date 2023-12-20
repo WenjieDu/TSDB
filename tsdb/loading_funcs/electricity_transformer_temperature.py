@@ -25,9 +25,16 @@ def load_ett(local_path):
     Returns
     -------
     data : dict
-        A dictionary contains X:
-            X : pandas.DataFrame
-                The time-series data of Electricity Load Diagrams.
+        A dictionary contains all four sub datasets:
+            ETTm1 : pandas.DataFrame
+                The time-series data of ETTm1
+            ETTm2 : pandas.DataFrame
+                The time-series data of ETTm2
+            ETTh1 : pandas.DataFrame
+                The time-series data of ETTh1
+            ETTh2 : pandas.DataFrame
+                The time-series data of ETTh2
+
     """
     sub_datasets = [
         "ETTm1.csv",
