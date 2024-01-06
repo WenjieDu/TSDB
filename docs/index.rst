@@ -5,7 +5,7 @@
 
 Welcome to TSDB documentation!
 ================================
-.. image:: https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/TSDB_logo_FFBG.svg?sanitize=true
+.. image:: https://pypots.com/figs/pypots_logos/TSDB/logo_FFBG.svg
    :height: 160
    :align: right
    :target: https://github.com/WenjieDu/TSDB
