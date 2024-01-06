@@ -44,7 +44,7 @@ Welcome to TSDB documentation!
 
 📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
 
-.. image:: https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS_logo_FFBG.svg?sanitize=true
+.. image:: https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS/logo_FFBG.svg
    :height: 160
    :align: left
    :target: https://github.com/WenjieDu/PyPOTS

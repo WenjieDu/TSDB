@@ -48,7 +48,7 @@
 
 > 📣 TSDB now supports a total of 1️⃣6️⃣9️⃣ time-series datasets ‼️
 
-<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS_logo_FFBG.svg?sanitize=true' width='160' align='left' /></a>
+<a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg' width='160' align='left' /></a>
 TSDB is a part of
 <a href="https://github.com/WenjieDu/PyPOTS">
 PyPOTS <img align="center" src="https://img.shields.io/github/stars/WenjieDu/PyPOTS?style=social">
