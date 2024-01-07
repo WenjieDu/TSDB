@@ -57,19 +57,16 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
     except Exception as e:
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        logger.info(f"Exception: {e}\n" f"Download failed. Aborting.")
-        raise
+        raise RuntimeError(f"Exception: {e}\n" f"Download failed. Aborting.")
     except KeyboardInterrupt:
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        logger.info("Download cancelled by the user.")
-        raise
+        raise KeyboardInterrupt("Download cancelled by the user.")
 
     logger.info(f"Successfully downloaded data to {raw_data_saving_path}")
 
-    if (
-        suffix in supported_compression_format
-    ):  # if the file is compressed, then unpack it
+    # if the file is compressed, then unpack it
+    if suffix in supported_compression_format:
         try:
             os.makedirs(saving_path, exist_ok=True)
             shutil.unpack_archive(raw_data_saving_path, saving_path)
