@@ -36,7 +36,7 @@ jobs:
 
             - name: Test with pytest
               run: |
-                  python -m pytest -s --cov=tsdb
+                  python -m pytest -rA tests/test_tsdb.py -s --cov=tsdb
 
             - name: Write the LCOV report
               run: |
