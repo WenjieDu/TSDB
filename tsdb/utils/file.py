@@ -13,7 +13,7 @@ from configparser import ConfigParser
 from typing import Optional
 
 from .logging import logger
-from ..database import CACHED_DATASET_DIR
+from ..database import tsdb_config_path, CACHED_DATASET_DIR
 
 
 def pickle_dump(data: object, path: str) -> Optional[str]:
@@ -147,14 +147,12 @@ def migrate_cache(target_path: str) -> None:
     """
 
     config = ConfigParser()
-    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    tsdb_config_path = os.path.join(parent_dir, "config.ini")
     config.read(tsdb_config_path)
 
-    old_path = os.path.abspath(CACHED_DATASET_DIR)
+    migrate(CACHED_DATASET_DIR, target_path)
+
     config.set("path", "data_home", target_path)
     with open(tsdb_config_path, "w") as f:
         config.write(f)
 
-    migrate(old_path, target_path)
     logger.info(f"Have set {target_path} as the default cache dir.")
