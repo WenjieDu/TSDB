@@ -15,7 +15,7 @@ tsdb_config_path = os.path.join(os.path.dirname(__file__), "config.ini")
 config.read(tsdb_config_path)
 
 data_home_path = os.path.abspath(config.get("path", "data_home"))
-old_cached_dataset_dir = os.path.abspath("~/.tsdb_cached_datasets")
+old_cached_dataset_dir = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
 
 if os.path.exists(old_cached_dataset_dir):
     # use the old path and warn the user
@@ -31,7 +31,7 @@ elif os.path.exists(data_home_path):
     CACHED_DATASET_DIR = data_home_path
 else:
     # use the default path
-    default_path = os.path.abspath("~/.tsdb")
+    default_path = os.path.join(os.path.expanduser("~"), ".tsdb")
     CACHED_DATASET_DIR = default_path
     logger.warning(
         f"‼️ The preset data_home path '{data_home_path}' doesn't exist. "
