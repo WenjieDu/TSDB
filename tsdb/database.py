@@ -14,7 +14,10 @@ config = ConfigParser()
 tsdb_config_path = os.path.join(os.path.dirname(__file__), "config.ini")
 config.read(tsdb_config_path)
 
-data_home_path = os.path.abspath(config.get("path", "data_home"))
+# read from the config file
+data_home_path = config.get("path", "data_home")
+# replace '~' with the absolute path if existing in the path
+data_home_path = data_home_path.replace("~", os.path.expanduser("~"))
 old_cached_dataset_dir = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
 
 if os.path.exists(old_cached_dataset_dir):
