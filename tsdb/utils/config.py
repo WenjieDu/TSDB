@@ -21,9 +21,10 @@ def read_configs():
 
 
 def write_configs(config_parser, key_value_set):
-    for section, key in key_value_set.items():
-        value = key_value_set[section][key]
-        config_parser.set(section, key, value)
+    for section in key_value_set.keys():
+        for key in key_value_set[section].keys():
+            value = key_value_set[section][key]
+            config_parser.set(section, key, value)
 
     with open(TSDB_CONFIG_FILE, "w") as f:
         config_parser.write(f)
