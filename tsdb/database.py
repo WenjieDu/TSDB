@@ -5,43 +5,6 @@ List available datasets and their official download links.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
-import os
-from configparser import ConfigParser
-
-from .utils.logging import logger
-
-config = ConfigParser()
-tsdb_config_path = os.path.join(os.path.dirname(__file__), "config.ini")
-config.read(tsdb_config_path)
-
-# read from the config file
-data_home_path = config.get("path", "data_home")
-# replace '~' with the absolute path if existing in the path
-data_home_path = data_home_path.replace("~", os.path.expanduser("~"))
-old_cached_dataset_dir = os.path.join(os.path.expanduser("~"), ".tsdb_cached_datasets")
-
-if os.path.exists(old_cached_dataset_dir):
-    # use the old path and warn the user
-    logger.warning(
-        "‼️ Detected the home dir of the old version TSDB. "
-        "Since v0.3, TSDB has changed the default cache dir to '~/.tsdb'. "
-        "You can migrate downloaded datasets by invoking the new function "
-        "tsdb.migrate(old='~/.tsdb_cached_datasets', new='~/.tsdb')"
-    )
-    CACHED_DATASET_DIR = old_cached_dataset_dir
-elif os.path.exists(data_home_path):
-    # use the path directly, may be in a portable disk
-    CACHED_DATASET_DIR = data_home_path
-else:
-    # use the default path
-    default_path = os.path.join(os.path.expanduser("~"), ".tsdb")
-    CACHED_DATASET_DIR = default_path
-    if os.path.abspath(data_home_path) != os.path.abspath(default_path):
-        logger.warning(
-            f"‼️ The preset data_home path '{data_home_path}' doesn't exist. "
-            f"Using the default path '{default_path}'."
-        )
-
 
 _DATABASE = {
     # http://www.physionet.org/challenge/2012

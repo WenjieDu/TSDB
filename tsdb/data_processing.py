@@ -9,7 +9,7 @@ import os
 import shutil
 import warnings
 
-from .database import AVAILABLE_DATASETS, CACHED_DATASET_DIR
+from .database import AVAILABLE_DATASETS
 from .loading_funcs import (
     load_physionet2012,
     load_physionet2019,
@@ -20,8 +20,10 @@ from .loading_funcs import (
     load_ais,
 )
 from .utils.downloading import download_and_extract
-from .utils.file import purge_path, pickle_load, pickle_dump
+from .utils.file import purge_path, pickle_load, pickle_dump, determine_data_home
 from .utils.logging import logger
+
+CACHED_DATASET_DIR = determine_data_home()
 
 
 def list() -> list:
@@ -145,14 +147,28 @@ def list_cache() -> list:
         return dir_content
 
 
-def delete_cache(dataset_name=None) -> None:
-    """Delete CACHED_DATASET_DIR if exists."""
+def delete_cache(dataset_name: str = None) -> None:
+    """Delete CACHED_DATASET_DIR if exists.
+
+    Parameters
+    ----------
+    dataset_name : str, optional
+        The name of the specific dataset in database.DATABASE.
+        If dataset is not cached, then abort.
+        Delete all cached datasets if dataset_name is left as None.
+    """
     # if CACHED_DATASET_DIR does not exist, abort
     if not os.path.exists(CACHED_DATASET_DIR):
         logger.error("❌ No cached data. Operation aborted.")
     else:
-        # if CACHED_DATASET_DIR exists, then purge
-        if dataset_name is not None:
+        # if CACHED_DATASET_DIR exists, then execute purging procedure
+        if dataset_name is None:  # if dataset_name is not given, then purge all
+            logger.info(
+                f"`dataset_name` not given. Purging all cached data under {CACHED_DATASET_DIR}..."
+            )
+            purge_path(CACHED_DATASET_DIR)
+            os.makedirs(CACHED_DATASET_DIR)
+        else:
             assert (
                 dataset_name in AVAILABLE_DATASETS
             ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
@@ -162,13 +178,8 @@ def delete_cache(dataset_name=None) -> None:
                     f"❌ Dataset {dataset_name} is not cached. Operation aborted."
                 )
                 return
-            logger.info(
-                f"Purging cached dataset {dataset_name} under {dir_to_delete}..."
-            )
-        else:
-            logger.info(
-                f"`dataset_name` not given. Purging all cached data under {CACHED_DATASET_DIR}..."
-            )
-            dir_to_delete = CACHED_DATASET_DIR
-
-        purge_path(dir_to_delete)
+            else:
+                logger.info(
+                    f"Purging cached dataset {dataset_name} under {dir_to_delete}..."
+                )
+                purge_path(dir_to_delete)

@@ -24,12 +24,12 @@ TSDB (Time Series Data Beans): a Python toolbox to ease loading public time-seri
 __version__ = "0.3.1"
 
 from .data_processing import (
+    CACHED_DATASET_DIR,
     list,
     load,
     download_and_extract,
     list_cache,
     delete_cache,
-    CACHED_DATASET_DIR,
 )
 from .utils.file import (
     purge_path,

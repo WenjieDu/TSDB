@@ -47,7 +47,6 @@ class TestTSDB(unittest.TestCase):
         cached_datasets = tsdb.list_cache()
         assert isinstance(cached_datasets, list)
         tsdb.delete_cache("physionet_2012")  # delete single
-        tsdb.delete_cache()  # delete all
 
     def test_4_migrate(self):
         os.makedirs("dir_for_migration")
@@ -55,6 +54,7 @@ class TestTSDB(unittest.TestCase):
             f.write("hello world")
         tsdb.migrate("dir_for_migration", "new_dir/put_it_here")
         tsdb.migrate_cache("new_cache_dir")
+        tsdb.delete_cache()  # delete all datasets
 
     def test_5_logging(self):
         # different level logging
