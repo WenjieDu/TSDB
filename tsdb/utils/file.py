@@ -146,11 +146,10 @@ def migrate_cache(target_path: str) -> None:
 
     """
 
-    config = ConfigParser()
-    config.read(tsdb_config_path)
-
     migrate(CACHED_DATASET_DIR, target_path)
 
+    config = ConfigParser()
+    config.read(tsdb_config_path)
     config.set("path", "data_home", target_path)
     with open(tsdb_config_path, "w") as f:
         config.write(f)

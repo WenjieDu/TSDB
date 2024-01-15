@@ -36,10 +36,11 @@ else:
     # use the default path
     default_path = os.path.join(os.path.expanduser("~"), ".tsdb")
     CACHED_DATASET_DIR = default_path
-    logger.warning(
-        f"‼️ The preset data_home path '{data_home_path}' doesn't exist. "
-        f"Using the default path '{default_path}'."
-    )
+    if os.path.abspath(data_home_path) != os.path.abspath(default_path):
+        logger.warning(
+            f"‼️ The preset data_home path '{data_home_path}' doesn't exist. "
+            f"Using the default path '{default_path}'."
+        )
 
 
 _DATABASE = {
