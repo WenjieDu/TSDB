@@ -54,6 +54,7 @@ class TestTSDB(unittest.TestCase):
         with open("dir_for_migration/test.txt", "a") as f:
             f.write("hello world")
         tsdb.migrate("dir_for_migration", "new_dir/put_it_here")
+        tsdb.migrate_cache("new_cache_dir")
 
     def test_5_logging(self):
         # different level logging
