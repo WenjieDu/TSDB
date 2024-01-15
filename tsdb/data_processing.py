@@ -7,7 +7,6 @@ Functions for loading datasets.
 
 import os
 import shutil
-import sys
 import warnings
 
 from .database import AVAILABLE_DATASETS, CACHED_DATASET_DIR
@@ -150,19 +149,26 @@ def delete_cache(dataset_name=None) -> None:
     """Delete CACHED_DATASET_DIR if exists."""
     # if CACHED_DATASET_DIR does not exist, abort
     if not os.path.exists(CACHED_DATASET_DIR):
-        logger.info("No cached data. Operation aborted.")
-        sys.exit()
-    # if CACHED_DATASET_DIR exists, then purge
-    if dataset_name is not None:
-        assert (
-            dataset_name in AVAILABLE_DATASETS
-        ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
-        dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
-        if not os.path.exists(dir_to_delete):
-            logger.info(f"Dataset {dataset_name} is not cached. Operation aborted.")
-            sys.exit()
-        logger.info(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
+        logger.error("❌ No cached data. Operation aborted.")
     else:
-        dir_to_delete = CACHED_DATASET_DIR
-        logger.info(f"Purging all cached data under {CACHED_DATASET_DIR}...")
-    purge_path(dir_to_delete)
+        # if CACHED_DATASET_DIR exists, then purge
+        if dataset_name is not None:
+            assert (
+                dataset_name in AVAILABLE_DATASETS
+            ), f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
+            dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
+            if not os.path.exists(dir_to_delete):
+                logger.error(
+                    f"❌ Dataset {dataset_name} is not cached. Operation aborted."
+                )
+                return
+            logger.info(
+                f"Purging cached dataset {dataset_name} under {dir_to_delete}..."
+            )
+        else:
+            logger.info(
+                f"`dataset_name` not given. Purging all cached data under {CACHED_DATASET_DIR}..."
+            )
+            dir_to_delete = CACHED_DATASET_DIR
+
+        purge_path(dir_to_delete)
