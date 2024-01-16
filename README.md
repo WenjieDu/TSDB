@@ -92,6 +92,10 @@ tsdb.list_cache()
 tsdb.delete_cache(dataset_name='physionet_2012')
 # or you can delete all cache with delete_cached_data() to free disk space
 tsdb.delete_cache()
+
+# to avoid taking up too much space if downloading many datasets,
+# TSDB cache directory can be migrated to an external disk
+tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
 ```
 
 That's all. Simple and efficient. Enjoy it! 😃
