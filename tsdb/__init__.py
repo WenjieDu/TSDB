@@ -21,25 +21,22 @@ TSDB (Time Series Data Beans): a Python toolbox to ease loading public time-seri
 #
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
-__version__ = "0.3"
+__version__ = "0.3.1"
 
-from .utils.file import migrate
 from .data_processing import (
+    CACHED_DATASET_DIR,
     list,
     load,
     download_and_extract,
     list_cache,
     delete_cache,
+)
+from .utils.file import (
     purge_path,
-    CACHED_DATASET_DIR,
     pickle_dump,
     pickle_load,
-    # below are deprecated functions, import for now, will be removed in v0.2
-    list_database,
-    list_available_datasets,
-    list_cached_data,
-    load_dataset,
-    delete_cached_data,
+    migrate,
+    migrate_cache,
 )
 
 __all__ = [
@@ -49,15 +46,11 @@ __all__ = [
     "download_and_extract",
     "list_cache",
     "delete_cache",
-    "purge_path",
     "CACHED_DATASET_DIR",
+    # file
+    "purge_path",
     "pickle_dump",
     "pickle_load",
     "migrate",
-    # below are deprecated functions, import for now, will be removed in v0.2
-    "list_database",
-    "list_available_datasets",
-    "list_cached_data",
-    "load_dataset",
-    "delete_cached_data",
+    "migrate_cache",
 ]

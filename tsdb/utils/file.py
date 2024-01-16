@@ -10,11 +10,9 @@ import os
 import pickle
 import shutil
 from typing import Optional
-from configparser import ConfigParser
 
-
+from .config import read_configs, write_configs
 from .logging import logger
-from ..database import CACHED_DATASET_DIR
 
 
 def pickle_dump(data: object, path: str) -> Optional[str]:
@@ -91,15 +89,50 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
         if not os.path.exists(path):
             logger.info(f"Successfully deleted {path}.")
         else:
+            cached_dataset_dir = determine_data_home()
             raise FileExistsError(
-                f"Deleting operation failed. {CACHED_DATASET_DIR} still exists."
+                f"Deleting operation failed. {cached_dataset_dir} still exists."
             )
     except shutil.Error:
         raise shutil.Error("Operation failed.")
 
 
+def determine_data_home():
+    # read data_home from the config file
+    config = read_configs()
+    data_home_path = config.get("path", "data_home")
+    # replace '~' with the absolute path if existing in the path
+    data_home_path = data_home_path.replace("~", os.path.expanduser("~"))
+    old_cached_dataset_dir = os.path.join(
+        os.path.expanduser("~"), ".tsdb_cached_datasets"
+    )
+
+    if os.path.exists(old_cached_dataset_dir):
+        # use the old path and warn the user
+        logger.warning(
+            "‼️ Detected the home dir of the old version TSDB. "
+            "Since v0.3, TSDB has changed the default cache dir to '~/.tsdb'. "
+            "Auto migrating downloaded datasets to the new path. "
+        )
+        cached_dataset_dir = data_home_path
+        migrate(old_cached_dataset_dir, cached_dataset_dir)
+    elif os.path.exists(data_home_path):
+        # use the path directly, may be in a portable disk
+        cached_dataset_dir = data_home_path
+    else:
+        # use the default path
+        default_path = os.path.join(os.path.expanduser("~"), ".tsdb")
+        cached_dataset_dir = default_path
+        if os.path.abspath(data_home_path) != os.path.abspath(default_path):
+            logger.warning(
+                f"‼️ The preset data_home path '{data_home_path}' doesn't exist. "
+                f"Using the default path '{default_path}'."
+            )
+    return cached_dataset_dir
+
+
 def migrate(old_path: str, new_path: str) -> None:
-    """Migrate datasets from old_path to new_path.
+    """Migrate files in a directory from old_path to new_path.
 
     Parameters
     ----------
@@ -113,40 +146,40 @@ def migrate(old_path: str, new_path: str) -> None:
     if not os.path.exists(old_path):
         raise FileNotFoundError(f"Given old_path {old_path} does not exist.")
 
-    if os.path.exists(new_path):
-        logger.warning(f"Please note that new_path {new_path} already exists.")
-        # if new_path exists, we have to move everything from old_path into it
-        all_old_files = os.listdir(old_path)
-        for f in all_old_files:
-            old_f_path = os.path.join(old_path, f)
-            if os.path.isdir(old_f_path):
-                new_f_path = os.path.join(new_path, f)
-                shutil.copytree(old_f_path, new_f_path)
-            else:
-                shutil.move(old_f_path, new_path)
-        shutil.rmtree(old_path, ignore_errors=True)
-    else:
+    if not os.path.exists(new_path):
         # if new_path does not exist, just rename the old_path into it
         new_parent_dir = os.path.abspath(os.path.join(new_path, ".."))
         if not os.path.exists(new_parent_dir):
             os.makedirs(new_parent_dir, exist_ok=True)
-        os.rename(old_path, new_path)
 
-    config = ConfigParser()
-    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    tsdb_config_path = os.path.join(parent_dir, "config.ini")
-    config.read(tsdb_config_path)
-
-    if os.path.abspath(old_path) == os.path.abspath(CACHED_DATASET_DIR):
-        config.set("path", "data_home", new_path)
-        with open(tsdb_config_path, "w") as f:
-            config.write(f)
-
-        logger.info(
-            f"Found the given old_path is the current TSDB dataset cache directory. "
-            f"Have already set the new cache directory to {new_path}."
-        )
+    logger.warning(f"‼️ Please note that new_path {new_path} already exists.")
+    # if new_path exists, we have to move everything from old_path into it
+    all_old_files = os.listdir(old_path)
+    for f in all_old_files:
+        old_f_path = os.path.join(old_path, f)
+        if os.path.isdir(old_f_path):
+            new_f_path = os.path.join(new_path, f)
+            shutil.copytree(old_f_path, new_f_path)
+        else:
+            shutil.move(old_f_path, new_path)
+    shutil.rmtree(old_path, ignore_errors=True)
 
     logger.info(
         f"Successfully migrated {old_path} to {new_path}, and deleted {old_path}"
     )
+
+
+def migrate_cache(target_path: str) -> None:
+    """Migrate datasets from old_path to new_path.
+
+    Parameters
+    ----------
+    target_path:
+        The new path for TSDB to store cached datasets.
+
+    """
+    cached_dataset_dir = determine_data_home()
+    migrate(cached_dataset_dir, target_path)
+    config_parser = read_configs()
+    write_configs(config_parser, {"path": {"data_home": target_path}})
+    logger.info(f"Have set {target_path} as the default cache dir.")
