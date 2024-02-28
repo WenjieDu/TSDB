@@ -81,7 +81,7 @@ or install from source code:
 import tsdb
 
 # list all available datasets in TSDB
-tsdb.list_available_datasets()
+tsdb.list()
 # select the dataset you need and load it, TSDB will download, extract, and process it automatically
 data = tsdb.load('physionet_2012')
 # if you need the raw data, use download_and_extract()
