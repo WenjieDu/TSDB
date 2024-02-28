@@ -24,7 +24,7 @@
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/wenjiedu/tsdb?logo=None&color=6BB392&label=%E2%98%85%20Stars">
     </a>
     <a href="https://github.com/WenjieDu/TSDB/network/members">
-        <img alt="GitHub Repo forks" src="https://img.shields.io/github/forks/wenjiedu/pygrinder?logo=forgejo&logoColor=black&label=Forks">
+        <img alt="GitHub Repo forks" src="https://img.shields.io/github/forks/wenjiedu/tsdb?logo=forgejo&logoColor=black&label=Forks">
     </a>
     <a href="https://codeclimate.com/github/WenjieDu/TSDB">
         <img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability-percentage/WenjieDu/TSDB?color=3C7699&label=Maintainability&logo=codeclimate">
@@ -81,7 +81,7 @@ or install from source code:
 import tsdb
 
 # list all available datasets in TSDB
-tsdb.list_available_datasets()
+tsdb.list()
 # select the dataset you need and load it, TSDB will download, extract, and process it automatically
 data = tsdb.load('physionet_2012')
 # if you need the raw data, use download_and_extract()
