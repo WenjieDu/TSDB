@@ -1,51 +1,58 @@
-.. TSDB documentation master file, created by
-   sphinx-quickstart on Wed Mar 15 15:23:52 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. PyPOTS documentation index page
+   Created by Wenjie Du <wenjay.du@gmail.com>
+   License: BSD-3-Clause
 
 Welcome to TSDB documentation!
 ================================
 .. image:: https://pypots.com/figs/pypots_logos/TSDB/logo_FFBG.svg
-   :height: 160
+   :height: 180
    :align: right
    :target: https://github.com/WenjieDu/TSDB
    :alt: TSDB logo
 
-**A Python Toolbox Helping Load Time-Series Datasets Easily**
+**A Python Toolbox to Ease Loading Public Time-Series Datasets**
 
 .. image:: https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white
    :alt: Python version
+
 .. image:: https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white
    :alt: the latest release version
    :target: https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white
+
 .. image:: https://img.shields.io/badge/License-BSD--3-E9BB41?logo=opensourceinitiative&logoColor=white
    :alt: License
    :target: https://github.com/WenjieDu/TSDB/blob/main/LICENSE
+
 .. image:: https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI
    :alt: GitHub Testing
    :target: https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml
+
 .. image:: https://img.shields.io/codeclimate/maintainability-percentage/WenjieDu/TSDB?color=3C7699&label=Maintainability&logo=codeclimate
    :alt: Code Climate maintainability
    :target: https://codeclimate.com/github/WenjieDu/TSDB
+
 .. image:: https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage
    :alt: Coveralls report
    :target: https://coveralls.io/github/WenjieDu/TSDB
-.. image:: https://img.shields.io/conda/dn/conda-forge/tsdb?label=Conda%20Downloads&color=AED0ED&logo=anaconda&logoColor=white
+
+.. image:: https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/conda_tsdb_downloads.json
    :alt: Conda downloads
    :target: https://anaconda.org/conda-forge/pypots
-.. image:: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FWenjieDu%2FWenjieDu%2Fmain%2Ffigs%2Fprojects%2Ftsdb_downloads.json
+
+.. image:: https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/pypi_tsdb_downloads.json
    :alt: PyPI downloads
    :target: https://pepy.tech/project/tsdb
+
 .. image:: https://img.shields.io/badge/Contributor%20Covenant-v2.1-4baaaa.svg
    :alt: CODE of CONDUCT
+
 .. image:: https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits+since+April+2022&edge_flat=false
    :alt: Visit num
 
+📣 TSDB now supports a total of 1️⃣6️⃣9️⃣ time-series datasets ‼️
 
-📣 TSDB now supports a total of 1️⃣6️⃣8️⃣ time-series datasets ‼️
-
-.. image:: https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS/logo_FFBG.svg
-   :height: 160
+.. image:: https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg
+   :width: 120
    :align: left
    :target: https://github.com/WenjieDu/PyPOTS
    :alt: PyPOTS logo
@@ -72,7 +79,7 @@ TSDB is available on both `PyPI <https://pypi.python.org/pypi/tsdb>`_ and `Anaco
 
 Install it with `conda install tsdb`, you may need to specify the channel with option `-c conda-forge`
 
-or install from PyPI:
+or install via PyPI:
 
    pip install tsdb
 
@@ -85,12 +92,22 @@ or install from source code:
 
    import tsdb
 
-   tsdb.list_available_datasets()  # list all available datasets in TSDB
-   data = tsdb.load_dataset('physionet_2012')  # select the dataset you need and load it, TSDB will download, extract, and process it automatically
-   tsdb.download_and_extract('physionet_2012', './save_it_here')  # if you need the raw data, use download_and_extract()
-   tsdb.list_cached_data()  # datasets you once loaded are cached, and you can check them with list_cached_data()
-   tsdb.delete_cached_data(dataset_name='physionet_2012')  # you can delete only one specific dataset and preserve others
-   tsdb.delete_cached_data()  # or you can delete all cache with delete_cached_data() to free disk space
+   # list all available datasets in TSDB
+   tsdb.list()
+   # select the dataset you need and load it, TSDB will download, extract, and process it automatically
+   data = tsdb.load('physionet_2012')
+   # if you need the raw data, use download_and_extract()
+   tsdb.download_and_extract('physionet_2012', './save_it_here')
+   # datasets you once loaded are cached, and you can check them with list_cached_data()
+   tsdb.list_cache()
+   # you can delete only one specific dataset and preserve others
+   tsdb.delete_cache(dataset_name='physionet_2012')
+   # or you can delete all cache with delete_cached_data() to free disk space
+   tsdb.delete_cache()
+
+   # to avoid taking up too much space if downloading many datasets,
+   # TSDB cache directory can be migrated to an external disk
+   tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
 
 
 That's all. Simple and efficient. Enjoy it! 😃
@@ -116,6 +133,14 @@ The paper introducing PyPOTS is available on arXiv at `this URL <https://arxiv.o
 and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
 `Machine Learning Open Source Software <https://www.jmlr.org/mloss/>`_). If you use PyPOTS in your work,
 please cite it as below and 🌟star `PyPOTS repository <https://github.com/WenjieDu/PyPOTS>`_ to make others notice this library. 🤗
+
+
+.. image:: https://pypots.com/figs/pypots_logos/Ecosystem/PyPOTS_Ecosystem_Pipeline.png
+   :height: 300
+   :align: center
+   :target: https://pypots.com/ecosystem/
+   :alt: PyPOTS Ecosystem Pipeline
+
 
 .. code-block:: bibtex
    :linenos:

@@ -1,6 +1,6 @@
 <a href='https://github.com/WenjieDu/TSDB'><img src="https://pypots.com/figs/pypots_logos/TSDB/logo_FFBG.svg" align='right' width='200'/></a>
 
-<h2 align="center">Welcome to TSDB</h2>
+<h3 align="center">Welcome to TSDB</h3>
 
 *<p align='center'>a Python toolbox to ease loading public time-series datasets</p>*
 
@@ -71,7 +71,7 @@ TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forg
 
 Install it with `conda install tsdb `, you may need to specify the channel with option `-c conda-forge`
 
-or install from PyPI:
+or install via PyPI:
 > pip install tsdb
 
 or install from source code:
@@ -120,8 +120,14 @@ and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (tra
 [Machine Learning Open Source Software](https://www.jmlr.org/mloss/)). If you use TSDB in your work,
 please cite PyPOTS project as below and 🌟star this repository to make others notice this library. 🤗 Thank you!
 
+<p align="center">
+<a href="https://pypots.com/ecosystem/">
+    <img src="https://pypots.com/figs/pypots_logos/Ecosystem/PyPOTS_Ecosystem_Pipeline.png" width="95%"/>
+</a>
+</p>
+
 ``` bibtex
-@article{du2023PyPOTS,
+@article{du2023pypots,
 title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
 author={Wenjie Du},
 year={2023},
@@ -137,21 +143,6 @@ doi={10.48550/arXiv.2305.18811},
 > PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
 > arXiv, abs/2305.18811.https://arxiv.org/abs/2305.18811
 
-or
-
-``` bibtex
-@inproceedings{du2023PyPOTS,
-title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
-booktitle={9th SIGKDD workshop on Mining and Learning from Time Series (MiLeTS'23)},
-author={Wenjie Du},
-year={2023},
-url={https://arxiv.org/abs/2305.18811},
-}
-```
-
-> Wenjie Du. (2023).
-> PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
-> In *9th SIGKDD workshop on Mining and Learning from Time Series (MiLeTS'23)*. https://arxiv.org/abs/2305.18811
 
 
 <details>
