@@ -32,6 +32,8 @@ def load_italy_air_quality(local_path):
     df = pd.read_csv(file_path, sep=";", decimal=",")
     # remove empty columns
     df.drop(columns=["Unnamed: 15", "Unnamed: 16"], inplace=True)
+    # remove rows with all NaN, i.e. Date is NaN
+    df = df[~df["Date"].isna()]
 
     data = {
         "X": df,
