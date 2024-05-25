@@ -56,12 +56,11 @@ def load_physionet2012(local_path):
         )  # ensure RecordID's type is int
         outcome = outcome.set_index("RecordID")
         outcome_collector.append(outcome)
-    y = pd.concat(outcome_collector)
-
-    df_collector = []
 
     # iterate over all samples
+    set_collector = []
     for m_ in time_series_measurements_dir:
+        df_collector = []
         raw_data_dir = os.path.join(local_path, m_)
         for filename in os.listdir(raw_data_dir):
             recordID = int(filename.split(".txt")[0])
@@ -80,11 +79,16 @@ def load_physionet2012(local_path):
             df_temp["Age"] = df_temp.loc[0, "Age"]
             df_temp["Height"] = df_temp.loc[0, "Height"]
             df_collector.append(df_temp)
+        df = pd.concat(df_collector, sort=True)
+        set_collector.append(df)
 
-    df = pd.concat(df_collector, sort=True)
-    X = df.reset_index(drop=True)
-    unique_ids = df["RecordID"].unique()
-    y = y.loc[unique_ids]
-
-    data = {"X": X, "y": y, "static_features": ["Age", "Gender", "ICUType", "Height"]}
+    data = {
+        "set-a": set_collector[0],
+        "set-b": set_collector[1],
+        "set-c": set_collector[2],
+        "outcomes-a": outcome_collector[0],
+        "outcomes-b": outcome_collector[1],
+        "outcomes-c": outcome_collector[2],
+        "static_features": ["Age", "Gender", "ICUType", "Height"],
+    }
     return data
