@@ -30,6 +30,8 @@ _DATABASE = {
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality
     "beijing_multisite_air_quality": "https://archive.ics.uci.edu/ml/machine-learning-databases/00501/"
     "PRSA2017_Data_20130301-20170228.zip",
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/italy_air_quality
+    "italy_air_quality": "https://archive.ics.uci.edu/static/public/360/air+quality.zip",
     #
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais
     "vessel_ais": "https://zenodo.org/record/8064564/files/parquets.zip",
