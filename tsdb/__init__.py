@@ -21,7 +21,7 @@ TSDB (Time Series Data Beans): a Python toolbox to ease loading public time-seri
 #
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
-__version__ = "0.3.1"
+__version__ = "0.4"
 
 from .data_processing import (
     CACHED_DATASET_DIR,

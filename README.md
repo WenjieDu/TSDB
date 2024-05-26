@@ -46,7 +46,7 @@
     </a>
 </p>
 
-> 📣 TSDB now supports a total of 1️⃣6️⃣9️⃣ time-series datasets ‼️
+> 📣 TSDB now supports a total of 1️⃣7️⃣0️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg' width='160' align='left' /></a>
 TSDB is a part of
@@ -108,6 +108,7 @@ That's all. Simple and efficient. Enjoy it! 😃
 | [PhysioNet Challenge 2012](dataset_profiles/physionet_2012)                                       | Forecasting, Imputation, Classification |
 | [PhysioNet Challenge 2019](dataset_profiles/physionet_2019)                                       | Forecasting, Imputation, Classification |
 | [Beijing Multi-Site Air-Quality](dataset_profiles/beijing_multisite_air_quality)                  | Forecasting, Imputation                 |
+| [Italy Air Quality](dataset_profiles/italy_air_quality)                                           | Forecasting, Imputation                 |
 | [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)                           | Forecasting, Imputation                 |
 | [Electricity Transformer Temperature (ETT)](dataset_profiles/electricity_transformer_temperature) | Forecasting, Imputation                 |
 | [Vessel AIS](dataset_profiles/vessel_ais)                                                         | Forecasting, Imputation, Classification |
@@ -121,7 +122,7 @@ and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (tra
 please cite PyPOTS project as below and 🌟star this repository to make others notice this library. 🤗 Thank you!
 
 <p align="center">
-<a href="https://pypots.com/ecosystem/">
+<a href="https://github.com/WenjieDu/PyPOTS">
     <img src="https://pypots.com/figs/pypots_logos/Ecosystem/PyPOTS_Ecosystem_Pipeline.png" width="95%"/>
 </a>
 </p>
