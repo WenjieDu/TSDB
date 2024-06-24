@@ -116,10 +116,15 @@ That's all. Simple and efficient. Enjoy it! 😃
 
 
 ## ❖ Citing TSDB/PyPOTS
-The paper introducing PyPOTS project is available on arXiv at [this URL](https://arxiv.org/abs/2305.18811),
-and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
-[Machine Learning Open Source Software](https://www.jmlr.org/mloss/)). If you use TSDB in your work,
-please cite PyPOTS project as below and 🌟star this repository to make others notice this library. 🤗 Thank you!
+The paper introducing PyPOTS is available [on arXiv](https://arxiv.org/abs/2305.18811),
+A short version of it is accepted by the 9th SIGKDD international workshop on Mining and Learning from Time Series ([MiLeTS'23](https://kdd-milets.github.io/milets2023/))).
+**Additionally**, PyPOTS has been included as a [PyTorch Ecosystem](https://pytorch.org/ecosystem/) project.
+We are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
+[Machine Learning Open Source Software](https://www.jmlr.org/mloss/)). If you use PyPOTS in your work,
+please cite it as below and 🌟star this repository to make others notice this library. 🤗
+
+There are scientific research projects using PyPOTS and referencing in their papers.
+Here is [an incomplete list of them](https://scholar.google.com/scholar?as_ylo=2022&q=%E2%80%9CPyPOTS%E2%80%9D&hl=en).
 
 <p align="center">
 <a href="https://github.com/WenjieDu/PyPOTS">
@@ -131,18 +136,14 @@ please cite PyPOTS project as below and 🌟star this repository to make others 
 @article{du2023pypots,
 title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
 author={Wenjie Du},
+journal={arXiv preprint arXiv:2305.18811},
 year={2023},
-eprint={2305.18811},
-archivePrefix={arXiv},
-primaryClass={cs.LG},
-url={https://arxiv.org/abs/2305.18811},
-doi={10.48550/arXiv.2305.18811},
 }
 ```
-
+or
 > Wenjie Du. (2023).
 > PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
-> arXiv, abs/2305.18811.https://arxiv.org/abs/2305.18811
+> arXiv, abs/2305.18811. https://arxiv.org/abs/2305.18811
 
 
 
