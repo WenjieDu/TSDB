@@ -5,6 +5,7 @@ Downloading functions.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
+import gzip
 import os
 import shutil
 import tempfile
@@ -12,8 +13,8 @@ import urllib.request
 import warnings
 from typing import Optional
 
-from ..database import DATABASE
 from .logging import logger
+from ..database import DATABASE
 
 
 def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
@@ -69,13 +70,20 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
     if suffix in supported_compression_format:
         try:
             os.makedirs(saving_path, exist_ok=True)
-            shutil.unpack_archive(raw_data_saving_path, saving_path)
+            if ".txt.gz" in file_name:
+                new_name = file_name.split(".txt.gz")[0]
+                new_name = new_name + ".txt"
+                saving_path = os.path.join(saving_path, new_name)
+                with open(raw_data_saving_path, "rb") as f, open(
+                    saving_path, "wb"
+                ) as wf:
+                    wf.write(gzip.decompress(f.read()))
+            else:
+                shutil.unpack_archive(raw_data_saving_path, saving_path)
             logger.info(f"Successfully extracted data to {saving_path}")
-        except shutil.Error:
-            warnings.warn(
-                "The compressed file is corrupted, aborting.", category=RuntimeWarning
-            )
-            return None
+        except Exception as e:
+            shutil.rmtree(saving_path, ignore_errors=True)
+            raise RuntimeError(f"❌ {e}")
         finally:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
