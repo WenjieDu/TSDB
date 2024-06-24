@@ -19,6 +19,7 @@ from .loading_funcs import (
     load_ucr_uea_dataset,
     load_ais,
     load_italy_air_quality,
+    load_pems_traffic,
 )
 from .utils.downloading import download_and_extract
 from .utils.file import purge_path, pickle_load, pickle_dump, determine_data_home
@@ -105,6 +106,8 @@ def load(dataset_name: str, use_cache: bool = True) -> dict:
                 result = load_italy_air_quality(dataset_saving_path)
             elif dataset_name == "vessel_ais":
                 result = load_ais(dataset_saving_path)
+            elif dataset_name == "pems_traffic":
+                result = load_pems_traffic(dataset_saving_path)
             elif "ucr_uea_" in dataset_name:
                 actual_dataset_name = dataset_name.replace(
                     "ucr_uea_", ""
