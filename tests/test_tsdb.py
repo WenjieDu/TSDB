@@ -46,6 +46,7 @@ class TestTSDB(unittest.TestCase):
     def test_3_dataset_purging(self):
         cached_datasets = tsdb.list_cache()
         assert isinstance(cached_datasets, list)
+        tsdb.delete_cache("physionet_2012", only_pickle=True)
         tsdb.delete_cache("physionet_2012")  # delete single
 
     def test_4_migrate(self):
@@ -54,6 +55,7 @@ class TestTSDB(unittest.TestCase):
             f.write("hello world")
         tsdb.migrate("dir_for_migration", "new_dir/put_it_here")
         tsdb.migrate_cache("new_cache_dir")
+        tsdb.delete_cache(only_pickle=True)  # delete all pickle cache
         tsdb.delete_cache()  # delete all datasets
 
     def test_5_logging(self):

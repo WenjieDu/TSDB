@@ -43,6 +43,9 @@ _DATABASE = {
         "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/main/ETT-small/ETTh1.csv",
         "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/main/ETT-small/ETTh2.csv",
     ],
+    # https://pems.dot.ca.gov
+    "pems_traffic": "https://raw.githubusercontent.com/laiguokun/multivariate-time-series-data/master/"
+    "traffic/traffic.txt.gz",
 }
 
 
