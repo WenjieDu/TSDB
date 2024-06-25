@@ -31,11 +31,13 @@ def load_pems_traffic(local_path):
     dir_path = os.path.join(local_path, "traffic.txt")
 
     # make columns names
-    col_names = [str(i) for i in range(861)]
-    col_names.append("OT")
-
+    col_names = [str(i) for i in range(862)]
     df = pd.read_csv(dir_path, index_col=None, names=col_names)
-    date = pd.date_range("2016-07-01 02:00:00", "2018-07-02 01:00:00", freq="H")
+    date = pd.date_range(
+        start="2015-01-01 00:00:00",
+        end="2016-12-31 23:00:00",
+        freq="H",
+    )
     df["date"] = date
     col_names.insert(0, "date")
     df = df[col_names]

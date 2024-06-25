@@ -87,7 +87,7 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
             os.remove(path)
         # check if succeed
         if not os.path.exists(path):
-            logger.info(f"Successfully deleted {path}.")
+            logger.info(f"Successfully deleted {path}")
         else:
             cached_dataset_dir = determine_data_home()
             raise FileExistsError(
@@ -126,7 +126,7 @@ def determine_data_home():
         if os.path.abspath(data_home_path) != os.path.abspath(default_path):
             logger.warning(
                 f"‼️ The preset data_home path '{data_home_path}' doesn't exist. "
-                f"Using the default path '{default_path}'."
+                f"Using the default path '{default_path}'"
             )
     return cached_dataset_dir
 
