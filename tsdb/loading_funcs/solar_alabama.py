@@ -4,7 +4,7 @@ which are sampled every 10 minutes from 137 PV plants in Alabama State.
 https://www.nrel.gov/grid/solar-power-data.html
 
 For more information please refer to:
-https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/solar_al
+https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/solar_alabama
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>

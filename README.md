@@ -2,7 +2,7 @@
 
 <h3 align="center">Welcome to TSDB</h3>
 
-*<p align='center'>a Python toolbox to ease loading public time-series datasets</p>*
+*<p align='center'>a Python toolbox to ease loading 172 public time-series datasets</p>*
 
 <p align='center'>
     <a href='https://github.com/WenjieDu/TSDB'>
@@ -46,7 +46,7 @@
     </a>
 </p>
 
-> 📣 TSDB now supports a total of 1️⃣7️⃣0️⃣ time-series datasets ‼️
+> 📣 TSDB now supports a total of 1️⃣7️⃣2️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg' width='160' align='left' /></a>
 TSDB is a part of
@@ -88,7 +88,9 @@ data = tsdb.load('physionet_2012')
 tsdb.download_and_extract('physionet_2012', './save_it_here')
 # datasets you once loaded are cached, and you can check them with list_cached_data()
 tsdb.list_cache()
-# you can delete only one specific dataset and preserve others
+# you can delete only one specific dataset's pickled cache
+tsdb.delete_cache(dataset_name='physionet_2012', only_pickle=True)
+# you can delete only one specific dataset raw files and preserve others
 tsdb.delete_cache(dataset_name='physionet_2012')
 # or you can delete all cache with delete_cached_data() to free disk space
 tsdb.delete_cache()
@@ -112,6 +114,8 @@ That's all. Simple and efficient. Enjoy it! 😃
 | [Electricity Load Diagrams](dataset_profiles/electricity_load_diagrams)                           | Forecasting, Imputation                 |
 | [Electricity Transformer Temperature (ETT)](dataset_profiles/electricity_transformer_temperature) | Forecasting, Imputation                 |
 | [Vessel AIS](dataset_profiles/vessel_ais)                                                         | Forecasting, Imputation, Classification |
+| [PeMS Traffic](dataset_profiles/pems_traffic)                                                     | Forecasting, Imputation                 |
+| [Solar Alabama](dataset_profiles/solar_alabama)                                                   | Forecasting, Imputation                 |
 | [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)                        | Classification                          |
 
 
