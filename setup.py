@@ -8,7 +8,7 @@ with open("./README.md", encoding="utf-8") as f:
 setup(
     name="tsdb",
     version=__version__,
-    description="TSDB (Time Series Data Beans): a Python toolbox helping load open-source time-series datasets",
+    description="TSDB (Time Series Data Beans): a Python toolbox helping load 172 open-source time-series datasets",
     long_description=README,
     long_description_content_type="text/markdown",
     license="BSD-3-Clause",

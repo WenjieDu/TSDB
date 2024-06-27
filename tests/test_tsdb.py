@@ -16,9 +16,12 @@ DATASETS_TO_TEST = [
     "physionet_2012",
     "physionet_2019",
     "beijing_multisite_air_quality",
+    "italy_air_quality",
     "electricity_load_diagrams",
     "electricity_transformer_temperature",
     "vessel_ais",
+    "pems_traffic",
+    "solar_alabama",
     "ucr_uea_Wine",
 ]
 
