@@ -103,25 +103,33 @@ def determine_data_home():
     data_home_path = config.get("path", "data_home")
     # replace '~' with the absolute path if existing in the path
     data_home_path = data_home_path.replace("~", os.path.expanduser("~"))
-    old_cached_dataset_dir = os.path.join(
+
+    # old cached dataset dir path used in TSDB v0.2
+    old_cached_dataset_dir_02 = os.path.join(
         os.path.expanduser("~"), ".tsdb_cached_datasets"
     )
+    # old cached dataset dir path used in TSDB v0.4
+    old_cached_dataset_dir_04 = os.path.join(os.path.expanduser("~"), ".tsdb")
 
-    if os.path.exists(old_cached_dataset_dir):
-        # use the old path and warn the user
+    if os.path.exists(old_cached_dataset_dir_02) or os.path.exists(
+        old_cached_dataset_dir_04
+    ):
         logger.warning(
-            "‼️ Detected the home dir of the old version TSDB. "
-            "Since v0.3, TSDB has changed the default cache dir to '~/.tsdb'. "
-            "Auto migrating downloaded datasets to the new path. "
+            "‼️ Detected the home dir of the old version TSDB. Auto migrating... Please wait."
         )
         cached_dataset_dir = data_home_path
-        migrate(old_cached_dataset_dir, cached_dataset_dir)
+        if os.path.exists(old_cached_dataset_dir_02):
+            migrate(old_cached_dataset_dir_02, cached_dataset_dir)
+        else:
+            migrate(old_cached_dataset_dir_04, cached_dataset_dir)
+        logger.info("🌟 Migrating finished.")
     elif os.path.exists(data_home_path):
         # use the path directly, may be in a portable disk
         cached_dataset_dir = data_home_path
     else:
-        # use the default path
-        default_path = os.path.join(os.path.expanduser("~"), ".tsdb")
+        # use the default path for initialization,
+        # e.g. `data_home_path` in a portable disk but the disk is not connected
+        default_path = os.path.join(os.path.expanduser("~"), ".pypots", "tsdb")
         cached_dataset_dir = default_path
         if os.path.abspath(data_home_path) != os.path.abspath(default_path):
             logger.warning(
