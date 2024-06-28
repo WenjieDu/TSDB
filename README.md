@@ -95,7 +95,8 @@ tsdb.delete_cache(dataset_name='physionet_2012')
 # or you can delete all cache with delete_cached_data() to free disk space
 tsdb.delete_cache()
 
-# to avoid taking up too much space if downloading many datasets,
+# The default cache directory is ~/.pypots/tsdb under the user's home directory.
+# To avoid taking up too much space if downloading many datasets ,
 # TSDB cache directory can be migrated to an external disk
 tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
 ```
@@ -145,9 +146,9 @@ year={2023},
 }
 ```
 or
-> Wenjie Du. (2023).
+> Wenjie Du.
 > PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
-> arXiv, abs/2305.18811. https://arxiv.org/abs/2305.18811
+> arXiv, abs/2305.18811, 2023.
 
 
 

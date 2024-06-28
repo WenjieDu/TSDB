@@ -49,7 +49,7 @@ Welcome to TSDB documentation!
 .. image:: https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits+since+April+2022&edge_flat=false
    :alt: Visit num
 
-📣 TSDB now supports a total of 1️⃣6️⃣9️⃣ time-series datasets ‼️
+📣 TSDB now supports a total of 1️⃣7️⃣2️⃣ time-series datasets ‼️
 
 .. image:: https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg
    :width: 120
@@ -100,12 +100,15 @@ or install from source code:
    tsdb.download_and_extract('physionet_2012', './save_it_here')
    # datasets you once loaded are cached, and you can check them with list_cached_data()
    tsdb.list_cache()
-   # you can delete only one specific dataset and preserve others
+   # you can delete only one specific dataset's pickled cache
+   tsdb.delete_cache(dataset_name='physionet_2012', only_pickle=True)
+   # you can delete only one specific dataset raw files and preserve others
    tsdb.delete_cache(dataset_name='physionet_2012')
    # or you can delete all cache with delete_cached_data() to free disk space
    tsdb.delete_cache()
 
-   # to avoid taking up too much space if downloading many datasets,
+   # The default cache directory is ~/.pypots/tsdb under the user's home directory.
+   # To avoid taking up too much space if downloading many datasets ,
    # TSDB cache directory can be migrated to an external disk
    tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
 
@@ -124,6 +127,8 @@ That's all. Simple and efficient. Enjoy it! 😃
  `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_  :cite:`trindade2015electricity`                     Forecasting, Imputation
  `Electricity Transformer Temperature (ETT) <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_transformer_temperature>`_  :cite:`zhou2021informer`  Forecasting, Imputation
  `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_  :cite:`grgicevic2023ais`                                                     Forecasting, Imputation, Classification
+ `PeMS Traffic <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/pems_traffic>`_                                                                                Forecasting, Imputation
+ `Solar Alabama <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/solar_alabama>`_                                                                              Forecasting, Imputation
  `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)  :cite:`bagnall2018uea` :cite:`dau2018ucr`        Classification
 ========================================================================================================================================================================== ==========================================
 
@@ -145,22 +150,18 @@ please cite it as below and 🌟star `PyPOTS repository <https://github.com/Wenj
 .. code-block:: bibtex
    :linenos:
 
-   @article{du2023PyPOTS,
-   title={{PyPOTS: A Python Toolbox for Data Mining on Partially-Observed Time Series}},
+   @article{du2023pypots,
+   title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
    author={Wenjie Du},
+   journal={arXiv preprint arXiv:2305.18811},
    year={2023},
-   eprint={2305.18811},
-   archivePrefix={arXiv},
-   primaryClass={cs.LG},
-   url={https://arxiv.org/abs/2305.18811},
-   doi={10.48550/arXiv.2305.18811},
    }
 
 or
 
-   Wenjie Du. (2023).
+   Wenjie Du.
    PyPOTS: A Python Toolbox for Data Mining on Partially-Observed Time Series.
-   arXiv, abs/2305.18811. https://doi.org/10.48550/arXiv.2305.18811
+   arXiv, abs/2305.18811, 2023.
 
 
 .. toctree::
