@@ -15,6 +15,29 @@ from .config import read_configs, write_configs
 from .logging import logger
 
 
+def check_path(path: str) -> str:
+    """Check the given path and return the absolute path.
+
+    Parameters
+    ----------
+    path :
+        The path to be checked.
+
+    Returns
+    -------
+    checked_path:
+        The absolute path of the given path.
+    """
+    # expand the home dir if the path starts with "~"
+    if path.startswith("~"):
+        checked_path = path.replace("~", os.path.expanduser("~"))
+    else:
+        checked_path = path
+
+    checked_path = os.path.abspath(checked_path)
+    return checked_path
+
+
 def pickle_dump(data: object, path: str) -> Optional[str]:
     """Pickle the given object.
 
