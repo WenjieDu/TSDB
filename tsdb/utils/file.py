@@ -99,6 +99,8 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
         Errors are ignored if ignore_errors is set.
 
     """
+    # check the path
+    path = check_path(path)
     assert os.path.exists(
         path
     ), f"The given path {path} does not exists. Operation aborted."
@@ -216,7 +218,9 @@ def migrate_cache(target_path: str) -> None:
         The new path for TSDB to store cached datasets.
 
     """
+    # check the target path
     target_path = check_path(target_path)
+
     cached_dataset_dir = determine_data_home()
     migrate(cached_dataset_dir, target_path)
     config_parser = read_configs()
