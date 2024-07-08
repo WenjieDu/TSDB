@@ -9,9 +9,11 @@ import gzip
 import os
 import shutil
 import tempfile
-import urllib.request
 import warnings
 from typing import Optional
+
+import requests
+from tqdm import tqdm
 
 from .logging import logger
 from ..database import DATABASE
@@ -54,7 +56,27 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
 
     # download and save the raw dataset
     try:
-        urllib.request.urlretrieve(url, raw_data_saving_path)
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            chunk_size = 8192
+            try:
+                size = int(r.headers["Content-Length"])
+            except KeyError:
+                size = None
+
+            with tqdm(
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                miniters=1,
+                desc=f"Downloading {file_name}",
+                total=size,
+            ) as pbar:
+                with open(raw_data_saving_path, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=chunk_size):
+                        f.write(chunk)
+                        pbar.update(len(chunk))
+
     except Exception as e:
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
