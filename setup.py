@@ -44,11 +44,13 @@ setup(
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     install_requires=[
+        "tqdm",
         "numpy",
-        "scikit-learn",
-        "pandas",
         "scipy",
+        "pandas",
         "pyarrow",
+        "requests",
+        "scikit-learn",
     ],
     setup_requires=["setuptools>=38.6.0"],
     classifiers=[

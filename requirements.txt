@@ -1,5 +1,7 @@
+tqdm
 numpy
-scikit-learn
-pandas
 scipy
+pandas
 pyarrow
+requests
+scikit-learn
