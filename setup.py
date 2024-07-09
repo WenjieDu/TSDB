@@ -46,10 +46,11 @@ setup(
     install_requires=[
         "tqdm",
         "numpy",
-        "scikit-learn",
-        "pandas",
         "scipy",
+        "pandas",
         "pyarrow",
+        "requests",
+        "scikit-learn",
     ],
     setup_requires=["setuptools>=38.6.0"],
     classifiers=[
