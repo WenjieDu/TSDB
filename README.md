@@ -2,7 +2,7 @@
 
 <h3 align="center">Welcome to TSDB</h3>
 
-*<p align='center'>a Python toolbox to ease loading 172 public time-series datasets</p>*
+*<p align='center'>load 172 public time-series datasets with a single line of code ;-)</p>*
 
 <p align='center'>
     <a href='https://github.com/WenjieDu/TSDB'>
@@ -67,21 +67,38 @@ if it helps with your research. This really means a lot to our open-source resea
 
 
 ## ❖ Usage Examples
-TSDB now is available on <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️
+> [!IMPORTANT]
+> TSDB is available on both <a alt='PyPI' href='https://pypi.python.org/pypi/tsdb'><img align='center' src='https://img.shields.io/badge/PyPI--lightgreen?style=social&logo=pypi'></a>
+> and <a alt='Anaconda' href='https://anaconda.org/conda-forge/tsdb'><img align='center' src='https://img.shields.io/badge/Anaconda--lightgreen?style=social&logo=anaconda'></a>❗️
+>
+> Install via pip:
+> > pip install tsdb
+>
+> or install from source code:
+> > pip install `https://github.com/WenjieDu/TSDB/archive/main.zip`
+>
+> or install via conda:
+> > conda install tsdb -c conda-forge
 
-Install it with `conda install tsdb `, you may need to specify the channel with option `-c conda-forge`
-
-or install via PyPI:
-> pip install tsdb
-
-or install from source code:
-> pip install `https://github.com/WenjieDu/TSDB/archive/main.zip`
 
 ```python
 import tsdb
 
 # list all available datasets in TSDB
 tsdb.list()
+# ['physionet_2012',
+#  'physionet_2019',
+#  'electricity_load_diagrams',
+#  'beijing_multisite_air_quality',
+#  'italy_air_quality',
+#  'vessel_ais',
+#  'electricity_transformer_temperature',
+#  'pems_traffic',
+#  'solar_alabama',
+#  'ucr_uea_ACSF1',
+#  'ucr_uea_Adiac',
+#  ...
+
 # select the dataset you need and load it, TSDB will download, extract, and process it automatically
 data = tsdb.load('physionet_2012')
 # if you need the raw data, use download_and_extract()
