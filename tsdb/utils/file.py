@@ -9,7 +9,6 @@ Functions manipulating files.
 import os
 import pickle
 import shutil
-from typing import Optional
 
 from .config import read_configs, write_configs
 from .logging import logger
@@ -51,7 +50,44 @@ def check_path(
     return checked_path
 
 
-def pickle_dump(data: object, path: str) -> Optional[str]:
+def extract_parent_dir(path: str) -> str:
+    """Extract the given path's parent directory.
+
+    Parameters
+    ----------
+    path :
+        The path for extracting.
+
+    Returns
+    -------
+    parent_dir :
+        The path to the parent dir of the given path.
+
+    """
+    parent_dir = os.path.abspath(os.path.join(path, ".."))
+    return parent_dir
+
+
+def create_dir_if_not_exist(path: str, is_dir: bool = True) -> None:
+    """Create the given directory if it doesn't exist.
+
+    Parameters
+    ----------
+    path :
+        The path for check.
+
+    is_dir :
+        Whether the given path is to a directory. If `is_dir` is False, the given path is to a file or an object,
+        then this file's parent directory will be checked.
+
+    """
+    path = extract_parent_dir(path) if not is_dir else path
+    if not os.path.exists(path):
+        os.makedirs(path, exist_ok=True)
+        logger.info(f"Successfully created the given path {path}")
+
+
+def pickle_dump(data: object, path: str) -> None:
     """Pickle the given object.
 
     Parameters
@@ -67,17 +103,18 @@ def pickle_dump(data: object, path: str) -> Optional[str]:
     `path` if succeed else None
 
     """
-    # check the given path
-    path = check_path(path)
-
     try:
+        # help create the parent dir if not exist
+        create_dir_if_not_exist(extract_parent_dir(path))
         with open(path, "wb") as f:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except pickle.PicklingError:
-        logger.info("Pickling failed. No cache will be saved.")
-        return None
-    logger.info(f"Successfully saved to {path}")
-    return path
+        logger.info(f"Successfully saved to {path}")
+    except Exception as e:
+        logger.error(
+            f"❌ Pickling failed. No cache data saved. Investigate the error below:\n{e}"
+        )
+
+    return None
 
 
 def pickle_load(path: str) -> object:
@@ -94,13 +131,15 @@ def pickle_load(path: str) -> object:
         Pickled object.
 
     """
-    # check the given path
-    path = check_path(path, check_exists=True)
     try:
         with open(path, "rb") as f:
             data = pickle.load(f)
-    except pickle.UnpicklingError as e:
-        logger.info("Cached data corrupted. Aborting...\n" f"{e}")
+    except Exception as e:
+        logger.error(
+            f"❌ Loading data failed. Operation aborted. Investigate the error below:\n{e}"
+        )
+        return None
+
     return data
 
 

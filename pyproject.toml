@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=71"]
+
+[project]
+name = "tsdb"
+description = "TSDB (Time Series Data Beans): a Python toolbox helping load 172 open-source time-series datasets"
+authors = [{ name = "Wenjie Du", email = "wenjay.du@gmail.com" }]
+dynamic = ["version", "readme", "dependencies"]
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+keywords = [
+    "data mining",
+    "time series",
+    "time-series analysis",
+    "time-series database",
+    "time-series datasets",
+    "database",
+    "datasets",
+    "dataset downloading",
+    "imputation",
+    "classification",
+    "forecasting",
+    "partially observed",
+    "irregularly sampled",
+    "partially-observed time series",
+    "incomplete time series",
+    "missing data",
+    "missing values",
+    "pypots",
+]
+
+[project.urls]
+Source = "https://github.com/WenjieDu/TSDB"
+Homepage = "https://pypots.com"
+Documentation = "https://docs.pypots.com"
+"Bug Tracker" = "https://github.com/WenjieDu/TSDB/issues"
+Download = "https://github.com/WenjieDu/TSDB/archive/main.zip"
+
+[tool.setuptools.packages.find]
+exclude = [
+    "docs*",
+    "test*",
+    "dataset_profiles*",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "tsdb.version.__version__" }
+readme = { file = "README.md", content-type = "text/markdown" }
+dependencies = { file = "requirements.txt" }
+
+[tool.flake8]
+# People may argue that coding style is personal. This may be true if the project is personal and one works like a
+# hermit, but to PyPOTS and its community, the answer is NO.
+# We use Black and Flake8 to lint code style and keep the style consistent across all commits and pull requests.
+# Black only reformats the code, and Flake8 is necessary for checking for some other issues not covered by Black.
+
+# The Black line length is default as 88, while the default of Flake8 is 79. However, considering our monitors are
+# much more advanced nowadays, I extend the maximum line length to 120, like other project e.g. transformers. People
+# who prefer the default setting can keep using 88 or 79 while coding. Please ensure your code lines not exceeding 120.
+max-line-length = 120
+# why ignore E203? Refer to https://github.com/PyCQA/pycodestyle/issues/373
+extend-ignore = """
+    E203
+"""
