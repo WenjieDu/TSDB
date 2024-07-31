@@ -1,5 +1,6 @@
 """
-TSDB (Time Series Data Beans): a Python toolbox to ease loading public time-series datasets.
+TSDB (Time Series Data Beans): a Python toolbox loads hundreds of public time-series datasets for machine/deep learning
+with a single line of code.
 """
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
