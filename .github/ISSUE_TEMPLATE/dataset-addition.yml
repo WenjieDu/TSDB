@@ -20,7 +20,7 @@ body:
       description: |
           Please note that if the dataset's open-source implementation is not available, it'll take much more time to finish the implementation, so we are less likely to implement it in `TSDB`.
       options:
-        - label: "The dataset implementation is publicly available"
+        - label: "The dataset is publicly available"
 
   - type: textarea
     id: additional-info
