@@ -17,13 +17,6 @@ import warnings
 import numpy as np
 from sklearn.utils.estimator_checks import _NotAnArray as NotAnArray
 
-try:
-    from scipy.io import arff
-
-    HAS_ARFF = True
-except Exception:
-    HAS_ARFF = False
-
 
 def load_ucr_uea_dataset(local_path, dataset_name):
     try:
