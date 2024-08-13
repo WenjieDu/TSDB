@@ -23,6 +23,7 @@ DATASETS_TO_TEST = [
     "pems_traffic",
     "solar_alabama",
     "ucr_uea_Wine",
+    "ucr_uea_FingerMovements",
 ]
 
 
