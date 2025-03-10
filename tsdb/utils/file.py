@@ -7,9 +7,10 @@ Functions manipulating files.
 
 
 import os
-import pandas as pd
 import pickle
 import shutil
+
+import pandas as pd
 
 from .config import read_configs, write_configs
 from .logging import logger
@@ -135,7 +136,7 @@ def pickle_load(path: str) -> object:
     try:
         with open(path, "rb") as f:
             if pd.__version__ >= "2.0.0":
-                data=pd.read_pickle(f)
+                data = pd.read_pickle(f)
             else:
                 data = pickle.load(f)
     except Exception as e:
@@ -172,7 +173,7 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
         if not os.path.exists(path):
             logger.info(f"Successfully deleted {path}")
         else:
-            cached_dataset_dir = determine_data_home()
+            cached_dataset_dir = determine_tsdb_home()
             raise FileExistsError(
                 f"Deleting operation failed. {cached_dataset_dir} still exists."
             )
@@ -180,15 +181,15 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
         raise shutil.Error("Operation failed.")
 
 
-def determine_data_home():
+def determine_tsdb_home():
     # default path
     default_path = check_path("~/.pypots/tsdb")
 
-    # read data_home from the config file
-    # data_home may be changed by users, hence not necessarily equal to the default path
+    # read tsdb_home from the config file
+    # tsdb_home may be changed by users, hence not necessarily equal to the default path
     config = read_configs()
-    data_home_path = config.get("path", "data_home")
-    data_home_path = check_path(data_home_path)
+    tsdb_home_path = config.get("path", "tsdb_home")
+    tsdb_home_path = check_path(tsdb_home_path)
 
     # old cached dataset dir path used in TSDB v0.2
     old_cached_dataset_dir_02 = check_path("~/.tsdb_cached_datasets")
@@ -201,22 +202,22 @@ def determine_data_home():
         logger.warning(
             "‼️ Detected the home dir of the old version TSDB. Auto migrating... Please wait."
         )
-        cached_dataset_dir = data_home_path
+        cached_dataset_dir = tsdb_home_path
         if os.path.exists(old_cached_dataset_dir_02):
             migrate(old_cached_dataset_dir_02, cached_dataset_dir)
         else:
             migrate(old_cached_dataset_dir_04, cached_dataset_dir)
         logger.info("🌟 Migrating finished.")
-    elif os.path.exists(data_home_path):
+    elif os.path.exists(tsdb_home_path):
         # use the path directly, may be in a portable disk
-        cached_dataset_dir = data_home_path
+        cached_dataset_dir = tsdb_home_path
     else:
-        # if the preset data_home path does not exist,
-        # e.g. `data_home_path` is in a portable disk that is not connected
+        # if the preset tsdb_home path does not exist,
+        # e.g. `tsdb_home_path` is in a portable disk that is not connected
         # then use the default path
-        if check_path(data_home_path) != check_path(default_path):
+        if check_path(tsdb_home_path) != check_path(default_path):
             logger.warning(
-                f"❗️ The preset data_home {data_home_path} doesn't exist. "
+                f"❗️ The preset tsdb_home {tsdb_home_path} doesn't exist. "
                 f"This may be caused by the portable disk not connected."
             )
             logger.warning(f"‼️ Using the default path {default_path} for now")
@@ -275,8 +276,8 @@ def migrate_cache(target_path: str) -> None:
     # check the target path
     target_path = check_path(target_path)
 
-    cached_dataset_dir = determine_data_home()
+    cached_dataset_dir = determine_tsdb_home()
     migrate(cached_dataset_dir, target_path)
     config_parser = read_configs()
-    write_configs(config_parser, {"path": {"data_home": target_path}})
+    write_configs(config_parser, {"path": {"tsdb_home": target_path}})
     logger.info(f"Have set {target_path} as the default cache dir.")
