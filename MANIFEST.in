@@ -1,2 +1,2 @@
-include tsdb/config.ini
+include tsdb/config_template.ini
 prune tests
