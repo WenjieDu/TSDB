@@ -113,7 +113,7 @@ def pickle_dump(data: object, path: str) -> None:
         logger.info(f"Successfully saved to {path}")
     except Exception as e:
         logger.error(
-            f"❌ Pickling failed. No cache data saved. Investigate the error below:\n{e}"
+            f"❌ Pickling failed. No cache data saved. Investigate the error below: \n{e}"
         )
 
     return None
@@ -141,7 +141,7 @@ def pickle_load(path: str) -> object:
                 data = pickle.load(f)
     except Exception as e:
         logger.error(
-            f"❌ Loading data failed. Operation aborted. Investigate the error below:\n{e}"
+            f"❌ Loading data failed. Operation aborted. Investigate the error below: \n{e}"
         )
         return None
 
@@ -227,7 +227,11 @@ def determine_tsdb_home():
     return cached_dataset_dir
 
 
-def migrate(old_path: str, new_path: str) -> None:
+def migrate(
+    old_path: str,
+    new_path: str,
+    symlink: bool = True,
+) -> None:
     """Migrate files in a directory from old_path to new_path.
 
     Parameters
@@ -237,6 +241,10 @@ def migrate(old_path: str, new_path: str) -> None:
 
     new_path:
         The new path of the dataset.
+
+    symlink:
+        If True, create a symbolic link from the new path to the old path, namely users still can access the dataset
+        from the old path.
 
     """
     # check both old_path and new_path
@@ -258,10 +266,17 @@ def migrate(old_path: str, new_path: str) -> None:
             shutil.copytree(old_f_path, new_f_path)
         else:
             shutil.move(old_f_path, new_path)
-    shutil.rmtree(old_path, ignore_errors=True)
 
     logger.info(f"Successfully migrated {old_path} to {new_path}")
+    shutil.rmtree(old_path, ignore_errors=True)
     logger.info(f"Purged the old path {old_path}")
+
+    # create a symbolic link from the new path to the old path
+    if symlink:
+        os.symlink(new_path, old_path)
+        logger.info(
+            f"Successfully created a symbolic link from {new_path} to {old_path}"
+        )
 
 
 def migrate_cache(target_path: str) -> None:
