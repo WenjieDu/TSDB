@@ -23,10 +23,10 @@ from .loading_funcs import (
     load_solar_alabama,
 )
 from .utils.downloading import download_and_extract
-from .utils.file import purge_path, pickle_load, pickle_dump, determine_data_home
+from .utils.file import purge_path, pickle_load, pickle_dump, determine_tsdb_home
 from .utils.logging import logger
 
-CACHED_DATASET_DIR = determine_data_home()
+CACHED_DATASET_DIR = determine_tsdb_home()
 
 
 def list() -> list:

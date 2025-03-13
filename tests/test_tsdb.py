@@ -10,6 +10,7 @@ import unittest
 
 import tsdb
 from tsdb.database import DATABASE
+from tsdb.utils.config import PYPOTS_ECOSYSTEM_CONFIG_PATH, read_configs
 from tsdb.utils.logging import Logger
 
 DATASETS_TO_TEST = [
@@ -90,6 +91,13 @@ class TestTSDB(unittest.TestCase):
         # save log into file
         self.logger_creator.set_saving_path("test_log", "testing.log")
         assert os.path.exists("test_log/testing.log")
+
+    def test_6_config(self):
+        assert os.path.exists(
+            PYPOTS_ECOSYSTEM_CONFIG_PATH
+        ), "config file does not exist"
+        configs = read_configs()
+        configs.get("path", "tsdb_home")
 
 
 if __name__ == "__main__":
