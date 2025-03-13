@@ -12,7 +12,7 @@ import shutil
 
 import pandas as pd
 
-from .config import read_configs, write_configs
+from .config import read_configs, write_configs, CONFIG_TEMPLATE_PATH
 from .logging import logger
 
 
@@ -183,9 +183,10 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
 
 def determine_tsdb_home():
     # default path
-    default_path = check_path("~/.pypots/tsdb")
+    config_temp = read_configs(CONFIG_TEMPLATE_PATH)
+    default_path = check_path(config_temp.get("path", "tsdb_home"))
 
-    # read tsdb_home from the config file
+    # read tsdb_home from the current config file
     # tsdb_home may be changed by users, hence not necessarily equal to the default path
     config = read_configs()
     tsdb_home_path = config.get("path", "tsdb_home")
