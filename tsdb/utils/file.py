@@ -231,7 +231,7 @@ def determine_tsdb_home():
 def migrate(
     old_path: str,
     new_path: str,
-    symlink: bool = True,
+    symlink: bool = False,
 ) -> None:
     """Migrate files in a directory from old_path to new_path.
 
