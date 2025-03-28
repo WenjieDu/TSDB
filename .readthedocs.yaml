@@ -20,7 +20,7 @@ build:
     jobs:
         pre_install:
             - python -m pip install --upgrade pip
-            - pip install pandas numpy scipy scikit-learn
+            - pip install -r requirements/requirements.txt
             - pip install sphinx==6.2.1 docutils==0.19 sphinxcontrib-bibtex==2.1.4 sphinxcontrib-gtagjs sphinx-autodoc-typehints furo==2023.07.26
 
         post_install:
