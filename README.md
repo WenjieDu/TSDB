@@ -26,8 +26,8 @@
     <a href="https://github.com/WenjieDu/TSDB/network/members">
         <img alt="GitHub Repo forks" src="https://img.shields.io/github/forks/wenjiedu/tsdb?logo=forgejo&logoColor=black&label=Forks">
     </a>
-    <a href="https://codeclimate.com/github/WenjieDu/TSDB">
-        <img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability-percentage/WenjieDu/TSDB?color=3C7699&label=Maintainability&logo=codeclimate">
+    <a href="https://sonarcloud.io/component_measures?id=WenjieDu_TSDB&metric=sqale_rating&view=list">
+        <img alt="maintainability" src="https://sonarcloud.io/api/project_badges/measure?project=WenjieDu_TSDB&metric=sqale_rating">
     </a>
     <a href='https://coveralls.io/github/WenjieDu/TSDB'>
         <img alt='Coveralls report' src='https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage'>
@@ -39,10 +39,10 @@
         <img alt="arXiv DOI" src="https://img.shields.io/badge/DOI-10.48550/arXiv.2305.18811-F8F7F0">
     </a>
     <a href="https://anaconda.org/conda-forge/tsdb">
-        <img alt="Conda downloads" src="https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/conda_tsdb_downloads.json">
+        <img alt="Conda downloads" src="https://pypots.com/figs/downloads_badges/conda_tsdb_downloads.svg">
     </a>
-    <a href='https://pepy.tech/project/tsdb'>
-        <img alt='PyPI downloads' src='https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/pypi_tsdb_downloads.json'>
+    <a href="https://pepy.tech/project/tsdb">
+        <img alt="PyPI downloads" src="https://pypots.com/figs/downloads_badges/pypi_tsdb_downloads.svg">
     </a>
 </p>
 
@@ -167,9 +167,3 @@ or
 > PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
 > arXiv, abs/2305.18811, 2023.
 
-
-
-<details>
-<summary>🏠 Visits</summary>
-<img align='left' src='https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits+since+April+2022&edge_flat=false'>
-</details>
