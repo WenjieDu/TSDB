@@ -49,6 +49,9 @@ _DATABASE = {
     # https://www.nrel.gov/grid/solar-power-data.html, https://github.com/laiguokun/multivariate-time-series-data
     "solar_alabama": "https://raw.githubusercontent.com/laiguokun/multivariate-time-series-data/master/"
     "solar-energy/solar_AL.txt.gz",
+    # https://huggingface.co/datasets/Time-MQA/TSQA
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/tsqa
+    "tsqa": "hf://Time-MQA/TSQA",
 }
 
 

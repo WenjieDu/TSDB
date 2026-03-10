@@ -126,8 +126,16 @@ def download_and_extract(dataset_name: str, dataset_saving_path: str) -> None:
     """
     logger.info("Start downloading...")
     os.makedirs(dataset_saving_path)
-    if isinstance(DATABASE[dataset_name], list):
-        for link in DATABASE[dataset_name]:
+    dataset_url = DATABASE[dataset_name]
+    if isinstance(dataset_url, str) and dataset_url.startswith("hf://"):
+        # HuggingFace datasets are downloaded during loading via the datasets library
+        logger.info(
+            f"Dataset {dataset_name} is hosted on HuggingFace. "
+            f"It will be downloaded on the first call to the dataset loader."
+        )
+        return
+    if isinstance(dataset_url, list):
+        for link in dataset_url:
             _download_and_extract(link, dataset_saving_path)
     else:
-        _download_and_extract(DATABASE[dataset_name], dataset_saving_path)
+        _download_and_extract(dataset_url, dataset_saving_path)
