@@ -51,6 +51,8 @@ _DATABASE = {
     "solar-energy/solar_AL.txt.gz",
     #
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/bouc_wen_hysteretic_system
+    # NOTE: this URL is intentionally shared with the Wiener-Hammerstein dataset
+    # according to the issue's confirmed download links.
     "bouc_wen_hysteretic_system": "https://data.4tu.nl/ndownloader/items/"
     "7060f9bc-8289-411e-8d32-57bef2740d32/versions/1",
     #
