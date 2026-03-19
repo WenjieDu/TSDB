@@ -2,7 +2,7 @@
 
 <h3 align="center">Welcome to TSDB</h3>
 
-*<p align='center'>load 172 public time-series datasets with a single line of code ;-)</p>*
+*<p align='center'>load 176 public time-series datasets with a single line of code ;-)</p>*
 
 <p align='center'>
     <a href='https://github.com/WenjieDu/TSDB'>
@@ -46,7 +46,7 @@
     </a>
 </p>
 
-> 📣 TSDB now supports a total of 1️⃣7️⃣2️⃣ time-series datasets ‼️
+> 📣 TSDB now supports a total of 1️⃣7️⃣6️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg' width='160' align='left' /></a>
 TSDB is a part of
@@ -134,6 +134,10 @@ That's all. Simple and efficient. Enjoy it! 😃
 | [Vessel AIS](dataset_profiles/vessel_ais)                                                         | Forecasting, Imputation, Classification |
 | [PeMS Traffic](dataset_profiles/pems_traffic)                                                     | Forecasting, Imputation                 |
 | [Solar Alabama](dataset_profiles/solar_alabama)                                                   | Forecasting, Imputation                 |
+| [Bouc-Wen Hysteretic System](dataset_profiles/bouc_wen_hysteretic_system)                        | System Identification                   |
+| [Wiener-Hammerstein Process Noise System](dataset_profiles/wiener_hammerstein_process_noise_system) | System Identification                |
+| [Cortical Responses Evoked by Wrist Joint Manipulation](dataset_profiles/cortical_responses_evoked_by_wrist_joint_manipulation) | System Identification |
+| [Industrial Robot](dataset_profiles/industrial_robot)                                             | System Identification                   |
 | [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)                        | Classification                          |
 
 
@@ -166,4 +170,3 @@ or
 > Wenjie Du.
 > PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
 > arXiv, abs/2305.18811, 2023.
-

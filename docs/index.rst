@@ -49,7 +49,7 @@ Welcome to TSDB documentation!
 .. image:: https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits+since+April+2022&edge_flat=false
    :alt: Visit num
 
-📣 TSDB now supports a total of 1️⃣7️⃣2️⃣ time-series datasets ‼️
+📣 TSDB now supports a total of 1️⃣7️⃣6️⃣ time-series datasets ‼️
 
 .. image:: https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg
    :width: 120
@@ -129,6 +129,10 @@ That's all. Simple and efficient. Enjoy it! 😃
  `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_  :cite:`grgicevic2023ais`                                                     Forecasting, Imputation, Classification
  `PeMS Traffic <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/pems_traffic>`_                                                                                Forecasting, Imputation
  `Solar Alabama <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/solar_alabama>`_                                                                              Forecasting, Imputation
+ `Bouc-Wen Hysteretic System <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/bouc_wen_hysteretic_system>`_  :cite:`schoukens2017three`                         System Identification
+ `Wiener-Hammerstein Process Noise System <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/wiener_hammerstein_process_noise_system>`_  :cite:`schoukens2017three`  System Identification
+ `Cortical Responses Evoked by Wrist Joint Manipulation <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/cortical_responses_evoked_by_wrist_joint_manipulation>`_  :cite:`vlaar2018modeling` :cite:`vlaar2017quantifying`  System Identification
+ `Industrial Robot <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/industrial_robot>`_  :cite:`weigand2022industrial`                          System Identification
  `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)  :cite:`bagnall2018uea` :cite:`dau2018ucr`        Classification
 ========================================================================================================================================================================== ==========================================
 

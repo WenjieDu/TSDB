@@ -27,6 +27,13 @@ DATASETS_TO_TEST = [
     "ucr_uea_FingerMovements",
 ]
 
+NEW_NONLINEAR_DATASETS = [
+    "bouc_wen_hysteretic_system",
+    "wiener_hammerstein_process_noise_system",
+    "cortical_responses_evoked_by_wrist_joint_manipulation",
+    "industrial_robot",
+]
+
 
 class TestTSDB(unittest.TestCase):
     logger_creator = Logger(name="testing log", logging_level="debug")
@@ -36,6 +43,8 @@ class TestTSDB(unittest.TestCase):
         available_datasets = tsdb.list()
         assert len(available_datasets) > 0
         assert len(DATABASE) == len(available_datasets)
+        for dataset_name in NEW_NONLINEAR_DATASETS:
+            assert dataset_name in available_datasets
 
     def test_1_downloading_only(self):
         tsdb.download_and_extract("ucr_uea_Wine", "./save_it_here")

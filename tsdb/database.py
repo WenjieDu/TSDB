@@ -49,6 +49,24 @@ _DATABASE = {
     # https://www.nrel.gov/grid/solar-power-data.html, https://github.com/laiguokun/multivariate-time-series-data
     "solar_alabama": "https://raw.githubusercontent.com/laiguokun/multivariate-time-series-data/master/"
     "solar-energy/solar_AL.txt.gz",
+    #
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/bouc_wen_hysteretic_system
+    "bouc_wen_hysteretic_system": "https://data.4tu.nl/ndownloader/items/"
+    "7060f9bc-8289-411e-8d32-57bef2740d32/versions/1",
+    #
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/wiener_hammerstein_process_noise_system
+    "wiener_hammerstein_process_noise_system": "https://data.4tu.nl/ndownloader/items/"
+    "7060f9bc-8289-411e-8d32-57bef2740d32/versions/1",
+    #
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/cortical_responses_evoked_by_wrist_joint_manipulation
+    "cortical_responses_evoked_by_wrist_joint_manipulation": "https://data.4tu.nl/ndownloader/items/"
+    "f177c1ba-c62f-4fff-bd1d-971b8f6dc2dd/versions/1",
+    #
+    # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/industrial_robot
+    "industrial_robot": [
+        "https://fdm-fallback.uni-kl.de/TUK/FB/MV/WSKL/0001/Robot_Identification_Benchmark_Without_Raw_Data.rar",
+        "https://fdm-fallback.uni-kl.de/TUK/FB/MV/WSKL/0001/Robot_Identification_Benchmark_With_Raw_Data.rar",
+    ],
 }
 
 
