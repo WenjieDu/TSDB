@@ -15,6 +15,7 @@ from .ucr_uea_datasets import load_ucr_uea_dataset
 from .vessel_ais import load_ais
 from .pems_traffic import load_pems_traffic
 from .solar_alabama import load_solar_alabama
+from .tsqa import load_tsqa
 
 __all__ = [
     "load_beijing_air_quality",
@@ -27,4 +28,5 @@ __all__ = [
     "load_italy_air_quality",
     "load_pems_traffic",
     "load_solar_alabama",
+    "load_tsqa",
 ]
