@@ -2,7 +2,7 @@
 
 <h3 align="center">Welcome to TSDB</h3>
 
-*<p align='center'>load 172 public time-series datasets with a single line of code ;-)</p>*
+*<p align='center'>load 173 public time-series datasets with a single line of code ;-)</p>*
 
 <p align='center'>
     <a href='https://github.com/WenjieDu/TSDB'>
@@ -45,8 +45,6 @@
         <img alt="PyPI downloads" src="https://pypots.com/figs/downloads_badges/pypi_tsdb_downloads.svg">
     </a>
 </p>
-
-> 📣 TSDB now supports a total of 1️⃣7️⃣3️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg' width='160' align='left' /></a>
 TSDB is a part of
