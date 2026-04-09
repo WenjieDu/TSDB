@@ -21,6 +21,7 @@ from .loading_funcs import (
     load_italy_air_quality,
     load_pems_traffic,
     load_solar_alabama,
+    load_tsqa,
 )
 from .utils.downloading import download_and_extract
 from .utils.file import purge_path, pickle_load, pickle_dump, determine_tsdb_home
@@ -111,6 +112,8 @@ def load(dataset_name: str, use_cache: bool = True) -> dict:
                 result = load_pems_traffic(dataset_saving_path)
             elif dataset_name == "solar_alabama":
                 result = load_solar_alabama(dataset_saving_path)
+            elif dataset_name == "tsqa":
+                result = load_tsqa(dataset_saving_path)
             elif "ucr_uea_" in dataset_name:
                 actual_dataset_name = dataset_name.replace(
                     "ucr_uea_", ""

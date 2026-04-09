@@ -2,7 +2,7 @@
 
 <h3 align="center">Welcome to TSDB</h3>
 
-*<p align='center'>load 172 public time-series datasets with a single line of code ;-)</p>*
+*<p align='center'>load 173 public time-series datasets with a single line of code ;-)</p>*
 
 <p align='center'>
     <a href='https://github.com/WenjieDu/TSDB'>
@@ -45,8 +45,6 @@
         <img alt="PyPI downloads" src="https://pypots.com/figs/downloads_badges/pypi_tsdb_downloads.svg">
     </a>
 </p>
-
-> 📣 TSDB now supports a total of 1️⃣7️⃣2️⃣ time-series datasets ‼️
 
 <a href='https://github.com/WenjieDu/PyPOTS'><img src='https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg' width='160' align='left' /></a>
 TSDB is a part of
@@ -134,6 +132,7 @@ That's all. Simple and efficient. Enjoy it! 😃
 | [Vessel AIS](dataset_profiles/vessel_ais)                                                         | Forecasting, Imputation, Classification |
 | [PeMS Traffic](dataset_profiles/pems_traffic)                                                     | Forecasting, Imputation                 |
 | [Solar Alabama](dataset_profiles/solar_alabama)                                                   | Forecasting, Imputation                 |
+| [TSQA](dataset_profiles/tsqa)                                                                     | LLM training                            |
 | [UCR & UEA Datasets](dataset_profiles/ucr_uea_datasets) (all 163 datasets)                        | Classification                          |
 
 
@@ -154,16 +153,19 @@ Here is [an incomplete list of them](https://scholar.google.com/scholar?as_ylo=2
 </a>
 </p>
 
-``` bibtex
+```bibtex
 @article{du2023pypots,
-title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
-author={Wenjie Du},
-journal={arXiv preprint arXiv:2305.18811},
-year={2023},
+title = {{PyPOTS: A Python Toolkit for Data Mining on Partially-Observed Time Series}},
+author = {Wenjie Du},
+journal = {SIGKDD MiLeTS Workshop},
+year = {2023},
 }
 ```
-or
-> Wenjie Du.
-> PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series.
-> arXiv, abs/2305.18811, 2023.
 
+```bibtex
+@article{du2025pypots,
+title = {{PyPOTS v1: A Python Toolkit for Machine Learning on Partially-Observed Time Series}},
+author = {Wenjie Du, Yiyuan Yang, Linglong Qian, Jun Wang, and Qingsong Wen},
+year = {2025},
+}
+```
