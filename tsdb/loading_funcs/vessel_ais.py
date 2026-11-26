@@ -9,13 +9,13 @@ https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais
 # Modified by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
-import os
 import time
 
 import numpy as np
 import pandas as pd
 
 from ..utils.logging import logger
+from ..utils.vessel_ais import ais_parquet_files
 
 
 def load_ais(local_path):
@@ -49,9 +49,7 @@ def load_ais(local_path):
 
     start_time = time.time()
     logger.info("Please wait...")
-    path_to_parquets = os.path.join(local_path, "parquets")
-
-    filenames = [p for p in os.listdir(path_to_parquets) if p.endswith(".parquet")]
+    paths = ais_parquet_files(local_path)
 
     mmsis = set()
     s = []
@@ -62,8 +60,7 @@ def load_ais(local_path):
     There are 40 parquet files with around 200 vessels per file, with unknown trajectory length and possible duplicates
     of vessels (car ferries)
     """
-    for i, p in enumerate(filenames):
-        path = os.path.join(path_to_parquets, p)
+    for i, path in enumerate(paths):
         df = pd.read_parquet(path, engine="pyarrow")
         logger.info(f"Reading group of vessel trajectories {i}/40 from {path}, data shape {df.shape}")
 

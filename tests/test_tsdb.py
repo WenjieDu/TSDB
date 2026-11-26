@@ -215,6 +215,13 @@ def test_live_dataset_loading(cache, dataset):
     if dataset == "physionet_2019":
         assert result["training_setA"].RecordID.nunique() == 20336
         assert result["training_setB"].RecordID.nunique() == 20000
+    if dataset == "vessel_ais":
+        from tsdb.utils.vessel_ais import ais_parquet_files
+
+        assert len(ais_parquet_files(target)) == 40
+        assert not result["y"].empty and result["y"].index.is_unique
+        assert len(result["X"]) == 6000 * len(result["y"])
+        assert result["X"]["mmsi"].nunique() == len(result["y"])
     if dataset == "tsqa":
         from tsdb.utils.tsqa import TSQA_CSV_FILES
 

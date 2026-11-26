@@ -159,7 +159,8 @@ def test_uea_missing_pair(tmp_path):
         load_ucr_uea_dataset(tmp_path, "Tiny")
 
 
-def test_ais_real_parquet_elapsed_seconds_and_labels(tmp_path):
+@pytest.mark.parametrize("filename", ["vessels.parquet", "2020-2_group_0"])
+def test_ais_real_parquet_elapsed_seconds_and_labels(tmp_path, filename):
     folder = tmp_path / "parquets"
     folder.mkdir()
     n = 2000
@@ -180,7 +181,7 @@ def test_ais_real_parquet_elapsed_seconds_and_labels(tmp_path):
     )
     # The last sample must reach the 6000th resampling bucket.
     frame.loc[n - 1, "date_time_utc"] = pd.Timestamp("2020-01-01") + pd.Timedelta(seconds=17997)
-    frame.to_parquet(folder / "vessels.parquet", index=False)
+    frame.to_parquet(folder / filename, index=False)
     (folder / "README.txt").write_text("ignored", encoding="utf-8")
     data = load_ais(tmp_path)
     assert len(data["X"]) == 6000
