@@ -241,7 +241,8 @@ PR CI measures deterministic offline coverage. Daily Testing additionally runs
 `python scripts/coverage_suite.py --output /path/to/new/report-directory` with
 pytest-cov and the TSQA extra installed. The runner executes offline and live
 suites separately on the same checkout, combines their coverage databases,
-and records the exact revision, each exit status, and line counts. External
+and records the exact revision, each exit status, line counts, and the actual
+raw-cache/cold-download mode for each successful real-dataset test. External
 source errors fail the job; partial coverage never implies a passing suite.
 The designated Coveralls upload remains offline-only for a comparable trend.
 
@@ -270,9 +271,40 @@ local artifact installs use `--no-deps --no-index`. Both wheel and sdist are
 installed and smoke-tested.
 
 ### Dataset discovery
-
 `tsdb.info("physionet_2019")` returns source URLs, loader and download strategy,
 required file layout, optional dependencies, known revision, and a link to the
 dataset profile. Metadata discovery does not access the network or initialize
 the cache. Unknown license, task and revision metadata is `None`; consult the
 source/profile for authoritative dataset terms and citation information.
+
+### Daily real-dataset cache
+
+Regular PR/push CI remains offline. Daily Testing on the default branch runs
+three offline compatibility jobs and one representative real-dataset suite.
+Monday–Saturday (UTC) it restores the current week's verified public raw data;
+Sunday it bypasses restoration, downloads every representative dataset afresh,
+and seeds a new cache. Manual Daily Testing defaults to `cold-download: true`;
+this is also required for release acceptance. Manual runs outside the default
+branch and pushes to `run_daily_testing` do not use shared dataset caches.
+
+Only four explicitly reviewed CC BY 4.0 datasets are eligible initially:
+[PhysioNet Challenge 2019 v1.0.0](https://physionet.org/content/challenge-2019/1.0.0/)
+(Reyna et al., 2019), [ElectricityLoadDiagrams20112014](https://doi.org/10.24432/C58C86)
+(Artur Trindade, 2015), [Beijing Multi-Site Air Quality](https://archive.ics.uci.edu/dataset/501/beijing+multi+site+air+quality)
+(Song Chen, 2017; DOI: 10.24432/C5RK5G), and [Air Quality](https://doi.org/10.24432/C59K5F)
+(Saverio De Vito, 2008). See each linked source for full attribution and
+[CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/). Raw bytes are
+not transformed. Other datasets continue cold downloads every run.
+
+Cache keys incorporate the reviewed source URLs, cache policy and UTC week,
+not loader source changes. Update the cache policy/version when the raw file
+layout changes. Only raw data files and integrity/attribution
+manifests are saved, never pickles or temporary downloads. Each restored
+snapshot is checked before use and copied into an isolated test cache; the
+current loader must parse it again and verify its newly generated pickle.
+A cache is saved only after a passing suite and verification of the full
+allowlist, with an uncompressed budget of 1 GiB per dataset and 2 GiB total.
+Corrupt or unexpected cache contents fail the job; delete the affected cache
+from Actions Caches or run a cold validation independently. Cache storage is
+best effort and a miss downloads fresh data. Warm/mixed combined coverage is
+not evidence of full cold-download validation; check `summary.json` for modes.
