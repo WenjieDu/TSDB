@@ -38,7 +38,7 @@ Shared logging
 --------------
 
 .. autoclass:: tsdb.utils.logging.Logger
-   :members: set_level, set_logging_format, set_saving_path
+   :members: set_level, set_logging_format, set_saving_path, stream_handler, file_handler, logging_level, formatter
 
 ``tsdb.utils.logging.logger`` is the shared standard-library logger.
 

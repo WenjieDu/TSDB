@@ -43,3 +43,9 @@ backed up and recovered; other invalid configurations are not silently reset.
 Appending to a non-UTF-8 log is refused. Choose a new filename, or back up and
 convert the old log before appending. An explicitly requested overwrite
 (``mode="w"``) still replaces the log.
+
+Logger wrappers now share the handlers of their named logger. Repeated
+construction does not duplicate TSDB output; changes made by one wrapper
+are visible to other wrappers with the same name. Use the configuration
+methods rather than directly assigning handler/formatter/level attributes.
+See :doc:`usage` for the lifecycle contract.
