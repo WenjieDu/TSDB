@@ -38,7 +38,7 @@ def cache(tmp_path, monkeypatch):
     root.mkdir()
     config_path = tmp_path / "config.ini"
     config_path.write_text(f"[path]\ntsdb_home = {root}\n", encoding="utf-8")
-    monkeypatch.setattr(data_processing, "CACHED_DATASET_DIR", str(root))
+    monkeypatch.setitem(vars(data_processing), "CACHED_DATASET_DIR", str(root))
     monkeypatch.setattr(config, "PYPOTS_ECOSYSTEM_CONFIG_PATH", config_path)
 
     def read_local_configs(path=config_path):
@@ -120,7 +120,7 @@ def test_delete_cache_missing_root(cache):
 
 
 def test_delete_cache_invalid_dataset(cache):
-    with pytest.raises(AssertionError, match="not available in TSDB"):
+    with pytest.raises(ValueError, match="not available in TSDB"):
         tsdb.delete_cache("unknown_dataset")
     assert cache.is_dir()
 

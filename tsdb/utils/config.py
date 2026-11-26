@@ -22,10 +22,10 @@ CONFIG_TEMPLATE_PATH = os.path.join(TSDB_INSTALL_PATH, "config_template.ini")
 LEGACY_CONFIG_ENCODING_ENV = "TSDB_LEGACY_CONFIG_ENCODING"
 
 
-def read_configs(config_path: str = PYPOTS_ECOSYSTEM_CONFIG_PATH):
+def read_configs(config_path=None):
     """Read an ecosystem INI file as UTF-8 (also accepting a UTF-8 BOM)."""
     config_parser = ConfigParser()
-    config_parser.read(config_path, encoding="utf-8-sig")
+    config_parser.read(PYPOTS_ECOSYSTEM_CONFIG_PATH if config_path is None else config_path, encoding="utf-8-sig")
     return config_parser
 
 

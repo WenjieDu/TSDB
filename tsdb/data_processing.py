@@ -7,7 +7,8 @@ Functions for loading datasets.
 
 import os
 import shutil
-import warnings
+import tempfile
+from pathlib import Path
 
 from .database import AVAILABLE_DATASETS
 from .loading_funcs import (
@@ -23,179 +24,137 @@ from .loading_funcs import (
     load_tsqa,
     load_ucr_uea_dataset,
 )
+from .utils.cache_lock import cache_lock
 from .utils.downloading import download_and_extract, refresh_raw_dataset
-from .utils.file import determine_tsdb_home, pickle_dump, pickle_load, purge_path
+from .utils.file import CacheError, determine_tsdb_home, pickle_dump, pickle_load
 from .utils.logging import logger
 
-CACHED_DATASET_DIR = determine_tsdb_home()
+
+def _cache_home():
+    # A module-level override remains supported for existing integrations/tests.
+    return globals().get("CACHED_DATASET_DIR") or determine_tsdb_home()
+
+
+def __getattr__(name):
+    if name == "CACHED_DATASET_DIR":
+        with cache_lock():
+            return _cache_home()
+    raise AttributeError(name)
 
 
 def list() -> list:
-    """List the database.
-
-    Returns
-    -------
-    DATABASE : dict
-        A dict contains all datasets' names and download links.
-
-    """
+    """Return registered dataset names."""
     return AVAILABLE_DATASETS.copy()
 
 
-def load(dataset_name: str, use_cache: bool = True) -> dict:
-    """Load dataset with given name.
+def _validate_name(dataset_name):
+    if dataset_name not in AVAILABLE_DATASETS:
+        raise ValueError(f"{dataset_name!r} is not available in TSDB. See tsdb.list().")
 
-    Parameters
-    ----------
-    dataset_name : str,
-        The name of the specific dataset in database.DATABASE.
 
-    use_cache : bool,
-        Whether to use cache (including data downloading and processing)
-
-    Returns
-    -------
-    result:
-        Loaded dataset in a Python dict.
-    """
-    assert dataset_name in AVAILABLE_DATASETS, (
-        f'The given dataset name "{dataset_name}" is not in the database. '
-        f"Please fetch the full list of the available dataset_profiles with tsdb.list()"
-    )
-
-    profile_dir = dataset_name if "ucr_uea_" not in dataset_name else "ucr_uea_datasets"
-    logger.info(
-        f"You're using dataset {dataset_name}, please cite it properly in your work. "
-        f"You can find its reference information at the below link: \n"
-        f"https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile_dir}"
-    )
-
-    dataset_saving_path = os.path.join(CACHED_DATASET_DIR, dataset_name)
-    if not os.path.exists(dataset_saving_path):  # if the dataset is not cached, then download it
-        download_and_extract(dataset_name, dataset_saving_path)
+def _parse(dataset_name, path):
+    loaders = {
+        "physionet_2012": load_physionet2012,
+        "physionet_2019": load_physionet2019,
+        "electricity_load_diagrams": load_electricity,
+        "electricity_transformer_temperature": load_ett,
+        "beijing_multisite_air_quality": load_beijing_air_quality,
+        "italy_air_quality": load_italy_air_quality,
+        "vessel_ais": load_ais,
+        "pems_traffic": load_pems_traffic,
+        "solar_alabama": load_solar_alabama,
+        "tsqa": load_tsqa,
+    }
+    if dataset_name.startswith("ucr_uea_"):
+        result = load_ucr_uea_dataset(path, dataset_name.removeprefix("ucr_uea_"))
     else:
-        if use_cache:
-            logger.info(f"Dataset {dataset_name} has already been downloaded. Processing directly...")
-        else:
-            # Preserve the existing cache until the replacement download succeeds.
-            refresh_raw_dataset(dataset_name, dataset_saving_path)
+        result = loaders[dataset_name](path)
+    if not isinstance(result, dict) or not result:
+        raise CacheError(f"Dataset {dataset_name} did not produce valid data")
+    pickle_dump(result, Path(path) / f"{dataset_name}_cache.pkl")
+    return result
 
-    # if cached, then load directly
-    cache_path = os.path.join(dataset_saving_path, dataset_name + "_cache.pkl")
-    if os.path.exists(cache_path):
-        logger.info(f"Dataset {dataset_name} has already been cached. Loading from cache directly...")
-        result = pickle_load(cache_path)
-    else:
+
+def _load_cached(name, target):
+    cache = target / f"{name}_cache.pkl"
+    if cache.is_symlink():
+        raise CacheError(f"Refusing linked parsed cache: {cache}")
+    if cache.is_file():
         try:
-            if dataset_name == "physionet_2012":
-                result = load_physionet2012(dataset_saving_path)
-            elif dataset_name == "physionet_2019":
-                result = load_physionet2019(dataset_saving_path)
-            elif dataset_name == "electricity_load_diagrams":
-                result = load_electricity(dataset_saving_path)
-            elif dataset_name == "electricity_transformer_temperature":
-                result = load_ett(dataset_saving_path)
-            elif dataset_name == "beijing_multisite_air_quality":
-                result = load_beijing_air_quality(dataset_saving_path)
-            elif dataset_name == "italy_air_quality":
-                result = load_italy_air_quality(dataset_saving_path)
-            elif dataset_name == "vessel_ais":
-                result = load_ais(dataset_saving_path)
-            elif dataset_name == "pems_traffic":
-                result = load_pems_traffic(dataset_saving_path)
-            elif dataset_name == "solar_alabama":
-                result = load_solar_alabama(dataset_saving_path)
-            elif dataset_name == "tsqa":
-                result = load_tsqa(dataset_saving_path)
-            elif "ucr_uea_" in dataset_name:
-                actual_dataset_name = dataset_name.replace("ucr_uea_", "")  # delete 'ucr_uea_' in the name
-                result = load_ucr_uea_dataset(dataset_saving_path, actual_dataset_name)
+            result = pickle_load(cache)
+            if isinstance(result, dict) and result:
+                return result
+        except CacheError:
+            logger.warning(f"Rebuilding unreadable parsed cache {cache} from local raw data")
+    return _parse(name, str(target))
+
+
+def load(dataset_name: str, use_cache: bool = True) -> dict:
+    """Load a registered dataset; use_cache=False stages and validates a fresh replacement."""
+    _validate_name(dataset_name)
+    profile = "ucr_uea_datasets" if dataset_name.startswith("ucr_uea_") else dataset_name
+    logger.info(f"Please cite {dataset_name}: https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile}")
+    with cache_lock():
+        target = Path(_cache_home()) / dataset_name
+        if target.is_symlink() or (target.exists() and not target.is_dir()):
+            raise CacheError(f"Invalid dataset cache path: {target}")
+        if target.exists():
+            if use_cache:
+                result = _load_cached(dataset_name, target)
             else:
-                raise NotImplementedError(
-                    f"Dataset {dataset_name} is not supported yet. "
-                    f"Please check the dataset name or contribute it to TSDB https://github.com/WenjieDu/TSDB/."
+                result = refresh_raw_dataset(
+                    dataset_name, str(target), prepare=lambda path: _parse(dataset_name, str(path))
                 )
-
-        except FileExistsError:
-            shutil.rmtree(dataset_saving_path, ignore_errors=True)
-            warnings.warn(
-                "Dataset corrupted. Just deleted it. "
-                "Please rerun the function tsdb.load(dataset_name) to re-download the raw data."
-            )
-        pickle_dump(result, cache_path)
-
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(prefix=".tsdb-load-", dir=target.parent) as staging:
+                raw = Path(staging) / "data"
+                download_and_extract(dataset_name, str(raw))
+                result = _parse(dataset_name, str(raw))
+                if os.path.lexists(target):
+                    raise FileExistsError(str(target))
+                os.rename(raw, target)
     logger.info("Loaded successfully!")
     return result
 
 
 def list_cache() -> list:
-    """List names of all cached datasets.
+    """List only registered cached dataset directories."""
+    with cache_lock():
+        root = Path(_cache_home())
+        root.mkdir(parents=True, exist_ok=True)
+        return sorted(
+            p.name for p in root.iterdir() if p.name in AVAILABLE_DATASETS and p.is_dir() and not p.is_symlink()
+        )
 
-    Returns
-    -------
-    list,
-        A list contains all cached datasets' names.
 
-    """
-    if not os.path.exists(CACHED_DATASET_DIR):
-        os.makedirs(CACHED_DATASET_DIR)
-        return []
+def _delete_dataset(path, only_pickle):
+    if path.is_symlink():
+        raise CacheError(f"Refusing to delete linked cache directory: {path}")
+    if not path.exists():
+        if only_pickle:
+            raise FileNotFoundError(str(path))
+        return
+    if not path.is_dir():
+        raise CacheError(f"Not a dataset directory: {path}")
+    if only_pickle:
+        for file in path.glob("*.pkl"):
+            file.unlink()
     else:
-        dir_content = os.listdir(CACHED_DATASET_DIR)
-
-        # remove unrelated content
-        if ".DS_Store" in dir_content:
-            dir_content.remove(".DS_Store")
-
-        return dir_content
-
-
-def _delete_cached_pickles(directory):
-    """Delete pickle files without removing downloaded raw data."""
-    for filename in os.listdir(directory):
-        if filename.endswith(".pkl"):
-            purge_path(os.path.join(directory, filename))
+        shutil.rmtree(path)
 
 
 def delete_cache(dataset_name: str | None = None, only_pickle: bool = False) -> None:
-    """Delete CACHED_DATASET_DIR if exists.
-
-    Parameters
-    ----------
-    dataset_name : str, optional
-        The name of the specific dataset in database.DATABASE.
-        If dataset is not cached, then abort.
-        Delete all cached datasets if dataset_name is left as None.
-
-    only_pickle : bool,
-        Whether to delete only the cached pickle file.
-        When the preprocessing pipeline TSDB is changed, users may want to only delete the cached pickle file which is
-        generated by the old pipeline but keep the downloaded raw data. This option is designed for this purpose.
-
-    """
-    if not os.path.exists(CACHED_DATASET_DIR):
-        logger.error("❌ No cached data. Operation aborted.")
-        return
-
-    if dataset_name is None:
-        logger.info(f"`dataset_name` not given. Purging all cached data under {CACHED_DATASET_DIR}...")
-        if only_pickle:
-            for cached_dataset in os.listdir(CACHED_DATASET_DIR):
-                _delete_cached_pickles(os.path.join(CACHED_DATASET_DIR, cached_dataset))
+    """Delete registered dataset caches, preserving unrelated files and recovery backups."""
+    if dataset_name is not None:
+        _validate_name(dataset_name)
+    with cache_lock():
+        root = Path(_cache_home())
+        if not root.exists():
+            return
+        if dataset_name is None:
+            for path in root.iterdir():
+                if path.name in AVAILABLE_DATASETS:
+                    _delete_dataset(path, only_pickle)
         else:
-            purge_path(CACHED_DATASET_DIR)
-            os.makedirs(CACHED_DATASET_DIR)
-        return
-
-    assert dataset_name in AVAILABLE_DATASETS, (
-        f"{dataset_name} is not available in TSDB, so it has no cache. Please check your dataset name."
-    )
-    dir_to_delete = os.path.join(CACHED_DATASET_DIR, dataset_name)
-    if only_pickle:
-        _delete_cached_pickles(dir_to_delete)
-        return
-    if not os.path.exists(dir_to_delete):
-        logger.error(f"❌ Dataset {dataset_name} is not cached. Operation aborted.")
-        return
-    logger.info(f"Purging cached dataset {dataset_name} under {dir_to_delete}...")
-    purge_path(dir_to_delete)
+            _delete_dataset(root / dataset_name, only_pickle)
