@@ -14,6 +14,9 @@ def run_suite(output, scope, selector):
     """Record an independent coverage database and actual pytest exit status."""
     env = os.environ.copy()
     env["COVERAGE_FILE"] = str(output / f".coverage.{scope}")
+    env["TSDB_CI_DATASET_REPORT"] = str(output / "dataset-modes")
+    if scope == "offline":
+        env.pop("TSDB_CI_RAW_CACHE", None)
     command = [
         sys.executable,
         "-m",
@@ -66,6 +69,10 @@ def main():
             results["scopes"].setdefault(scope, {}).update(
                 {key: totals[key] for key in ("covered_lines", "num_statements", "percent_covered")}
             )
+    results["dataset_modes"] = [
+        json.loads(path.read_text(encoding="utf-8")) for path in sorted((output / "dataset-modes").glob("*.json"))
+    ]
+    results["live_data_mode"] = "cache-enabled" if os.environ.get("TSDB_CI_RAW_CACHE") else "cold-only"
     (output / "summary.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(results, indent=2))
     if any(results["scopes"][scope]["exit_code"] != 0 for scope in ("offline", "live")):

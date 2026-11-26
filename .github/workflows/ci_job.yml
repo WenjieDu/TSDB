@@ -15,6 +15,12 @@ on:
             checkout-ref:
                 type: string
                 default: ''
+            raw-cache:
+                type: boolean
+                default: false
+            cold-download:
+                type: boolean
+                default: true
             coverage:
                 type: boolean
                 default: false
@@ -62,9 +68,34 @@ jobs:
               if: inputs.suite == 'offline'
               run: |
                   python -m pytest -rA -m "not network" tests --cov=tsdb --cov-report=term --cov-report=lcov:"$RUNNER_TEMP/tsdb-ci/coverage.lcov" --cov-report=xml:"$RUNNER_TEMP/tsdb-ci/coverage.xml" --junitxml="$RUNNER_TEMP/tsdb-ci/pytest.xml"
-            - name: Offline, live and combined coverage (one cold run per source)
+            - name: Compute weekly raw cache key
+              if: inputs.suite == 'combined' && inputs.raw-cache
+              id: raw-key
+              run: echo "key=$(python -m scripts.raw_dataset_cache)" >> "$GITHUB_OUTPUT"
+            - name: Restore reviewed public raw datasets
+              if: inputs.suite == 'combined' && inputs.raw-cache && !inputs.cold-download
+              id: raw-restore
+              uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+              with:
+                  path: ${{ runner.temp }}/tsdb-raw-datasets
+                  key: ${{ steps.raw-key.outputs.key }}
+            - name: Verify restored cache integrity and budget
+              if: inputs.suite == 'combined' && inputs.raw-cache && steps.raw-restore.outputs.cache-hit == 'true'
+              run: python -m scripts.raw_dataset_cache --verify "$RUNNER_TEMP/tsdb-raw-datasets"
+            - name: Offline, real-dataset and combined coverage
               if: inputs.suite == 'combined'
+              env:
+                  TSDB_CI_RAW_CACHE: ${{ inputs.raw-cache && format('{0}/tsdb-raw-datasets', runner.temp) || '' }}
               run: python scripts/coverage_suite.py --output "$RUNNER_TEMP/tsdb-ci/combined"
+            - name: Verify raw-only cache and budget
+              if: inputs.suite == 'combined' && inputs.raw-cache && steps.raw-restore.outputs.cache-hit != 'true'
+              run: python -m scripts.raw_dataset_cache --verify "$RUNNER_TEMP/tsdb-raw-datasets"
+            - name: Save verified raw datasets
+              if: inputs.suite == 'combined' && inputs.raw-cache && steps.raw-restore.outputs.cache-hit != 'true'
+              uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+              with:
+                  path: ${{ runner.temp }}/tsdb-raw-datasets
+                  key: ${{ steps.raw-key.outputs.key }}
             - name: Submit coverage to Coveralls
               if: inputs.coverage && success()
               uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2

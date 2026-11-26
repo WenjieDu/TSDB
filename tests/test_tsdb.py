@@ -4,14 +4,18 @@
 # License: BSD-3-Clause
 
 import io
+import json
+import os
 import uuid
 import zipfile
+from pathlib import Path
 
 import pandas as pd
 import pytest
 import requests
 
 import tsdb
+from scripts.raw_dataset_cache import POLICY, restore, store
 from tsdb import data_processing
 from tsdb.database import DATABASE
 from tsdb.utils import config, file
@@ -196,15 +200,15 @@ def test_config(cache):
 
 
 @pytest.mark.network
-def test_live_download_and_extract(tmp_path):
-    destination = tmp_path / "wine"
-    tsdb.download_and_extract("ucr_uea_Wine", str(destination))
-    assert any(path.is_file() for path in destination.rglob("*"))
-
-
-@pytest.mark.network
 @pytest.mark.parametrize("dataset", DATASETS_TO_TEST)
 def test_live_dataset_loading(cache, dataset):
+    raw_root = os.environ.get("TSDB_CI_RAW_CACHE")
+    raw_cache = Path(raw_root) if raw_root and dataset in POLICY else None
+    target = cache / dataset
+    hit = raw_cache is not None and restore(raw_cache, dataset, target)
+    # Cover the public download API without downloading Wine twice.
+    if dataset == "ucr_uea_Wine":
+        tsdb.download_and_extract(dataset, str(target))
     result = tsdb.load(dataset)
     assert isinstance(result, dict), f"Failed to load {dataset}"
     assert result, f"Empty dataset {dataset}"
@@ -218,3 +222,40 @@ def test_live_dataset_loading(cache, dataset):
         assert all(not frame.empty for frame in result.values())
     # Exercise cached reads without a second download.
     assert isinstance(tsdb.load(dataset), dict)
+
+    if raw_cache is not None and not hit:
+        tsdb.delete_cache(dataset, only_pickle=True)
+        store(raw_cache, dataset, target)
+    mode = "raw-cache-hit" if hit else "cold-download"
+    print(f"DATASET MODE {dataset}: {mode}", flush=True)
+    report_dir = os.environ.get("TSDB_CI_DATASET_REPORT")
+    if report_dir:
+        report = Path(report_dir)
+        report.mkdir(parents=True, exist_ok=True)
+        (report / f"{dataset}.json").write_text(json.dumps({"dataset": dataset, "mode": mode}), encoding="utf-8")
+
+
+def test_real_dataset_raw_cache_reparse(cache, archive, monkeypatch, tmp_path):
+    name = "electricity_load_diagrams"
+    shared = tmp_path / "shared-raw"
+    report = tmp_path / "report"
+    monkeypatch.setenv("TSDB_CI_RAW_CACHE", str(shared))
+    monkeypatch.setenv("TSDB_CI_DATASET_REPORT", str(report))
+    test_live_dataset_loading(cache, name)
+    assert len(archive) == 1
+    assert not list(shared.rglob("*.pkl"))
+    assert json.loads((report / f"{name}.json").read_text())["mode"] == "cold-download"
+    tsdb.delete_cache(name)
+    calls = []
+    parse = data_processing._parse
+
+    def tracked_parse(*args):
+        calls.append(args[0])
+        return parse(*args)
+
+    monkeypatch.setattr(data_processing, "_parse", tracked_parse)
+    test_live_dataset_loading(cache, name)
+    assert len(archive) == 1
+    assert calls == [name]
+    assert (cache / name / f"{name}_cache.pkl").is_file()
+    assert json.loads((report / f"{name}.json").read_text())["mode"] == "raw-cache-hit"
