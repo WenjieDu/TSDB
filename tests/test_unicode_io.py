@@ -67,7 +67,8 @@ def test_legacy_config_explicit_migration(config_module, monkeypatch, encoding, 
     config._initialize_config()
     assert path.read_bytes() == legacy_text.encode("utf-8")
     backups = list(path.parent.glob("*.bak"))
-    assert len(backups) == 1 and backups[0].read_bytes() == original
+    assert len(backups) == 1
+    assert backups[0].read_bytes() == original
     # Leaving the migration option set must not re-decode valid UTF-8.
     config._initialize_config()
     assert list(path.parent.glob("*.bak")) == backups
@@ -81,7 +82,8 @@ def test_recover_incomplete_config(config_module, original):
     config._initialize_config()
     assert config.read_configs(path).get("path", "tsdb_home") == str(path.parent / "tsdb")
     backups = list(path.parent.glob("*.bak"))
-    assert len(backups) == 1 and backups[0].read_bytes() == original
+    assert len(backups) == 1
+    assert backups[0].read_bytes() == original
 
 
 @pytest.mark.parametrize("original", [b"[path]\n[custom]\nkeep = yes\n", b"[path]\ntsdb_home =\n"])
@@ -141,7 +143,8 @@ def test_failed_migration_preserves_original(config_module, monkeypatch):
         config._initialize_config()
     assert path.read_bytes() == original
     backups = list(path.parent.glob("*.bak"))
-    assert len(backups) == 1 and backups[0].read_bytes() == original
+    assert len(backups) == 1
+    assert backups[0].read_bytes() == original
 
 
 @pytest.fixture
@@ -174,7 +177,8 @@ def test_unicode_logging_stream_and_file(log_creator, tmp_path, encoding):
     assert expected in buffer.getvalue().decode(encoding)
     assert "ASCII marker" in buffer.getvalue().decode(encoding)
     file_text = (tmp_path / "utf8.log").read_text(encoding="utf-8")
-    assert MESSAGE in file_text and "ASCII marker" in file_text
+    assert MESSAGE in file_text
+    assert "ASCII marker" in file_text
     assert stream.encoding == encoding
     assert stream.errors == "strict"
 
@@ -209,9 +213,20 @@ def test_logging_append_preserves_utf8_and_refuses_legacy(log_creator, tmp_path)
     log_creator.set_saving_path(str(tmp_path), path.name)
     log_creator.logger.warning("one marker")
     text = path.read_text(encoding="utf-8")
-    assert "old café" in text and MESSAGE in text
+    assert "old café" in text
+    assert MESSAGE in text
     assert text.count("one marker") == 1
     assert sum(isinstance(h, logging.FileHandler) for h in log_creator.logger.handlers) == 1
+
+
+def test_logging_append_validates_beyond_first_chunk(log_creator, tmp_path):
+    path = tmp_path / "large.log"
+    original = b"a" * 131072 + b"\xff"
+    path.write_bytes(original)
+    with pytest.raises(ValueError, match="not UTF-8"):
+        log_creator.set_saving_path(str(tmp_path), path.name)
+    assert path.read_bytes() == original
+    assert log_creator.file_handler is None
 
 
 @pytest.mark.parametrize("encoding", ["utf-8", "cp1252", "gbk"])
