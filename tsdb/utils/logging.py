@@ -39,9 +39,7 @@ class Logger:
 
         """
 
-        assert (
-            logging_level in LEVELS.keys()
-        ), f"logging_level should be {list(LEVELS.keys())}, but got {logging_level}"
+        assert logging_level in LEVELS, f"logging_level should be {list(LEVELS.keys())}, but got {logging_level}"
 
         self.logger = logging.getLogger(name)
         self.logging_level = LEVELS[logging_level]

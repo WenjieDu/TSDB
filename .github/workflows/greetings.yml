@@ -3,23 +3,27 @@ name: Auto reply to new issues and PRs
 on:
   issues:
     types: [opened]
-  pull_request:
+  pull_request_target:
     branches: [main, dev]
     types: [opened]
+
+permissions: {}
 
 jobs:
   greeting:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     permissions:
       pull-requests: write
       issues: write
 
     steps:
-    - uses: actions/first-interaction@v3
+    # Metadata and comments only; never run PR-controlled code.
+    - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d # v3
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-message: |
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_message: |
           Hi there 👋,
 
           Thank you so much for your attention to TSDB and PyPOTS! You can follow me on GitHub to receive the latest news of TSDB and PyPOTS. If you find TSDB helpful to your work, please star⭐️ this repository. Your star is your recognition, which can help more people notice PyPOTS and grow PyPOTS community. It matters and is definitely a kind of contribution to the community.
@@ -28,7 +32,7 @@ jobs:
 
           Best,
           Wenjie
-        pr-message: |
+        pr_message: |
           Hi there 👋,
 
           We really really appreciate that you have taken the time to make this PR on TSDB!

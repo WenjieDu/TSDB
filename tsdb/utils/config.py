@@ -27,8 +27,8 @@ def read_configs(config_path: str = PYPOTS_ECOSYSTEM_CONFIG_PATH):
 
 
 def write_configs(config_parser, key_value_set):
-    for section in key_value_set.keys():
-        for key in key_value_set[section].keys():
+    for section in key_value_set:
+        for key in key_value_set[section]:
             value = key_value_set[section][key]
             config_parser.set(section, key, value)
 
@@ -47,10 +47,6 @@ if not os.path.exists(PYPOTS_ECOSYSTEM_CONFIG_PATH):
     # move the config template to pypots home to initialize the config
     shutil.copy(CONFIG_TEMPLATE_PATH, PYPOTS_ECOSYSTEM_CONFIG_PATH)
     configer = read_configs()
-    write_configs(
-        configer, {"path": {"tsdb_home": str(PYPOTS_ECOSYSTEM_HOME_PATH / "tsdb")}}
-    )
+    write_configs(configer, {"path": {"tsdb_home": str(PYPOTS_ECOSYSTEM_HOME_PATH / "tsdb")}})
 
-    logger.info(
-        f"💫 Initialized PyPOTS Ecosystem configuration file {PYPOTS_ECOSYSTEM_CONFIG_PATH} successfully."
-    )
+    logger.info(f"💫 Initialized PyPOTS Ecosystem configuration file {PYPOTS_ECOSYSTEM_CONFIG_PATH} successfully.")

@@ -51,9 +51,7 @@ def load_physionet2012(local_path):
         outcome_file_path = os.path.join(local_path, o_)
         with open(outcome_file_path, "r") as f:
             outcome = pd.read_csv(f)[["In-hospital_death", "RecordID"]]
-        outcome["RecordID"] = outcome["RecordID"].astype(
-            int
-        )  # ensure RecordID's type is int
+        outcome["RecordID"] = outcome["RecordID"].astype(int)  # ensure RecordID's type is int
         outcome = outcome.set_index("RecordID")
         outcome_collector.append(outcome)
 
@@ -70,9 +68,7 @@ def load_physionet2012(local_path):
             df_temp = df_temp.pivot_table("Value", "Time", "Parameter")
             df_temp = df_temp.reset_index()  # take Time from index as a col
             if len(df_temp) == 1:
-                logger.warning(
-                    f"Ignore {recordID}, because its len==1, having no time series data"
-                )
+                logger.warning(f"Ignore {recordID}, because its len==1, having no time series data")
                 continue
 
             df_temp["RecordID"] = recordID

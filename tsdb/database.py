@@ -5,7 +5,6 @@ List available datasets and their official download links.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
-
 _DATABASE = {
     # http://www.physionet.org/challenge/2012
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012
@@ -225,9 +224,7 @@ _ucr_uea_datasets = [
 
 UCR_UEA_DATASETS = {}
 for i in _ucr_uea_datasets:
-    UCR_UEA_DATASETS[
-        "ucr_uea_" + i
-    ] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
+    UCR_UEA_DATASETS["ucr_uea_" + i] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
 
 DATABASE = {**_DATABASE, **UCR_UEA_DATASETS}
 AVAILABLE_DATASETS = list(DATABASE.keys())
