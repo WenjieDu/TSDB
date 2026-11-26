@@ -92,3 +92,23 @@ The shared configuration and file logs use UTF-8. Console logging retains
 Unicode when supported and escapes unsupported characters without changing
 application standard streams or global encoding settings. See :doc:`migration`
 for legacy configuration and log-file compatibility.
+
+Named logger lifecycle
+----------------------
+
+``Logger`` wrappers with the same name share one TSDB-owned console handler
+and at most one TSDB-owned UTF-8 file handler. Constructing another wrapper
+with the same name applies its level and format to the existing handlers,
+preserving any configured file and console stream. Use ``set_level``,
+``set_logging_format`` and ``set_saving_path`` to change the shared settings.
+The ``logging_level``, ``formatter``, ``stream_handler`` and ``file_handler``
+attributes expose the current shared state; ``stream_handler.setStream``
+remains available for a custom console stream. Invalid levels raise
+``ValueError``.
+
+Replacing the file destination detaches and closes the previous TSDB file
+handler. If opening or validating the new file fails, the previous handler
+remains active. TSDB does not remove or reconfigure independently attached
+application handlers. Configuration calls through TSDB are serialized within
+a process; concurrent emission during reconfiguration and external handler
+changes are not a transactional logging operation.
