@@ -24,23 +24,14 @@ def load_ucr_uea_dataset(local_path, dataset_name):
         # used
         # both training and test data must be available in the same format
         if _has_files(local_path, dataset_name, ext="arff"):
-            X_train, y_train = _load_arff_uea(
-                os.path.join(local_path, dataset_name + "_TRAIN.arff")
-            )
-            X_test, y_test = _load_arff_uea(
-                os.path.join(local_path, dataset_name + "_TEST.arff")
-            )
+            X_train, y_train = _load_arff_uea(os.path.join(local_path, dataset_name + "_TRAIN.arff"))
+            X_test, y_test = _load_arff_uea(os.path.join(local_path, dataset_name + "_TEST.arff"))
         elif _has_files(local_path, dataset_name, ext="txt"):
-            X_train, y_train = _load_txt_uea(
-                os.path.join(local_path, dataset_name + "_TRAIN.txt")
-            )
-            X_test, y_test = _load_txt_uea(
-                os.path.join(local_path, dataset_name + "_TEST.txt")
-            )
+            X_train, y_train = _load_txt_uea(os.path.join(local_path, dataset_name + "_TRAIN.txt"))
+            X_test, y_test = _load_txt_uea(os.path.join(local_path, dataset_name + "_TEST.txt"))
         else:
             warnings.warn(
-                'dataset "%s" is not provided in either TXT '
-                "or ARFF format and thus could not be loaded" % dataset_name,
+                f'dataset "{dataset_name}" is not provided in either TXT or ARFF format and thus could not be loaded',
                 category=RuntimeWarning,
                 stacklevel=2,
             )
@@ -55,10 +46,9 @@ def load_ucr_uea_dataset(local_path, dataset_name):
 
         return data
 
-    except Exception as exception:
+    except Exception as exception:  # noqa: BLE001 - Preserve the existing error-handling contract.
         warnings.warn(
-            'dataset "%s" could be downloaded but not '
-            "parsed: %s" % (dataset_name, str(exception)),
+            f'dataset "{dataset_name}" could be downloaded but not parsed: {exception!s}',
             category=RuntimeWarning,
             stacklevel=2,
         )
@@ -84,9 +74,7 @@ def _has_files(data_dir, dataset_name, ext):
         file extension
     """
     basename = os.path.join(data_dir, dataset_name)
-    return os.path.exists(basename + "_TRAIN.%s" % ext) and os.path.exists(
-        basename + "_TEST.%s" % ext
-    )
+    return os.path.exists(basename + f"_TRAIN.{ext}") and os.path.exists(basename + f"_TEST.{ext}")
 
 
 def ts_size(ts):
@@ -269,11 +257,7 @@ def _load_arff_uea(
     with open(full_file_path_and_name, encoding="utf-8") as f:
         for line in f:
             if line.strip():
-                if (
-                    is_multi_variate is False
-                    and "@attribute" in line.lower()
-                    and "relational" in line.lower()
-                ):
+                if is_multi_variate is False and "@attribute" in line.lower() and "relational" in line.lower():
                     is_multi_variate = True
 
                 if "@data" in line.lower():
