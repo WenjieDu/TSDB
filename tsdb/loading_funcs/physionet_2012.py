@@ -49,7 +49,7 @@ def load_physionet2012(local_path):
     outcome_collector = []
     for o_ in outcome_files:
         outcome_file_path = os.path.join(local_path, o_)
-        with open(outcome_file_path, "r") as f:
+        with open(outcome_file_path, encoding="utf-8") as f:
             outcome = pd.read_csv(f)[["In-hospital_death", "RecordID"]]
         outcome["RecordID"] = outcome["RecordID"].astype(int)  # ensure RecordID's type is int
         outcome = outcome.set_index("RecordID")
@@ -60,9 +60,9 @@ def load_physionet2012(local_path):
     for m_ in time_series_measurements_dir:
         df_collector = []
         raw_data_dir = os.path.join(local_path, m_)
-        for filename in os.listdir(raw_data_dir):
+        for filename in sorted(name for name in os.listdir(raw_data_dir) if name.endswith(".txt")):
             recordID = int(filename.split(".txt")[0])
-            with open(os.path.join(raw_data_dir, filename), "r") as f:
+            with open(os.path.join(raw_data_dir, filename), encoding="utf-8") as f:
                 df_temp = pd.read_csv(f)
             df_temp["Time"] = df_temp["Time"].apply(lambda x: int(x.split(":")[0]))
             df_temp = df_temp.pivot_table("Value", "Time", "Parameter")

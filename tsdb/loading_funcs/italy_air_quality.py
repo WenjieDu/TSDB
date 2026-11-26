@@ -19,14 +19,14 @@ def load_italy_air_quality(local_path):
     Parameters
     ----------
     local_path : str,
-        The local path of dir saving the raw data of Beijing Multi-site Air Quality.
+        The local path of dir saving the raw data of Italy Air Quality.
 
     Returns
     -------
     data : dict
         A dictionary contains X:
             X : pandas.DataFrame
-                The time-series data of Beijing Multi-site Air Quality.
+                The time-series data of Italy Air Quality.
     """
     file_path = os.path.join(local_path, "AirQualityUCI.csv")
     df = pd.read_csv(file_path, sep=";", decimal=",")
