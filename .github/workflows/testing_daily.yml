@@ -43,3 +43,6 @@ jobs:
             checkout-ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}
             raw-cache: ${{ github.ref_name == github.event.repository.default_branch && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.cold-download)) }}
             cold-download: ${{ github.event_name == 'push' || github.event.schedule == '0 0 * * 0' || (github.event_name == 'workflow_dispatch' && inputs.cold-download) }}
+        secrets:
+            # Only trusted main/dev scheduled or manually dispatched runs receive the token.
+            HF_TOKEN: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && secrets.HF_TOKEN || '' }}

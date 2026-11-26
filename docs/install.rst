@@ -31,5 +31,11 @@ TSQA requires the optional Hugging Face client:
 
    pip install "tsdb[tsqa]"
 
+TSQA is a gated dataset on Hugging Face. Sign in and obtain access at
+`Time-MQA/TSQA <https://huggingface.co/datasets/Time-MQA/TSQA>`_. Then authenticate
+with ``hf auth login`` or provide ``HF_TOKEN`` in your environment using an
+authorized read-only Hugging Face access token. Never put the token in source
+code or logs. Existing local TSQA raw data can be parsed without authentication.
+
 No SciPy or scikit-learn installation is required by TSDB itself.
 For the behavior of existing caches and configuration, see :doc:`migration`.

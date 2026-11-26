@@ -10,9 +10,12 @@ import sys
 from pathlib import Path
 
 
-def run_suite(output, scope, selector):
+def run_suite(output, scope, selector, hf_token=None):
     """Record an independent coverage database and actual pytest exit status."""
     env = os.environ.copy()
+    env.pop("HF_TOKEN", None)
+    if scope == "live" and hf_token:
+        env["HF_TOKEN"] = hf_token
     env["COVERAGE_FILE"] = str(output / f".coverage.{scope}")
     env["TSDB_CI_DATASET_REPORT"] = str(output / "dataset-modes")
     if scope == "offline":
@@ -36,6 +39,7 @@ def run_suite(output, scope, selector):
 
 def combine(output):
     env = os.environ.copy()
+    env.pop("HF_TOKEN", None)
     env["COVERAGE_FILE"] = str(output / ".coverage")
     subprocess.run([sys.executable, "-m", "coverage", "combine", "--keep", str(output)], env=env, check=True)
     for kind, name in (("json", "combined.json"), ("xml", "combined.xml"), ("lcov", "combined.lcov")):
@@ -46,6 +50,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    # Retain the credential only for the live test subprocess, not git, offline tests or reporting.
+    hf_token = os.environ.pop("HF_TOKEN", None)
     output = args.output.resolve()
     if subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], text=True).strip():
         parser.error("Coverage requires a clean tracked source checkout")
@@ -53,7 +59,7 @@ def main():
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     results = {"revision": revision, "python": sys.version, "scopes": {}}
     for scope, selector in (("offline", "not network"), ("live", "network")):
-        status = run_suite(output, scope, selector)
+        status = run_suite(output, scope, selector, hf_token)
         results["scopes"][scope] = {"exit_code": status}
     if (
         subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip() != revision

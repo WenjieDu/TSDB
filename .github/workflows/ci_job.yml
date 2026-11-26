@@ -24,6 +24,10 @@ on:
             coverage:
                 type: boolean
                 default: false
+        secrets:
+            HF_TOKEN:
+                description: Read-only access to the gated TSQA dataset
+                required: false
 
 permissions:
     contents: read
@@ -86,7 +90,18 @@ jobs:
               if: inputs.suite == 'combined'
               env:
                   TSDB_CI_RAW_CACHE: ${{ inputs.raw-cache && format('{0}/tsdb-raw-datasets', runner.temp) || '' }}
-              run: python scripts/coverage_suite.py --output "$RUNNER_TEMP/tsdb-ci/combined"
+                  HF_TOKEN: ${{ secrets.HF_TOKEN }}
+              run: |
+                  # Fail before expensive downloads if the trusted daily run lacks its credential.
+                  if [[ "$GITHUB_EVENT_NAME" == "schedule" || "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+                      if [[ "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == "refs/heads/dev" ]]; then
+                          if [[ -z "$HF_TOKEN" ]]; then
+                              echo "::error::Configure the repository Actions secret HF_TOKEN with authorized read access to Time-MQA/TSQA."
+                              exit 1
+                          fi
+                      fi
+                  fi
+                  python scripts/coverage_suite.py --output "$RUNNER_TEMP/tsdb-ci/combined"
             - name: Verify raw-only cache and budget
               if: inputs.suite == 'combined' && inputs.raw-cache && steps.raw-restore.outputs.cache-hit != 'true'
               run: python -m scripts.raw_dataset_cache --verify "$RUNNER_TEMP/tsdb-raw-datasets"
