@@ -8,9 +8,48 @@ import time
 import unicodedata
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
-from threading import local
+from threading import Lock, local
 
 _LOCK_STATE = local()
+# Track every open lock handle, including those held by other threads or
+# waiting for acquisition. Serialize registration/close against fork.
+_HANDLE_GUARD = Lock()
+_OPEN_HANDLES = set()
+
+
+def _after_fork_child():
+    global _LOCK_STATE
+    try:
+        # flock is associated with an open file description shared across
+        # fork. Close only the child's copies, NEVER issue LOCK_UN on them.
+        for handle in _OPEN_HANDLES:
+            handle.close()
+        _OPEN_HANDLES.clear()
+        _LOCK_STATE = local()
+    finally:
+        _HANDLE_GUARD.release()
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(
+        before=_HANDLE_GUARD.acquire,
+        after_in_parent=_HANDLE_GUARD.release,
+        after_in_child=_after_fork_child,
+    )
+
+
+@contextmanager
+def _lock_handle(path):
+    with _HANDLE_GUARD:
+        # Unbuffered: no inherited buffered-I/O state to flush in the child.
+        handle = path.open("a+b", buffering=0)
+        _OPEN_HANDLES.add(handle)
+    try:
+        yield handle
+    finally:
+        with _HANDLE_GUARD:
+            _OPEN_HANDLES.discard(handle)
+            handle.close()
 
 
 @contextmanager
@@ -21,7 +60,8 @@ def _os_lock(path):
     its inode. Only cooperating TSDB processes are covered.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a+b") as handle:
+    owner_pid = os.getpid()
+    with _lock_handle(path) as handle:
         if os.name == "nt":
             import msvcrt
 
@@ -57,7 +97,10 @@ def _os_lock(path):
             try:
                 yield
             finally:
-                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+                # An inherited context may unwind in the child after its
+                # handle was closed by the at-fork callback.
+                if os.getpid() == owner_pid:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 @contextmanager
