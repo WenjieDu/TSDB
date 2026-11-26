@@ -1,54 +1,104 @@
-# This workflow will automatically publish a Python package to PyPI using Twine when a release is created
-# For more information, please refer to
-# https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Publish to PyPI
 
 on:
-  push:
-    branches:
-      - release
-
-  release:
-    types: [published]
+    release:
+        types: [published]
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: 'Optional existing stable tag (dry run only); otherwise validate selected ref'
+                required: false
+                type: string
 
 permissions:
-  contents: read
+    contents: read
+
+concurrency:
+    group: tsdb-pypi-${{ github.event.release.tag_name || inputs.tag || github.ref }}
+    cancel-in-progress: false
 
 jobs:
-  PyPI-deployment:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v5
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-        check-latest: true
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build
-
-    - name: Fetch the test environment details
-      run: |
-        which python
-        pip list
-
-    - name: Build package
-      run: |
-        python -m build
-
-    - name: Publish the new package to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.12.4
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+    validate:
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft)
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        steps:
+            - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+              with:
+                  ref: ${{ github.event_name == 'release' && github.sha || (inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.sha) }}
+                  fetch-depth: 0
+                  persist-credentials: false
+            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: '3.10'
+            - name: Validate source identity
+              env:
+                  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag || '' }}
+                  EVENT_SHA: ${{ github.event_name == 'release' && github.sha || '' }}
+              run: python scripts/check_release.py --tag "$RELEASE_TAG" --event-sha "$EVENT_SHA"
+            - name: Build source distribution and wheel from the sdist
+              run: |
+                  python -m pip install build twine pytest pytest-cov
+                  python -m build --outdir "$RUNNER_TEMP/tsdb-release/dist"
+                  python -m twine check --strict "$RUNNER_TEMP/tsdb-release/dist/"*
+            - name: Verify distribution identity and contents
+              env:
+                  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag || '' }}
+                  EVENT_SHA: ${{ github.event_name == 'release' && github.sha || '' }}
+              run: python scripts/check_release.py --tag "$RELEASE_TAG" --event-sha "$EVENT_SHA" --dist "$RUNNER_TEMP/tsdb-release/dist"
+            - name: Install the exact wheel and check dependency resolution
+              run: |
+                  python -m pip install "$RUNNER_TEMP/tsdb-release/dist/"*.whl
+                  python -m pip check
+            - name: Verify installed distribution outside checkout
+              working-directory: ${{ runner.temp }}
+              env:
+                  HOME: ${{ runner.temp }}/tsdb-release-home
+                  USERPROFILE: ${{ runner.temp }}/tsdb-release-home
+              run: python -I "$GITHUB_WORKSPACE/scripts/smoke_release.py"
+            - name: Run offline regression tests
+              run: python -m pytest -m 'not network' tests --junitxml="$RUNNER_TEMP/tsdb-release/offline.xml"
+            - name: Record artifact digests
+              working-directory: ${{ runner.temp }}/tsdb-release
+              run: sha256sum dist/*.whl dist/*.tar.gz > SHA256SUMS
+            - name: Upload validated distributions
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: tsdb-release-dist
+                  path: |
+                      ${{ runner.temp }}/tsdb-release/dist/*
+                      ${{ runner.temp }}/tsdb-release/SHA256SUMS
+                  if-no-files-found: error
+                  retention-days: 14
+            - name: Upload offline test evidence
+              if: always()
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: tsdb-release-test-results
+                  path: ${{ runner.temp }}/tsdb-release/offline.xml
+                  if-no-files-found: warn
+    publish:
+        if: github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft
+        needs: validate
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        environment:
+            name: pypi
+            url: https://pypi.org/project/tsdb/
+        permissions:
+            id-token: write
+        steps:
+            - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: tsdb-release-dist
+                  path: release
+            - name: Check validated artifact integrity
+              working-directory: release
+              run: |
+                  test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 2
+                  test "$(wc -l < SHA256SUMS)" -eq 2
+                  sha256sum --check SHA256SUMS
+            - name: Publish validated distributions using Trusted Publishing
+              uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+              with:
+                  packages-dir: release/dist/
