@@ -31,6 +31,29 @@ revision, exit statuses, line counts and actual per-dataset download modes.
 External-source errors fail the job; partial coverage never implies a passing
 suite. The designated Coveralls upload remains offline-only.
 
+TSQA authentication in CI
+-------------------------
+
+The TSQA dataset requires an authorized Hugging Face identity. Obtain access
+at `Time-MQA/TSQA <https://huggingface.co/datasets/Time-MQA/TSQA>`_ and create
+a dedicated read-only or fine-grained token at
+`Hugging Face token settings <https://huggingface.co/settings/tokens>`_. Store
+it as a repository Actions secret named ``HF_TOKEN`` in
+`TSDB Actions secrets <https://github.com/WenjieDu/TSDB/settings/secrets/actions>`_.
+Do not use a write token, print the token, or save it in an artifact or cache.
+
+The daily workflow forwards this secret only for scheduled or manually
+triggered runs on main/dev; the reusable workflow exposes it only in the
+combined test step, and the coverage runner passes it only to the live pytest
+subprocess. Ordinary offline CI receives no token. Missing credentials fail
+trusted daily runs before the expensive downloads. For other branch runs the
+secret is not forwarded; gated TSQA access may fail, and that is not a full
+release validation. Repository secrets are accessible to workflows written by
+trusted repository collaborators, so maintain branch protection and review
+workflow changes. For local combined validation, export an authorized
+``HF_TOKEN`` securely before running the coverage script (the tests isolate HOME).
+TSQA files are not eligible for the shared raw cache.
+
 Daily real-dataset cache
 ------------------------
 
