@@ -34,13 +34,15 @@ html_title = "TSDB documentation"
 epub_exclude_files = ["search.html", ".doctrees"]
 
 
-# Autodoc imports data-access modules, which initialize the ecosystem config.
+# Autodoc/doctest can exercise data-access APIs that initialize ecosystem config.
 # Keep the entire build isolated from the maintainer's real configuration/cache.
 def setup(app):
     home = tempfile.TemporaryDirectory(prefix="tsdb-docs-home-")
-    previous = {key: os.environ.get(key) for key in ("HOME", "USERPROFILE")}
-    for key in previous:
+    previous = {key: os.environ.get(key) for key in ("HOME", "USERPROFILE", "PYPOTS_HOME", "TSDB_CACHE_DIR")}
+    for key in ("HOME", "USERPROFILE"):
         os.environ[key] = home.name
+    for key in ("PYPOTS_HOME", "TSDB_CACHE_DIR"):
+        os.environ.pop(key, None)
 
     def cleanup():
         for key, value in previous.items():

@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import tomlkit
 
 import tsdb
 from tsdb import data_processing
@@ -21,8 +22,8 @@ RAW = ";MT_001\n2011-01-01 00:00:00;1,5\n"
 def cache_root(tmp_path, monkeypatch):
     root = tmp_path / "cache"
     root.mkdir()
-    config_path = tmp_path / "config.ini"
-    config_path.write_text(f"[path]\ntsdb_home = {root}\n", encoding="utf-8")
+    config_path = tmp_path / "config.toml"
+    config_path.write_text(tomlkit.dumps({"schema_version": 1, "tsdb": {"cache_dir": str(root)}}), encoding="utf-8")
     monkeypatch.setattr(config, "PYPOTS_ECOSYSTEM_CONFIG_PATH", config_path)
     return root
 

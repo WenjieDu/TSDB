@@ -22,7 +22,7 @@ def main():
     from tsdb.utils.config import CONFIG_TEMPLATE_PATH, read_configs
 
     assert Path(CONFIG_TEMPLATE_PATH).is_file()
-    raw = Path(read_configs().get("path", "tsdb_home")) / "electricity_load_diagrams"
+    raw = Path(read_configs()["tsdb"]["cache_dir"]) / "electricity_load_diagrams"
     raw.mkdir(parents=True)
     (raw / "LD2011_2014.txt").write_text(";meter\n2011-01-01 00:00:00;1,5\n", encoding="utf-8")
     data = tsdb.load("electricity_load_diagrams")

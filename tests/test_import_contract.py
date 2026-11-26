@@ -33,7 +33,7 @@ assert tuple(tsdb.list()) == original
 assert tsdb.info("physionet_2019")["revision"] == "1.0.0"
 assert 'load' in dir(tsdb)
 assert 'CACHED_DATASET_DIR' in dir(tsdb)
-for name in ('numpy', 'pandas', 'sklearn', 'scipy', 'requests', 'pyarrow', 'tsdb.data_processing', 'tsdb.utils.config'):
+for name in ('numpy', 'pandas', 'sklearn', 'scipy', 'requests', 'pyarrow', 'tsdb.data_processing', 'tsdb.utils.config', 'tomlkit'):
     assert name not in sys.modules, name
 """
     result = subprocess.run(

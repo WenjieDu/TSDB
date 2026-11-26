@@ -13,8 +13,9 @@ from pathlib import Path
 
 import pandas as pd
 
+from . import config
 from .cache_lock import cache_lock
-from .config import CONFIG_TEMPLATE_PATH, read_configs, write_configs
+from .config import cache_dir_override, read_configs, require_legacy_retired_for_relocation, write_configs
 from .logging import logger
 
 
@@ -38,13 +39,7 @@ def check_path(
         The absolute path of the given path.
 
     """
-    # expand the home dir if the path starts with "~"
-    if path.startswith("~"):
-        checked_path = path.replace("~", os.path.expanduser("~"))
-    else:
-        checked_path = path
-
-    checked_path = os.path.abspath(checked_path)
+    checked_path = os.path.abspath(os.path.expanduser(path))
 
     if check_exists:
         assert os.path.exists(checked_path), f"The given path {checked_path} does not exists"
@@ -153,13 +148,15 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
 
 def determine_tsdb_home():
     # default path
-    config_temp = read_configs(CONFIG_TEMPLATE_PATH)
-    default_path = check_path(config_temp.get("path", "tsdb_home"))
+    override = cache_dir_override()
+    if override is not None:
+        return check_path(override)
+    default_path = str(Path(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).parent / "tsdb")
 
     # read tsdb_home from the current config file
     # tsdb_home may be changed by users, hence not necessarily equal to the default path
-    config = read_configs()
-    tsdb_home_path = config.get("path", "tsdb_home")
+    document = read_configs()
+    tsdb_home_path = document["tsdb"]["cache_dir"]
     tsdb_home_path = check_path(tsdb_home_path)
 
     # old cached dataset dir path used in TSDB v0.2
@@ -167,7 +164,9 @@ def determine_tsdb_home():
     # old cached dataset dir path used in TSDB v0.4
     old_cached_dataset_dir_04 = check_path("~/.tsdb")
 
-    if os.path.exists(old_cached_dataset_dir_02) or os.path.exists(old_cached_dataset_dir_04):
+    if Path(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).parent == config.USER_HOME / ".pypots" and (
+        os.path.exists(old_cached_dataset_dir_02) or os.path.exists(old_cached_dataset_dir_04)
+    ):
         logger.warning("‼️ Detected the home dir of the old version TSDB. Auto migrating... Please wait.")
         cached_dataset_dir = tsdb_home_path
         if os.path.exists(old_cached_dataset_dir_02):
@@ -175,21 +174,14 @@ def determine_tsdb_home():
         else:
             migrate(old_cached_dataset_dir_04, cached_dataset_dir)
         logger.info("🌟 Migrating finished.")
-    elif os.path.exists(tsdb_home_path):
-        # use the path directly, may be in a portable disk
+    elif os.path.exists(tsdb_home_path) or tsdb_home_path == default_path:
         cached_dataset_dir = tsdb_home_path
     else:
-        # if the preset tsdb_home path does not exist,
-        # e.g. `tsdb_home_path` is in a portable disk that is not connected
-        # then use the default path
-        if check_path(tsdb_home_path) != check_path(default_path):
-            logger.warning(
-                f"❗️ The preset tsdb_home {tsdb_home_path} doesn't exist. "
-                f"This may be caused by the portable disk not connected."
-            )
-            logger.warning(f"‼️ Using the default path {default_path} for now")
-
-        cached_dataset_dir = default_path
+        # Do not silently redirect a configured external disk to another cache.
+        raise FileNotFoundError(
+            f"Configured TSDB cache {tsdb_home_path} does not exist. Mount or create that directory, "
+            "or set TSDB_CACHE_DIR for a temporary override."
+        )
 
     return cached_dataset_dir
 
@@ -252,10 +244,14 @@ def migrate_cache(target_path: str) -> None:
     from .. import data_processing
 
     with cache_lock():
+        if cache_dir_override() is not None:
+            raise ValueError("Unset TSDB_CACHE_DIR before migrating the persistent cache.")
+        read_configs()
+        require_legacy_retired_for_relocation()
         source = data_processing._cache_home()
 
         def update(destination):
-            write_configs(read_configs(), {"path": {"tsdb_home": str(destination)}})
+            write_configs({"tsdb": {"cache_dir": str(destination)}})
             if "CACHED_DATASET_DIR" in vars(data_processing):
                 data_processing.CACHED_DATASET_DIR = str(destination)
 

@@ -87,7 +87,7 @@ def validate_distributions(dist, version):
     license_bytes = (ROOT / "LICENSE").read_bytes()
     wheel = next(dist.glob("*.whl"))
     expected = {path.relative_to(ROOT).as_posix() for path in (ROOT / "tsdb").rglob("*.py")}
-    expected.add("tsdb/config_template.ini")
+    expected.add("tsdb/config_template.toml")
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
         if not any(
@@ -96,7 +96,7 @@ def validate_distributions(dist, version):
             if name.startswith(f"tsdb-{version}.dist-info/") and name.endswith("/LICENSE")
         ):
             raise ValueError("Wheel license differs from repository license")
-        if "tsdb/config_template.ini" not in names or not all(
+        if "tsdb/config_template.toml" not in names or not all(
             name.startswith(("tsdb/", f"tsdb-{version}.dist-info/")) for name in names
         ):
             raise ValueError("Unexpected wheel contents or missing configuration template")

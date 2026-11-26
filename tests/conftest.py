@@ -12,6 +12,7 @@ def pytest_configure(config):
     patch = pytest.MonkeyPatch()
     patch.setenv("HOME", home.name)
     patch.setenv("USERPROFILE", home.name)
-    patch.delenv("TSDB_LEGACY_CONFIG_ENCODING", raising=False)
+    for key in ("TSDB_LEGACY_CONFIG_ENCODING", "PYPOTS_HOME", "TSDB_CACHE_DIR"):
+        patch.delenv(key, raising=False)
     config.add_cleanup(home.cleanup)
     config.add_cleanup(patch.undo)

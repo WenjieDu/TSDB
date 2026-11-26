@@ -60,7 +60,7 @@ tsqa = ["huggingface_hub"]
 include-package-data = false
 
 [tool.setuptools.package-data]
-tsdb = ["config_template.ini"]
+tsdb = ["config_template.toml"]
 
 [tool.setuptools.packages.find]
 include = ["tsdb", "tsdb.*"]

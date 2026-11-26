@@ -1,0 +1,5 @@
+# PyPOTS Ecosystem configuration
+schema_version = 1
+
+[tsdb]
+cache_dir = "~/.pypots/tsdb"

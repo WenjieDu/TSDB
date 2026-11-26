@@ -18,15 +18,9 @@ MESSAGE = "🚀 Training: café 温度"
 
 @pytest.fixture
 def config_module(tmp_path, monkeypatch):
-    # The import initializes configuration; isolate it even when run alone.
-    home = tmp_path / "home"
-    home.mkdir()
-    monkeypatch.setenv("HOME", str(home))
-    monkeypatch.setenv("USERPROFILE", str(home))
     from tsdb.utils import config
 
-    path = home / ".pypots" / "config.ini"
-    path.parent.mkdir(exist_ok=True)
+    path = tmp_path / "config.toml"
     monkeypatch.setattr(config, "PYPOTS_ECOSYSTEM_CONFIG_PATH", path)
     monkeypatch.delenv(config.LEGACY_CONFIG_ENCODING_ENV, raising=False)
     return config, path
@@ -38,101 +32,107 @@ def _config_text(value):
 
 def test_utf8_config_roundtrip(config_module):
     config, path = config_module
+    legacy = path.with_suffix(".ini")
     value = "cache/温度/café/🚀"
     original = _config_text(value).encode("utf-8-sig")
-    path.write_bytes(original)
+    legacy.write_bytes(original)
     config._initialize_config()
-    assert path.read_bytes() == original
-    parser = config.read_configs(path)
-    assert parser.get("path", "tsdb_home") == value
-    config.write_configs(parser, {"path": {"tsdb_home": value + "/new"}})
-    assert path.read_bytes().decode("utf-8")
-    parser = config.read_configs(path)
-    assert parser.get("path", "tsdb_home") == value + "/new"
-    assert parser.get("custom", "keep") == "yes"
-    assert not list(path.parent.glob("*.bak"))
+    assert legacy.read_bytes() == original
+    parser = config.read_configs()
+    assert parser["tsdb"]["cache_dir"] == value
+    assert parser["legacy_ini"]["custom"]["keep"] == "yes"
+    with pytest.raises(ValueError, match="archive config.ini"):
+        config.write_configs({"tsdb": {"cache_dir": value + "/new"}})
+    legacy.rename(path.parent / "legacy.ini.retired")
+    config.write_configs({"tsdb": {"cache_dir": value + "/new"}})
+    parser = config.read_configs()
+    assert parser["tsdb"]["cache_dir"] == value + "/new"
+    assert parser["legacy_ini"]["custom"]["keep"] == "yes"
+    assert (path.parent / "legacy.ini.retired").read_bytes() == original
+    backups = list(path.parent.glob("*.bak"))
+    assert len(backups) == 1 and backups[0].read_bytes() == original
 
 
 @pytest.mark.parametrize("encoding,value", [("cp1252", "café"), ("gbk", "温度")])
 def test_legacy_config_explicit_migration(config_module, monkeypatch, encoding, value):
     config, path = config_module
-    legacy_text = _config_text(value).replace("\n", "\r\n")
-    original = legacy_text.encode(encoding)
-    path.write_bytes(original)
+    legacy = path.with_suffix(".ini")
+    original = _config_text(value).replace("\n", "\r\n").encode(encoding)
+    legacy.write_bytes(original)
     with pytest.raises(ValueError, match="TSDB_LEGACY_CONFIG_ENCODING"):
         config._initialize_config()
-    assert path.read_bytes() == original
+    assert legacy.read_bytes() == original
+    assert not path.exists()
     assert not list(path.parent.glob("*.bak"))
     monkeypatch.setenv(config.LEGACY_CONFIG_ENCODING_ENV, encoding)
     config._initialize_config()
-    assert path.read_bytes() == legacy_text.encode("utf-8")
+    assert legacy.read_bytes() == original
     backups = list(path.parent.glob("*.bak"))
-    assert len(backups) == 1
-    assert backups[0].read_bytes() == original
-    # Leaving the migration option set must not re-decode valid UTF-8.
-    config._initialize_config()
+    assert len(backups) == 1 and backups[0].read_bytes() == original
+    monkeypatch.delenv(config.LEGACY_CONFIG_ENCODING_ENV)
+    assert config.read_configs()["tsdb"]["cache_dir"] == value
     assert list(path.parent.glob("*.bak")) == backups
-    assert config.read_configs(path).get("path", "tsdb_home") == value
 
 
 @pytest.mark.parametrize("original", [b"", b"[path]\n", b"[path]\r\n"])
 def test_recover_incomplete_config(config_module, original):
     config, path = config_module
-    path.write_bytes(original)
+    legacy = path.with_suffix(".ini")
+    legacy.write_bytes(original)
     config._initialize_config()
-    assert config.read_configs(path).get("path", "tsdb_home") == str(path.parent / "tsdb")
+    assert config.read_configs()["tsdb"]["cache_dir"] == str(path.parent / "tsdb")
     backups = list(path.parent.glob("*.bak"))
-    assert len(backups) == 1
-    assert backups[0].read_bytes() == original
+    assert len(backups) == 1 and backups[0].read_bytes() == original
+    assert legacy.read_bytes() == original
 
 
 @pytest.mark.parametrize("original", [b"[path]\n[custom]\nkeep = yes\n", b"[path]\ntsdb_home =\n"])
 def test_do_not_overwrite_other_invalid_configs(config_module, original):
     config, path = config_module
-    path.write_bytes(original)
+    legacy = path.with_suffix(".ini")
+    legacy.write_bytes(original)
     with pytest.raises(ValueError, match="tsdb_home"):
         config._initialize_config()
-    assert path.read_bytes() == original
+    assert legacy.read_bytes() == original and not path.exists()
     assert not list(path.parent.glob("*.bak"))
 
 
 def test_wrong_legacy_encoding_is_not_guessed(config_module, monkeypatch):
     config, path = config_module
+    legacy = path.with_suffix(".ini")
     original = _config_text("café").encode("cp1252")
-    path.write_bytes(original)
+    legacy.write_bytes(original)
     monkeypatch.setenv(config.LEGACY_CONFIG_ENCODING_ENV, "ascii")
     with pytest.raises(ValueError, match="Cannot decode"):
         config._initialize_config()
-    assert path.read_bytes() == original
+    assert legacy.read_bytes() == original and not path.exists()
     assert not list(path.parent.glob("*.bak"))
 
 
 @pytest.mark.parametrize("failure", ["write", "replace"])
 def test_atomic_config_failure(config_module, monkeypatch, failure):
     config, path = config_module
-    original = _config_text("original").encode("utf-8")
-    path.write_bytes(original)
-    parser = config.read_configs(path)
+    config._initialize_config()
+    original = path.read_bytes()
 
     def fail(*args):
-        if failure == "write":
-            args[0].write("[path]\n")
         raise OSError("simulated failure")
 
     if failure == "write":
-        monkeypatch.setattr(parser, "write", fail)
+        monkeypatch.setattr(config.tomlkit, "dumps", fail)
     else:
         monkeypatch.setattr(config.os, "replace", fail)
     with pytest.raises(OSError, match="simulated failure"):
-        config.write_configs(parser, {"path": {"tsdb_home": "new/🚀"}})
+        config.write_configs({"tsdb": {"cache_dir": "new/🚀"}})
     assert path.read_bytes() == original
-    assert list(path.parent.iterdir()) == [path]
+    assert {p.name for p in path.parent.iterdir()} == {path.name, "config.cache.lock"}
 
 
 def test_failed_migration_preserves_original(config_module, monkeypatch):
     config, path = config_module
+    legacy = path.with_suffix(".ini")
     original = _config_text("café").encode("cp1252")
-    path.write_bytes(original)
+    legacy.write_bytes(original)
     monkeypatch.setenv(config.LEGACY_CONFIG_ENCODING_ENV, "cp1252")
 
     def fail(*args):
@@ -141,10 +141,9 @@ def test_failed_migration_preserves_original(config_module, monkeypatch):
     monkeypatch.setattr(config.os, "replace", fail)
     with pytest.raises(OSError, match="simulated failure"):
         config._initialize_config()
-    assert path.read_bytes() == original
+    assert legacy.read_bytes() == original and not path.exists()
     backups = list(path.parent.glob("*.bak"))
-    assert len(backups) == 1
-    assert backups[0].read_bytes() == original
+    assert len(backups) == 1 and backups[0].read_bytes() == original
 
 
 @pytest.fixture
@@ -248,7 +247,7 @@ def test_fresh_import_with_unicode_home(tmp_path, encoding):
         "-c",
         (
             "import sys, os; streams=(sys.stdout,sys.stderr); settings=(sys.stdout.encoding,sys.stderr.encoding); "
-            "before=dict(os.environ); import tsdb; from tsdb.utils import config; "
+            "before=dict(os.environ); import tsdb; from tsdb.utils import config; config.read_configs(); "
             "assert streams==(sys.stdout,sys.stderr); assert settings==(sys.stdout.encoding,sys.stderr.encoding); "
             "assert all(os.environ.get(k)==before.get(k) for k in ('PYTHONUTF8','PYTHONIOENCODING')); "
             "print('IMPORT_OK')"
@@ -259,6 +258,8 @@ def test_fresh_import_with_unicode_home(tmp_path, encoding):
         assert result.returncode == 0, result.stderr.decode(encoding, errors="backslashreplace")
         assert b"IMPORT_OK" in result.stdout
         assert b"Logging error" not in result.stderr
-    config_file = home / ".pypots" / "config.ini"
-    assert str(home / ".pypots" / "tsdb") in config_file.read_text(encoding="utf-8")
+    config_file = home / ".pypots" / "config.toml"
+    import tomlkit
+
+    assert tomlkit.parse(config_file.read_text(encoding="utf-8"))["tsdb"]["cache_dir"] == str(home / ".pypots" / "tsdb")
     assert not list(config_file.parent.glob("*.bak"))

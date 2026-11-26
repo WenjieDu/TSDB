@@ -50,6 +50,7 @@ The default cache is ``~/.pypots/tsdb``. Inspect, rebuild or refresh a dataset:
 
 .. code-block:: python
 
+   print(tsdb.CACHED_DATASET_DIR)
    print(tsdb.list_cache())
    tsdb.delete_cache("physionet_2012", only_pickle=True)
    data = tsdb.load("physionet_2012")  # reparse existing raw files
@@ -74,11 +75,48 @@ a cache are not covered. Migration requires a new or empty non-overlapping
 destination. Configuration switches only after copying succeeds. A failed
 configuration write retains the original and complete destination copy for recovery.
 
-Shared logging and configuration
---------------------------------
+Ecosystem configuration
+-----------------------
 
-Importing TSDB or the shared logger does not initialize ecosystem configuration.
-Configuration is initialized when configuration or data-access modules are first used.
+TSDB reads and updates a versioned UTF-8 TOML file using tomlkit. With the
+default ecosystem home it is ``~/.pypots/config.toml``:
+
+.. code-block:: toml
+
+   schema_version = 1
+
+   [tsdb]
+   cache_dir = "~/.pypots/tsdb"
+
+Additional tables, comments and typed values are preserved when TSDB updates
+its own cache setting. Other ecosystem-specific tables are reserved for future
+use; their presence does not enable features in TSDB.
+
+Set ``PYPOTS_HOME`` before importing the configuration/data-access modules to
+select another ecosystem home. Its default cache is ``$PYPOTS_HOME/tsdb``;
+its configuration and lock are stored in that home. ``TSDB_CACHE_DIR`` is a
+process-environment override read at each cache operation and takes precedence
+over the persistent cache setting. For example:
+
+.. code-block:: bash
+
+   export PYPOTS_HOME=/path/to/isolated/pypots
+   export TSDB_CACHE_DIR=/path/to/temporary/cache
+
+An override does not change the TOML file or migrate the old cache. Unset it
+before calling ``tsdb.migrate_cache``. A new temporary cache can be created
+on first use. A nondefault persistent directory must already exist (or be
+created by ``migrate_cache``); an absent external drive is not silently
+replaced with the default cache. Keep the same ecosystem home when sharing
+one cache across processes. The original default ``~/.pypots/tsdb`` is unchanged.
+
+Configuration is initialized only when first read, not by importing TSDB,
+the shared logger, or inspecting dataset metadata. Legacy INI is migrated
+without changing data paths; read :doc:`migration` before relocating a cache
+that was used by older TSDB environments.
+
+Shared logging
+--------------
 
 .. code-block:: python
 
