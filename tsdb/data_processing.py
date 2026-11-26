@@ -8,7 +8,6 @@ Functions for loading datasets.
 import os
 import shutil
 import warnings
-from typing import Optional
 
 from .database import AVAILABLE_DATASETS
 from .loading_funcs import (
@@ -40,7 +39,7 @@ def list() -> list:
         A dict contains all datasets' names and download links.
 
     """
-    return AVAILABLE_DATASETS
+    return AVAILABLE_DATASETS.copy()
 
 
 def load(dataset_name: str, use_cache: bool = True) -> dict:
@@ -159,7 +158,7 @@ def _delete_cached_pickles(directory):
             purge_path(os.path.join(directory, filename))
 
 
-def delete_cache(dataset_name: Optional[str] = None, only_pickle: bool = False) -> None:  # noqa: FA100
+def delete_cache(dataset_name: str | None = None, only_pickle: bool = False) -> None:
     """Delete CACHED_DATASET_DIR if exists.
 
     Parameters

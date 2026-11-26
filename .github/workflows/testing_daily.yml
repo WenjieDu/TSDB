@@ -19,11 +19,10 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                python: ['3.9', '3.10', '3.11', '3.12', '3.13']
+                python: ['3.11', '3.12', '3.13']
         uses: ./.github/workflows/ci_job.yml
         with:
-            # A compatible image for legacy interpreters; current releases use the latest.
-            os: ${{ matrix.python == '3.9' && 'ubuntu-22.04' || 'ubuntu-latest' }}
+            os: ubuntu-latest
             python: ${{ matrix.python }}
             suite: offline
             checkout-ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}

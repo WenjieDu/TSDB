@@ -248,7 +248,7 @@ def test_fresh_import_with_unicode_home(tmp_path, encoding):
         "-c",
         (
             "import sys, os; streams=(sys.stdout,sys.stderr); settings=(sys.stdout.encoding,sys.stderr.encoding); "
-            "before=dict(os.environ); import tsdb; "
+            "before=dict(os.environ); import tsdb; from tsdb.utils import config; "
             "assert streams==(sys.stdout,sys.stderr); assert settings==(sys.stdout.encoding,sys.stderr.encoding); "
             "assert all(os.environ.get(k)==before.get(k) for k in ('PYTHONUTF8','PYTHONIOENCODING')); "
             "print('IMPORT_OK')"

@@ -15,7 +15,6 @@ import os
 import warnings
 
 import numpy as np
-from sklearn.utils.estimator_checks import _NotAnArray as NotAnArray
 
 
 def load_ucr_uea_dataset(local_path, dataset_name):
@@ -210,8 +209,6 @@ def to_time_series_dataset(dataset, dtype=float):
             return to_time_series_dataset(np.array(dataset))
     except ImportError:
         pass
-    if isinstance(dataset, NotAnArray):  # Patch to pass sklearn tests
-        return to_time_series_dataset(np.array(dataset))
     if len(dataset) == 0:
         return np.zeros((0, 0, 0))
     if np.array(dataset[0]).ndim == 0:

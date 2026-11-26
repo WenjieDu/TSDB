@@ -20,13 +20,13 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    # Python 3.8 is still the declared minimum; pin a compatible Ubuntu image.
-                    - os: ubuntu-22.04
-                      python: '3.8'
+                    # Test the minimum and current supported Python across all platforms.
+                    - os: ubuntu-latest
+                      python: '3.10'
                     - os: windows-latest
-                      python: '3.8'
+                      python: '3.10'
                     - os: macOS-latest
-                      python: '3.8'
+                      python: '3.10'
                     - os: ubuntu-latest
                       python: '3.14'
                     - os: windows-latest
@@ -38,4 +38,4 @@ jobs:
             os: ${{ matrix.os }}
             python: ${{ matrix.python }}
             suite: offline
-            coverage: ${{ matrix.os == 'ubuntu-latest' }}
+            coverage: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.14' }}

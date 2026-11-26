@@ -98,7 +98,7 @@ def _initialize_config():
             if not encoding:
                 raise ValueError(
                     f"{path} is not valid UTF-8. Set {LEGACY_CONFIG_ENCODING_ENV} to its known original encoding "
-                    "for one import, or convert it to UTF-8 after backing it up. The file was not changed."
+                    "for one configuration import, or convert it to UTF-8 after backing it up. The file was not changed."
                 ) from exc
             try:
                 text = original.decode(encoding)

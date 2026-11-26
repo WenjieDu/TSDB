@@ -101,12 +101,15 @@ def _download_chunk(url, directory, records):
 def _download_split(url, directory, records):
     directory.mkdir()
     chunks = [records[i : i + _CHUNK_SIZE] for i in range(0, len(records), _CHUNK_SIZE)]
-    with ThreadPoolExecutor(max_workers=_WORKERS) as executor, tqdm(
-        total=len(records),
-        desc=f"Downloading PhysioNet 2019 {directory.name}",
-        unit="record",
-        ascii=True,
-    ) as progress:
+    with (
+        ThreadPoolExecutor(max_workers=_WORKERS) as executor,
+        tqdm(
+            total=len(records),
+            desc=f"Downloading PhysioNet 2019 {directory.name}",
+            unit="record",
+            ascii=True,
+        ) as progress,
+    ):
         # Bound the queued work so a failed request cannot enqueue the entire dataset.
         for offset in range(0, len(chunks), _WORKERS):
             pending = [
