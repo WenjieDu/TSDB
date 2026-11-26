@@ -22,7 +22,8 @@ def pip(*args):
 
 def smoke(output, name):
     env = os.environ.copy()
-    env.pop("PYTHONPATH", None)
+    for key in ("PYTHONPATH", "PYPOTS_HOME", "TSDB_CACHE_DIR", "TSDB_LEGACY_CONFIG_ENCODING"):
+        env.pop(key, None)
     home = output / name
     home.mkdir()
     env.update(HOME=str(home), USERPROFILE=str(home))

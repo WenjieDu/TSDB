@@ -17,6 +17,7 @@ Dataset access
 Cache management
 ----------------
 
+.. autofunction:: tsdb.get_cache_dir
 .. autofunction:: tsdb.list_cache
 .. autofunction:: tsdb.delete_cache
 .. autofunction:: tsdb.migrate_cache

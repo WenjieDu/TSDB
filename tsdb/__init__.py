@@ -20,6 +20,7 @@ def list() -> list:
 _LAZY_EXPORTS = {
     "CACHED_DATASET_DIR": ".data_processing",
     "delete_cache": ".data_processing",
+    "get_cache_dir": ".data_processing",
     "list_cache": ".data_processing",
     "load": ".data_processing",
     "download_and_extract": ".utils.downloading",
@@ -50,6 +51,7 @@ __all__ = [
     "delete_cache",
     "download_and_extract",
     "download_url",
+    "get_cache_dir",
     "info",
     "list",
     "list_cache",

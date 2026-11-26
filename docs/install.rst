@@ -24,7 +24,8 @@ To install the latest source on main (which may include unreleased changes):
 Optional dependencies
 ---------------------
 
-The default runtime dependencies are NumPy, pandas, PyArrow, requests, and tqdm.
+The default runtime dependencies are NumPy, pandas, PyArrow, requests, tqdm,
+and tomlkit (TOML configuration read/write).
 TSQA requires the optional Hugging Face client:
 
 .. code-block:: bash

@@ -24,25 +24,56 @@ independent of pandas timestamp resolution. To use current parsing logic with
 existing raw files, call ``tsdb.delete_cache(name, only_pickle=True)`` before
 loading again. See :doc:`datasets` for the preserved UCR/UEA axis conventions.
 
-Unicode configuration and logs
-------------------------------
+Versioned TOML configuration
+----------------------------
 
-TSDB stores the shared ecosystem configuration (``~/.pypots/config.ini``) and
-new file logs in UTF-8. Existing valid UTF-8 configurations (including ASCII
-and UTF-8 with BOM) are read without conversion. If an old file is not valid
-UTF-8, set ``TSDB_LEGACY_CONFIG_ENCODING`` to its **known original encoding**
-(e.g. ``cp1252`` or ``gbk``) for one ``from tsdb.utils import config``, then unset it.
-TSDB validates the configuration, saves its original bytes in a uniquely named
-``config.ini.*.bak`` beside it, and atomically converts the original to UTF-8.
-Do not guess the encoding. Some legacy byte sequences are also valid UTF-8;
-if you know a file was written in another encoding, back it up and explicitly
-convert it in a text editor before importing TSDB.
+TSDB v1.0 uses ``~/.pypots/config.toml`` (schema version 1) instead of INI.
+The first configuration read automatically imports the old
+``config.ini`` and maps ``[path] tsdb_home`` to ``[tsdb] cache_dir``. Existing
+cache paths are preserved; no dataset is moved or downloaded by this conversion.
+Legacy sections and raw string values are retained under ``legacy_ini``;
+no numeric or boolean types are inferred. The original INI remains unchanged
+and a uniquely named ``config.ini.*.bak`` preserves its exact bytes, including
+comments and original encoding. A SHA-256 fingerprint and the original cache
+path detect conflicting legacy edits or divergent cache paths.
 
-An empty or section-only ``[path]`` file left by interrupted initialization is
-backed up and recovered; other invalid configurations are not silently reset.
-Appending to a non-UTF-8 log is refused. Choose a new filename, or back up and
-convert the old log before appending. An explicitly requested overwrite
-(``mode="w"``) still replaces the log.
+Valid UTF-8 (including ASCII and UTF-8 with BOM) is accepted. For other legacy
+encodings set ``TSDB_LEGACY_CONFIG_ENCODING`` to the **known original encoding**
+(e.g. ``cp1252`` or ``gbk``) before the first configuration read, then unset it.
+Do not guess the encoding. An empty or section-only ``[path]`` INI left by
+interrupted initialization is backed up and recovered; other invalid files
+and unknown TOML schema versions are not silently reset.
+
+TOML is the authoritative configuration for v1.0. Old TSDB versions still
+read INI, so they can reuse the unchanged migrated cache location, but
+cross-version concurrent cache mutations are not supported. Do not edit
+both formats. Before relocating or manually changing the persistent cache
+path, upgrade all TSDB environments that share it and archive the old
+``config.ini`` (rename it, for example, to ``config.ini.retired``). TSDB
+refuses a persistent relocation while the INI remains active; if an older
+version later modifies or recreates the INI, v1.0 detects conflicting state
+and asks you to reconcile and archive it. There is no non-atomic dual-format
+write or automatic downgrade. Keep the original configuration and its backup
+for recovery. If a process is terminated during configuration publication,
+its OS lock is released and the next read uses the last complete TOML file
+(or retries INI migration if no TOML was published). Interrupted writes can
+leave temporary ``.config.toml.*`` files or additional exact INI backups;
+these are not read as configuration. Remove temporary files only when no
+configuration writer is active. A missing nondefault cache directory now raises
+``FileNotFoundError`` instead of silently using another cache; reconnect the
+external disk, create the intended directory, or use a temporary override.
+
+The internal ``tsdb.utils.config.read_configs()`` now returns a TOML document
+and ``write_configs(updates)`` merges nested table updates under the lock.
+Applications should prefer the public cache APIs rather than private INI
+helpers. See :doc:`usage` for configuration locations and overrides.
+
+Unicode logs
+------------
+
+New file logs use UTF-8. Appending to a non-UTF-8 log is refused. Choose a new
+filename, or back up and convert the old log before appending. An explicitly
+requested overwrite (``mode="w"``) still replaces the log.
 
 Logger wrappers now share the handlers of their named logger. Repeated
 construction does not duplicate TSDB output; changes made by one wrapper

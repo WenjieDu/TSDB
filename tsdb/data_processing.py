@@ -8,25 +8,61 @@ Functions for loading datasets.
 import os
 import shutil
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 from . import loading_funcs
 from .database import AVAILABLE_DATASETS, dataset_spec
-from .utils.cache_lock import cache_lock
+from .utils import config
+from .utils.cache_lock import cache_lock, dataset_cache_lock
+from .utils.config import cache_dir_override
 from .utils.downloading import download_and_extract, refresh_raw_dataset
-from .utils.file import CacheError, determine_tsdb_home, pickle_dump, pickle_load
+from .utils.file import CacheError, determine_tsdb_home, normalize_cache_dir, pickle_dump, pickle_load
 from .utils.logging import logger
 
 
-def _cache_home():
-    # A module-level override remains supported for existing integrations/tests.
+def _cache_home(cache_dir=None):
+    if cache_dir is not None:
+        return normalize_cache_dir(cache_dir)
+    override = cache_dir_override()
+    if override is not None:
+        return normalize_cache_dir(override)
+    # Retain the internal module override for existing integrations/tests.
     return globals().get("CACHED_DATASET_DIR") or determine_tsdb_home()
+
+
+def get_cache_dir(*, cache_dir: str | os.PathLike | None = None) -> str:
+    """Return the effective absolute cache directory (explicit, env, config, default)."""
+    if cache_dir is not None or cache_dir_override() is not None:
+        return _cache_home(cache_dir)
+    with cache_lock():
+        return _cache_home()
+
+
+@contextmanager
+def _cache_operation(cache_dir=None):
+    # Keep config resolution and cache operations serialized against persistent
+    # migration in this ecosystem; overrides need only the physical cache lock.
+    if cache_dir is not None or cache_dir_override() is not None:
+        root = Path(_cache_home(cache_dir))
+        with dataset_cache_lock(root):
+            yield root
+    else:
+        with cache_lock():
+            root = Path(_cache_home())
+            default = Path(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).parent / "tsdb"
+            must_exist = root.exists() or (root != default and "CACHED_DATASET_DIR" not in globals())
+            with dataset_cache_lock(root):
+                # Another ecosystem may have relocated the shared root while
+                # we waited. Do not recreate a missing persistent cache.
+                if must_exist and not root.is_dir():
+                    raise FileNotFoundError(f"Configured TSDB cache {root} is no longer available")
+                yield root
 
 
 def __getattr__(name):
     if name == "CACHED_DATASET_DIR":
-        with cache_lock():
-            return _cache_home()
+        return get_cache_dir()
     raise AttributeError(name)
 
 
@@ -64,13 +100,16 @@ def _load_cached(name, target):
     return _parse(name, str(target))
 
 
-def load(dataset_name: str, use_cache: bool = True) -> dict:
-    """Load a registered dataset; use_cache=False stages and validates a fresh replacement."""
+def load(dataset_name: str, use_cache: bool = True, *, cache_dir: str | os.PathLike | None = None) -> dict:
+    """Load a dataset; cache_dir temporarily overrides the resolved cache.
+
+    use_cache=False stages and validates a fresh replacement.
+    """
     _validate_name(dataset_name)
     profile = dataset_spec(dataset_name).profile
     logger.info(f"Please cite {dataset_name}: https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile}")
-    with cache_lock():
-        target = Path(_cache_home()) / dataset_name
+    with _cache_operation(cache_dir) as root:
+        target = root / dataset_name
         if target.is_symlink() or (target.exists() and not target.is_dir()):
             raise CacheError(f"Invalid dataset cache path: {target}")
         if target.exists():
@@ -93,10 +132,9 @@ def load(dataset_name: str, use_cache: bool = True) -> dict:
     return result
 
 
-def list_cache() -> list:
-    """List only registered cached dataset directories."""
-    with cache_lock():
-        root = Path(_cache_home())
+def list_cache(*, cache_dir: str | os.PathLike | None = None) -> list:
+    """List registered cached datasets in the resolved or explicitly supplied cache."""
+    with _cache_operation(cache_dir) as root:
         root.mkdir(parents=True, exist_ok=True)
         return sorted(
             p.name for p in root.iterdir() if p.name in AVAILABLE_DATASETS and p.is_dir() and not p.is_symlink()
@@ -119,12 +157,13 @@ def _delete_dataset(path, only_pickle):
         shutil.rmtree(path)
 
 
-def delete_cache(dataset_name: str | None = None, only_pickle: bool = False) -> None:
-    """Delete registered dataset caches, preserving unrelated files and recovery backups."""
+def delete_cache(
+    dataset_name: str | None = None, only_pickle: bool = False, *, cache_dir: str | os.PathLike | None = None
+) -> None:
+    """Delete registered caches in the resolved or explicit cache, preserving unrelated files."""
     if dataset_name is not None:
         _validate_name(dataset_name)
-    with cache_lock():
-        root = Path(_cache_home())
+    with _cache_operation(cache_dir) as root:
         if not root.exists():
             return
         if dataset_name is None:

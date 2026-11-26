@@ -13,6 +13,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 import requests
+import tomlkit
 
 import tsdb
 from scripts.raw_dataset_cache import POLICY, restore, store
@@ -41,8 +42,8 @@ DATASETS_TO_TEST = [
 def cache(tmp_path, monkeypatch):
     root = tmp_path / "cache"
     root.mkdir()
-    config_path = tmp_path / "config.ini"
-    config_path.write_text(f"[path]\ntsdb_home = {root}\n", encoding="utf-8")
+    config_path = tmp_path / "config.toml"
+    config_path.write_text(tomlkit.dumps({"schema_version": 1, "tsdb": {"cache_dir": str(root)}}), encoding="utf-8")
     monkeypatch.setitem(vars(data_processing), "CACHED_DATASET_DIR", str(root))
     monkeypatch.setattr(config, "PYPOTS_ECOSYSTEM_CONFIG_PATH", config_path)
 
@@ -172,7 +173,7 @@ def test_migrate(tmp_path, cache):
     tsdb.migrate_cache(str(new_cache))
     assert not cache.exists()
     assert (new_cache / "test.txt").read_text(encoding="utf-8") == "cached"
-    assert config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).get("path", "tsdb_home") == str(new_cache)
+    assert config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH)["tsdb"]["cache_dir"] == str(new_cache)
 
 
 def test_logging(tmp_path):
@@ -196,7 +197,7 @@ def test_logging(tmp_path):
 
 def test_config(cache):
     configs = config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH)
-    assert configs.get("path", "tsdb_home") == str(cache)
+    assert configs["tsdb"]["cache_dir"] == str(cache)
 
 
 @pytest.mark.network

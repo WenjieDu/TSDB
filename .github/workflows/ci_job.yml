@@ -67,7 +67,7 @@ jobs:
                   HOME: ${{ runner.temp }}/tsdb-smoke-home
                   USERPROFILE: ${{ runner.temp }}/tsdb-smoke-home
               run: |
-                  python -I -c "import os, pathlib, tsdb; from tsdb.utils.config import CONFIG_TEMPLATE_PATH, read_configs; assert pathlib.Path(os.environ['GITHUB_WORKSPACE']).resolve() not in pathlib.Path(tsdb.__file__).resolve().parents; assert pathlib.Path(CONFIG_TEMPLATE_PATH).is_file(); assert tsdb.list(); assert read_configs().get('path', 'tsdb_home'); print('Installed TSDB', tsdb.__version__)"
+                  python -I -c "import os, pathlib, tsdb; from tsdb.utils.config import CONFIG_TEMPLATE_PATH, read_configs; assert pathlib.Path(os.environ['GITHUB_WORKSPACE']).resolve() not in pathlib.Path(tsdb.__file__).resolve().parents; assert pathlib.Path(CONFIG_TEMPLATE_PATH).is_file(); assert tsdb.list(); assert read_configs()['tsdb']['cache_dir']; print('Installed TSDB', tsdb.__version__)"
             - name: Offline regression tests
               if: inputs.suite == 'offline'
               run: |

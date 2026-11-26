@@ -50,6 +50,7 @@ The default cache is ``~/.pypots/tsdb``. Inspect, rebuild or refresh a dataset:
 
 .. code-block:: python
 
+   print(tsdb.get_cache_dir())  # CACHED_DATASET_DIR remains supported
    print(tsdb.list_cache())
    tsdb.delete_cache("physionet_2012", only_pickle=True)
    data = tsdb.load("physionet_2012")  # reparse existing raw files
@@ -68,17 +69,88 @@ Parsed caches are trusted local pickle files; never load an untrusted pickle.
 
 Deletion preserves unrelated files and recovery backups. Invalid dataset names
 raise ``ValueError``. Pickle utility failures raise ``CacheError`` instead of
-returning ``None``. Cache operations sharing one ecosystem configuration are
-serialized by an OS lock; external writers and distinct ecosystem homes sharing
-a cache are not covered. Migration requires a new or empty non-overlapping
+returning ``None``. Cooperating TSDB processes lock the resolved cache root,
+even when using different ecosystem homes. A stable sibling lock file in the
+cache parent directory requires write access to that parent; do not delete
+lock files while processes are running. External writers, nested cache roots,
+and older TSDB releases are not covered. Migration requires a new or empty non-overlapping
 destination. Configuration switches only after copying succeeds. A failed
 configuration write retains the original and complete destination copy for recovery.
 
-Shared logging and configuration
---------------------------------
+Ecosystem configuration
+-----------------------
 
-Importing TSDB or the shared logger does not initialize ecosystem configuration.
-Configuration is initialized when configuration or data-access modules are first used.
+TSDB reads and updates a versioned UTF-8 TOML file using tomlkit. With the
+default ecosystem home it is ``~/.pypots/config.toml``:
+
+.. code-block:: toml
+
+   schema_version = 1
+
+   [tsdb]
+   cache_dir = "~/.pypots/tsdb"
+
+Additional tables, comments and typed values are preserved when TSDB updates
+its own cache setting. Other ecosystem-specific tables are reserved for future
+use; their presence does not enable features in TSDB.
+
+Set ``PYPOTS_HOME`` before importing the configuration/data-access modules to
+select another ecosystem home. Its default cache is ``$PYPOTS_HOME/tsdb``;
+its configuration and lock are stored in that home. ``TSDB_CACHE_DIR`` is a
+process-environment override read at each cache operation and takes precedence
+over the persistent cache setting. For example:
+
+.. code-block:: bash
+
+   export PYPOTS_HOME=/path/to/isolated/pypots
+   export TSDB_CACHE_DIR=/path/to/temporary/cache
+
+The explicit keyword-only ``cache_dir`` parameter on ``get_cache_dir``,
+``load``, ``list_cache`` and ``delete_cache`` takes precedence over
+``TSDB_CACHE_DIR``, then TOML, then the built-in default. For example:
+
+.. code-block:: python
+
+   path = tsdb.get_cache_dir(cache_dir="/data/scratch")
+   data = tsdb.load("physionet_2012", cache_dir=path)
+   tsdb.list_cache(cache_dir=path)
+   tsdb.delete_cache("physionet_2012", only_pickle=True, cache_dir=path)
+
+An override does not initialize or change the TOML file or migrate the old cache. Unset the environment override
+before calling ``tsdb.migrate_cache``. A new temporary cache can be created
+on first use. A nondefault persistent directory must already exist (or be
+created by ``migrate_cache``); an absent external drive is not silently
+replaced with the default cache. Moving a cache changes only the current
+ecosystem configuration, not configurations in other homes; coordinate any
+relocation with other users and processes. The original default
+``~/.pypots/tsdb`` is unchanged.
+
+Configuration is initialized only when first read, not by importing TSDB,
+the shared logger, or inspecting dataset metadata. Legacy INI is migrated
+without changing data paths; read :doc:`migration` before relocating a cache
+that was used by older TSDB environments.
+
+Environment variable reference
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``PYPOTS_HOME``: optional ecosystem root; defaults to ``~/.pypots``.
+  Set before importing TSDB configuration or data-access modules.
+* ``TSDB_CACHE_DIR``: optional temporary cache override; read at each operation.
+  An explicit ``cache_dir`` argument takes priority. Unset to use TOML again.
+* ``TSDB_LEGACY_CONFIG_ENCODING``: optional one-time encoding for a legacy INI
+  that is not UTF-8; set to its known encoding before migration, then unset.
+  See :doc:`migration`.
+* ``HF_TOKEN``: Hugging Face authentication, not an ecosystem setting. Use an
+  authorized read token for gated TSQA; see :doc:`install`. Never persist it
+  in TOML or log it.
+
+For Windows PowerShell, use ``$env:PYPOTS_HOME = 'D:/pypots'`` and
+``$env:TSDB_CACHE_DIR = 'D:/cache'``; remove temporary overrides with
+``Remove-Item Env:TSDB_CACHE_DIR``. For POSIX shells, use ``export`` as above
+and ``unset TSDB_CACHE_DIR``. No environment variable is required by default.
+
+Shared logging
+--------------
 
 .. code-block:: python
 
