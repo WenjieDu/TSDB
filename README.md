@@ -249,8 +249,8 @@ The designated Coveralls upload remains offline-only for a comparable trend.
 
 Before publishing a stable release, review the exact main commit, passing CI,
 and full live/combined coverage evidence. The Publish to PyPI workflow can be
-run manually on a selected ref or existing stable tag for build and offline
-validation only. Publishing happens only on a published stable GitHub Release;
+run manually from the default branch against an existing stable tag for build
+and offline validation only. Publishing happens only on a published stable GitHub Release;
 the tag must match the package version and identify a commit reachable from main.
 The separate publishing job consumes the already validated wheel and sdist,
 checks their SHA-256 digests, and uses PyPI Trusted Publishing. Configure the
@@ -260,6 +260,14 @@ No publication is performed by a branch push or manual dry run.
 Use `python -m build` (sdist followed by wheel) from a clean checkout; a direct
 `--wheel` build in an old working directory may include stale setuptools build
 artifacts. The release validator rejects unexpected wheel members.
+
+Release tooling and the reference runtime environment are independently locked
+for Linux x86_64 / Python 3.10 in `requirements/requirements_release.txt`.
+Regenerate from `requirements/requirements_release.in` using the command in
+the generated file. This is a CI/release environment lock, not a constraint on
+TSDB consumers. The build uses the verified backend with `--no-isolation`;
+local artifact installs use `--no-deps --no-index`. Both wheel and sdist are
+installed and smoke-tested.
 
 ### Dataset discovery
 

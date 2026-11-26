@@ -6,56 +6,50 @@ on:
     workflow_dispatch:
         inputs:
             tag:
-                description: 'Optional existing stable tag (dry run only); otherwise validate selected ref'
-                required: false
+                description: Existing stable release tag to validate (no publication)
+                required: true
                 type: string
 
 permissions:
     contents: read
 
 concurrency:
-    group: tsdb-pypi-${{ github.event.release.tag_name || inputs.tag || github.ref }}
+    group: tsdb-pypi-${{ github.event.release.tag_name || inputs.tag }}
     cancel-in-progress: false
 
 jobs:
     validate:
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft)
+        if: >-
+            (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft) ||
+            (github.event_name == 'workflow_dispatch' && github.ref_name == github.event.repository.default_branch)
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 60
         steps:
-            - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
-                  ref: ${{ github.event_name == 'release' && github.sha || (inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.sha) }}
+                  ref: ${{ github.event_name == 'release' && github.sha || format('refs/tags/{0}', inputs.tag) }}
                   fetch-depth: 0
                   persist-credentials: false
-            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+            - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
               with:
                   python-version: '3.10'
             - name: Validate source identity
               env:
-                  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag || '' }}
+                  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
                   EVENT_SHA: ${{ github.event_name == 'release' && github.sha || '' }}
               run: python scripts/check_release.py --tag "$RELEASE_TAG" --event-sha "$EVENT_SHA"
-            - name: Build source distribution and wheel from the sdist
+            - name: Install hash-verified release dependencies
               run: |
-                  python -m pip install build twine pytest pytest-cov
-                  python -m build --outdir "$RUNNER_TEMP/tsdb-release/dist"
-                  python -m twine check --strict "$RUNNER_TEMP/tsdb-release/dist/"*
-            - name: Verify distribution identity and contents
+                  python -m pip install --index-url https://pypi.org/simple --only-binary=:all: --require-hashes -r requirements/requirements_release.txt
+            - name: Build and install exact distributions
+              run: python scripts/release_pipeline.py install --output "$RUNNER_TEMP/tsdb-release"
+            - name: Validate wheel and source distribution
               env:
-                  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag || '' }}
+                  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
                   EVENT_SHA: ${{ github.event_name == 'release' && github.sha || '' }}
-              run: python scripts/check_release.py --tag "$RELEASE_TAG" --event-sha "$EVENT_SHA" --dist "$RUNNER_TEMP/tsdb-release/dist"
-            - name: Install the exact wheel and check dependency resolution
               run: |
-                  python -m pip install "$RUNNER_TEMP/tsdb-release/dist/"*.whl
-                  python -m pip check
-            - name: Verify installed distribution outside checkout
-              working-directory: ${{ runner.temp }}
-              env:
-                  HOME: ${{ runner.temp }}/tsdb-release-home
-                  USERPROFILE: ${{ runner.temp }}/tsdb-release-home
-              run: python -I "$GITHUB_WORKSPACE/scripts/smoke_release.py"
+                  python scripts/release_pipeline.py package --output "$RUNNER_TEMP/tsdb-release"
+                  python scripts/check_release.py --tag "$RELEASE_TAG" --event-sha "$EVENT_SHA" --dist "$RUNNER_TEMP/tsdb-release/dist"
             - name: Run offline regression tests
               run: python -m pytest -m 'not network' tests --junitxml="$RUNNER_TEMP/tsdb-release/offline.xml"
             - name: Record artifact digests
