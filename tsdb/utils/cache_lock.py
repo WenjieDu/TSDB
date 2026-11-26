@@ -1,10 +1,12 @@
-"""Serialize TSDB cache operations sharing one ecosystem configuration."""
+"""Serialize configuration updates and operations on the same physical cache."""
 
 # License: BSD-3-Clause
 
+import hashlib
 import os
 import time
-from contextlib import contextmanager
+import unicodedata
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from threading import local
 
@@ -16,17 +18,15 @@ def _os_lock(path):
     """Use an OS-owned lock, automatically released on process termination.
 
     The lock is outside the dataset tree so deletion/migration cannot replace
-    its inode. Different ecosystem homes and external writers are not covered.
+    its inode. Only cooperating TSDB processes are covered.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a+b") as handle:
         if os.name == "nt":
             import msvcrt
 
-            handle.seek(0, os.SEEK_END)
-            if handle.tell() == 0:
-                handle.write(b"\0")
-                handle.flush()
+            # Windows can lock bytes beyond EOF. Do not write a sentinel before
+            # acquiring the lock: another process may already hold that byte.
             deadline = time.monotonic() + 120
             while True:
                 handle.seek(0)
@@ -61,9 +61,9 @@ def _os_lock(path):
 
 
 @contextmanager
-def config_lock(config_path):
+def _shared_lock(path):
     """Allow nested calls in one thread while keeping the same cross-process lock."""
-    path = Path(config_path).with_suffix(".cache.lock").resolve()
+    path = Path(path).resolve()
     held = getattr(_LOCK_STATE, "paths", None)
     if held is None:
         held = _LOCK_STATE.paths = set()
@@ -76,6 +76,32 @@ def config_lock(config_path):
             yield
         finally:
             held.remove(path)
+
+
+@contextmanager
+def config_lock(config_path):
+    """Protect one ecosystem configuration using its stable legacy lock name."""
+    with _shared_lock(Path(config_path).with_suffix(".cache.lock")):
+        yield
+
+
+def _dataset_lock_path(root):
+    root = Path(root).expanduser().resolve()
+    # A sibling lock survives removal/relocation of the root. Case folding also
+    # coalesces aliases on case-insensitive filesystems (harmless over-locking
+    # on a case-sensitive filesystem). Do not place a lock inside the cache.
+    name = hashlib.sha256(unicodedata.normalize("NFC", root.name).casefold().encode("utf-8")).hexdigest()
+    return root.parent / f".tsdb-cache-{name}.lock"
+
+
+@contextmanager
+def dataset_cache_lock(*roots):
+    """Lock source/destination roots in deterministic order across config homes."""
+    paths = sorted({_dataset_lock_path(root) for root in roots}, key=lambda p: (str(p).casefold(), str(p)))
+    with ExitStack() as stack:
+        for path in paths:
+            stack.enter_context(_shared_lock(path))
+        yield
 
 
 @contextmanager

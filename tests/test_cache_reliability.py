@@ -168,9 +168,114 @@ with cache_lock():
     marker = tmp_path / "trace"
     args = [sys.executable, "-c", code, str(marker)]
     with (
-        subprocess.Popen(args, env=env, cwd=tmp_path, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as a,
-        subprocess.Popen(args, env=env, cwd=tmp_path, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as b,
+        subprocess.Popen(args, env=env, cwd=tmp_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as a,
+        subprocess.Popen(args, env=env, cwd=tmp_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as b,
     ):
-        assert a.wait(timeout=60) == 0
-        assert b.wait(timeout=60) == 0
+        for process in (a, b):
+            stdout, stderr = process.communicate(timeout=60)
+            assert process.returncode == 0, (stdout.decode(errors="replace"), stderr.decode(errors="replace"))
     assert marker.read_text().splitlines() == ["start", "end", "start", "end"]
+
+
+def test_shared_physical_cache_across_ecosystem_homes(tmp_path):
+    root = tmp_path / "shared-cache"
+    root.mkdir()
+    trace = tmp_path / "trace"
+    code = """
+import sys, time
+from pathlib import Path
+from tsdb import data_processing
+from tsdb.utils.config import write_configs
+write_configs({'tsdb': {'cache_dir': sys.argv[1]}})
+ready = Path(sys.argv[3])
+ready.touch()
+peer = Path(sys.argv[4])
+deadline = time.monotonic() + 15
+while not peer.exists() and time.monotonic() < deadline:
+    time.sleep(.02)
+assert peer.exists()
+with data_processing._cache_operation() as root:
+    with Path(sys.argv[2]).open('a') as f: f.write('start\\n')
+    time.sleep(.3)
+    with Path(sys.argv[2]).open('a') as f: f.write('end\\n')
+"""
+    processes = []
+    try:
+        for name, peer in (("first", "second"), ("second", "first")):
+            env = os.environ.copy()
+            env.update(PYPOTS_HOME=str(tmp_path / name), PYTHONPATH=str(Path(__file__).resolve().parents[1]))
+            processes.append(
+                subprocess.Popen(
+                    [
+                        sys.executable,
+                        "-c",
+                        code,
+                        str(root),
+                        str(trace),
+                        str(tmp_path / (name + ".ready")),
+                        str(tmp_path / (peer + ".ready")),
+                    ],
+                    env=env,
+                    cwd=tmp_path,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+            )
+        for process in processes:
+            stdout, stderr = process.communicate(timeout=60)
+            assert process.returncode == 0, (stdout.decode(errors="replace"), stderr.decode(errors="replace"))
+        assert trace.read_text().splitlines() == ["start", "end", "start", "end"]
+    finally:
+        for process in processes:
+            if process.poll() is None:
+                process.kill()
+            process.wait()
+
+
+def test_process_termination_releases_dataset_lock(tmp_path):
+    from tsdb.utils.cache_lock import dataset_cache_lock
+
+    root = tmp_path / "cache"
+    ready = tmp_path / "ready"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1])
+    code = """
+import sys, time
+from pathlib import Path
+from tsdb.utils.cache_lock import dataset_cache_lock
+with dataset_cache_lock(sys.argv[1]):
+    Path(sys.argv[2]).touch()
+    time.sleep(60)
+"""
+    import time
+
+    with subprocess.Popen(
+        [sys.executable, "-c", code, str(root), str(ready)],
+        env=env,
+        cwd=tmp_path,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ) as process:
+        try:
+            deadline = time.monotonic() + 15
+            while not ready.exists() and process.poll() is None and time.monotonic() < deadline:
+                time.sleep(0.05)
+            assert ready.exists(), "child never acquired lock"
+        finally:
+            process.kill()
+            process.communicate(timeout=15)
+    with dataset_cache_lock(root):
+        assert ready.exists()
+
+
+def test_relocation_cannot_move_configuration_directory(tmp_path, monkeypatch):
+    root = tmp_path / "cache"
+    home = root / "ecosystem"
+    home.mkdir(parents=True)
+    monkeypatch.setattr(config, "PYPOTS_ECOSYSTEM_CONFIG_PATH", home / "config.toml")
+    config.write_configs({"tsdb": {"cache_dir": str(root)}})
+    before = (home / "config.toml").read_bytes()
+    target = tmp_path / "new"
+    with pytest.raises(ValueError, match="ecosystem configuration directory"):
+        tsdb.migrate_cache(target)
+    assert not target.exists() and (home / "config.toml").read_bytes() == before

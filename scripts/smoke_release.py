@@ -29,6 +29,8 @@ def main():
     assert data["X"]["meter"].tolist() == [1.5]
     assert tsdb.load("electricity_load_diagrams")["X"].equals(data["X"])
     assert tsdb.list_cache() == ["electricity_load_diagrams"]
+    assert Path(tsdb.get_cache_dir()) == raw.parent
+    assert tsdb.list_cache(cache_dir=raw.parent) == ["electricity_load_diagrams"]
     print(f"Installed TSDB {tsdb.__version__} from {tsdb.__file__}; HOME={os.fspath(home)}")
 
 

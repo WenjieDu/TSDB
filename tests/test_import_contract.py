@@ -54,6 +54,7 @@ def test_public_exports_are_preserved():
         "download_and_extract",
         "download_url",
         "info",
+        "get_cache_dir",
         "list",
         "list_cache",
         "load",

@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 from . import config
-from .cache_lock import cache_lock
+from .cache_lock import cache_lock, dataset_cache_lock
 from .config import cache_dir_override, read_configs, require_legacy_retired_for_relocation, write_configs
 from .logging import logger
 
@@ -146,6 +146,14 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
         raise shutil.Error("Operation failed.")
 
 
+def normalize_cache_dir(path):
+    """Validate a cache override without touching the filesystem."""
+    value = os.fspath(path)
+    if not isinstance(value, str) or not value.strip() or "\0" in value:
+        raise ValueError("cache_dir must be a nonempty filesystem path")
+    return str(Path(value).expanduser().resolve())
+
+
 def determine_tsdb_home():
     # default path
     override = cache_dir_override()
@@ -236,7 +244,9 @@ def migrate(old_path: str, new_path: str, symlink: bool = False) -> None:
     destination copy may remain for manual recovery. Do not run with external
     writers changing either tree.
     """
-    _migrate(old_path, new_path, symlink)
+    source, destination = _migration_paths(old_path, new_path)
+    with dataset_cache_lock(source, destination):
+        _migrate(source, destination, symlink)
 
 
 def migrate_cache(target_path: str) -> None:
@@ -255,4 +265,9 @@ def migrate_cache(target_path: str) -> None:
             if "CACHED_DATASET_DIR" in vars(data_processing):
                 data_processing.CACHED_DATASET_DIR = str(destination)
 
-        _migrate(source, target_path, on_publish=update)
+        source, destination = _migration_paths(source, target_path)
+        home = Path(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).parent.resolve()
+        if any(root == home or root in home.parents for root in (source, destination)):
+            raise ValueError("Cache migration must not move or replace the ecosystem configuration directory")
+        with dataset_cache_lock(source, destination):
+            _migrate(source, destination, on_publish=update)

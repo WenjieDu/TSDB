@@ -160,15 +160,12 @@ write_configs({'pypots': {sys.argv[1]: True}})
 """
     args = [sys.executable, "-c", code]
     with (
-        subprocess.Popen(
-            [*args, "first"], env=env, cwd=tmp_path, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        ) as a,
-        subprocess.Popen(
-            [*args, "second"], env=env, cwd=tmp_path, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        ) as b,
+        subprocess.Popen([*args, "first"], env=env, cwd=tmp_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as a,
+        subprocess.Popen([*args, "second"], env=env, cwd=tmp_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as b,
     ):
-        assert a.wait(timeout=60) == 0
-        assert b.wait(timeout=60) == 0
+        for process in (a, b):
+            stdout, stderr = process.communicate(timeout=60)
+            assert process.returncode == 0, (stdout.decode(errors="replace"), stderr.decode(errors="replace"))
     document = tomlkit.parse((ecosystem / "config.toml").read_text(encoding="utf-8"))
     assert document["pypots"] == {"first": True, "second": True}
     assert document["legacy_ini"]["custom"]["keep"] == "yes"
@@ -183,3 +180,38 @@ def test_missing_configured_cache_does_not_fall_back(config_path):
         tsdb.list_cache()
     assert not missing.exists()
     assert not (config_path.parent / "tsdb").exists()
+
+
+def test_explicit_override_precedence_and_isolation(config_path, monkeypatch):
+    configured = config_path.parent / "configured"
+    configured.mkdir()
+    config.write_configs({"tsdb": {"cache_dir": str(configured)}})
+    before = config_path.read_bytes()
+    env_root = config_path.parent / "environment"
+    explicit = config_path.parent / "explicit"
+    monkeypatch.setenv("TSDB_CACHE_DIR", str(env_root))
+    assert tsdb.get_cache_dir() == str(env_root)
+    assert tsdb.get_cache_dir(cache_dir=explicit) == str(explicit)
+    assert not explicit.exists()
+    name = "electricity_load_diagrams"
+    raw = explicit / name
+    raw.mkdir(parents=True)
+    (raw / "LD2011_2014.txt").write_text(";meter\n2011-01-01 00:00:00;1,5\n", encoding="utf-8")
+    assert tsdb.load(name, cache_dir=explicit)["X"]["meter"].tolist() == [1.5]
+    assert tsdb.list_cache(cache_dir=explicit) == [name]
+    tsdb.delete_cache(name, only_pickle=True, cache_dir=explicit)
+    assert not list(raw.glob("*.pkl"))
+    tsdb.delete_cache(name, cache_dir=explicit)
+    assert not raw.exists() and not env_root.exists()
+    assert config_path.read_bytes() == before
+    monkeypatch.delenv("TSDB_CACHE_DIR")
+    assert tsdb.get_cache_dir() == str(configured)
+    with pytest.raises(ValueError, match="nonempty"):
+        tsdb.get_cache_dir(cache_dir=" ")
+
+
+def test_explicit_override_does_not_initialize_config(config_path):
+    assert not config_path.exists()
+    assert tsdb.list_cache(cache_dir=config_path.parent / "temporary") == []
+    assert not config_path.exists()
+    assert not config_path.with_suffix(".cache.lock").exists()

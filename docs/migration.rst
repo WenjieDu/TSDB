@@ -54,7 +54,12 @@ refuses a persistent relocation while the INI remains active; if an older
 version later modifies or recreates the INI, v1.0 detects conflicting state
 and asks you to reconcile and archive it. There is no non-atomic dual-format
 write or automatic downgrade. Keep the original configuration and its backup
-for recovery. A missing nondefault cache directory now raises
+for recovery. If a process is terminated during configuration publication,
+its OS lock is released and the next read uses the last complete TOML file
+(or retries INI migration if no TOML was published). Interrupted writes can
+leave temporary ``.config.toml.*`` files or additional exact INI backups;
+these are not read as configuration. Remove temporary files only when no
+configuration writer is active. A missing nondefault cache directory now raises
 ``FileNotFoundError`` instead of silently using another cache; reconnect the
 external disk, create the intended directory, or use a temporary override.
 
