@@ -71,11 +71,31 @@ def validate_distributions(dist, version):
     for metadata in distribution_metadata(dist):
         if metadata["Name"] != "tsdb" or metadata["Version"] != version or metadata["Requires-Python"] != ">=3.10":
             raise ValueError("Distribution metadata does not match the TSDB release")
+    from packaging.requirements import Requirement
+
+    expected_deps = {
+        Requirement(line)
+        for line in (ROOT / "requirements/requirements.txt").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+    expected_deps.add(Requirement('huggingface_hub; extra == "tsqa"'))
+    for metadata in distribution_metadata(dist):
+        if {Requirement(value) for value in metadata.get_all("Requires-Dist", [])} != expected_deps:
+            raise ValueError("Distribution runtime dependencies differ from the declared requirements")
+        if metadata.get_all("Provides-Extra", []) != ["tsqa"]:
+            raise ValueError("Distribution TSQA extra is missing or unexpected")
+    license_bytes = (ROOT / "LICENSE").read_bytes()
     wheel = next(dist.glob("*.whl"))
     expected = {path.relative_to(ROOT).as_posix() for path in (ROOT / "tsdb").rglob("*.py")}
     expected.add("tsdb/config_template.ini")
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
+        if not any(
+            archive.read(name) == license_bytes
+            for name in names
+            if name.startswith(f"tsdb-{version}.dist-info/") and name.endswith("/LICENSE")
+        ):
+            raise ValueError("Wheel license differs from repository license")
         if "tsdb/config_template.ini" not in names or not all(
             name.startswith(("tsdb/", f"tsdb-{version}.dist-info/")) for name in names
         ):
@@ -85,6 +105,13 @@ def validate_distributions(dist, version):
         if not any(name.endswith("/METADATA") for name in names):
             raise ValueError("Missing wheel metadata")
     with tarfile.open(next(dist.glob("*.tar.gz"))) as archive:
+        licenses = [
+            member
+            for member in archive.getmembers()
+            if member.name.count("/") == 1 and member.name.endswith("/LICENSE")
+        ]
+        if len(licenses) != 1 or archive.extractfile(licenses[0]).read() != license_bytes:
+            raise ValueError("Sdist license differs from repository license")
         members = {member.name.split("/", 1)[-1] for member in archive.getmembers() if member.isfile()}
         if not expected.issubset(members) or any(name.startswith(("build/", "dist/", "tests/")) for name in members):
             raise ValueError("Unexpected sdist contents or missing package sources")
