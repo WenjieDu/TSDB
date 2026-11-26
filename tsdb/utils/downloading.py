@@ -18,6 +18,7 @@ from .archive import archive_format, extract, member_path
 from .logging import logger
 from .physionet_2019 import download_physionet2019
 from .tsqa import download_tsqa
+from .vessel_ais import ais_parquet_files
 
 _TIMEOUT = (10, 60)
 _ATTEMPTS = 4
@@ -107,6 +108,12 @@ def _validate_dataset(name: str, root: Path) -> None:
     for filename in spec.required_files:
         if not _nonempty(root / filename):
             raise DownloadError(f"Missing or empty required file: {filename}")
+    if name == "vessel_ais":
+        # The source archive contains extensionless Parquet files.
+        try:
+            ais_parquet_files(root)
+        except ValueError as exc:
+            raise DownloadError(str(exc)) from exc
     for directory, pattern in spec.required_directories:
         if not any(_nonempty(path) for path in (root / directory).glob(pattern)):
             raise DownloadError(f"Missing required dataset files: {directory}/{pattern}")

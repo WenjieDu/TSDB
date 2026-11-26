@@ -65,6 +65,9 @@ unified axis order across formats. ARFF takes precedence when both complete
 pairs exist. Single-row TXT inputs are supported; malformed or empty pairs
 raise errors. PhysioNet and Beijing raw files are enumerated in sorted order.
 AIS elapsed time uses seconds independently of pandas timestamp resolution.
+The original Zenodo AIS archive contains extensionless files named
+``parquets/2020-2_group_*``. TSDB accepts these original names and conventional
+``.parquet`` names, without renaming or changing the raw data.
 
 Dataset-specific basic parsing is not a standardized learning pipeline. For
 standardized model-ready preprocessing, see

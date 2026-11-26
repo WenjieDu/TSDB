@@ -321,3 +321,25 @@ def test_stream_interruption_retries_without_appending(tmp_path, serve):
     tsdb.download_url(url, tmp_path / "data")
     assert (tmp_path / "data/data.csv").read_bytes() == b"replacement"
     assert calls == [url, url]
+
+
+@pytest.mark.parametrize("name", ["2020-2_group_0", "vessels.parquet"])
+def test_ais_archive_accepts_original_and_conventional_names(tmp_path, serve, name):
+    import pandas as pd
+
+    responses, _ = serve
+    parquet = io.BytesIO()
+    pd.DataFrame({"mmsi": [123]}).to_parquet(parquet, index=False)
+    responses[DATABASE["vessel_ais"]] = [_response(_zip((f"parquets/{name}", parquet.getvalue())))]
+    target = tmp_path / "ais"
+    tsdb.download_and_extract("vessel_ais", target)
+    assert pd.read_parquet(target / "parquets" / name)["mmsi"].tolist() == [123]
+
+
+@pytest.mark.parametrize("name", ["README.txt", "2020-2_group_0", "bad.parquet"])
+def test_ais_archive_rejects_missing_or_invalid_parquet(tmp_path, serve, name):
+    responses, _ = serve
+    responses[DATABASE["vessel_ais"]] = [_response(_zip((f"parquets/{name}", b"not parquet data")))]
+    with pytest.raises(downloading.DownloadError, match="AIS Parquet"):
+        tsdb.download_and_extract("vessel_ais", tmp_path / "ais")
+    assert not list(tmp_path.iterdir())

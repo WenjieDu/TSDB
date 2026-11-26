@@ -270,7 +270,7 @@ _FAMILIES = {
         "required_directories": (("PRSA_Data_20130301-20170228", "*.csv"),),
     },
     "italy_air_quality": {"loader": "load_italy_air_quality", "required_files": ("AirQualityUCI.csv",)},
-    "vessel_ais": {"loader": "load_ais", "required_directories": (("parquets", "*.parquet"),)},
+    "vessel_ais": {"loader": "load_ais", "required_directories": (("parquets", "*"),)},
     "pems_traffic": {"loader": "load_pems_traffic", "required_files": ("traffic.txt",)},
     "solar_alabama": {"loader": "load_solar_alabama", "required_files": ("solar_AL.txt",)},
     "tsqa": {"loader": "load_tsqa", "download_strategy": "huggingface", "optional_dependencies": ("huggingface_hub",)},
