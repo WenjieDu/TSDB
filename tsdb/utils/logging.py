@@ -49,8 +49,9 @@ def _check_append_encoding(path):
     """Refuse to mix UTF-8 with an existing non-UTF-8 log."""
     try:
         with open(path, encoding="utf-8") as f:
-            while f.read(65536):
-                pass
+            for _ in iter(lambda: f.read(65536), ""):
+                # Reading each chunk validates its UTF-8 encoding.
+                continue
     except FileNotFoundError:
         pass
     except UnicodeDecodeError as exc:

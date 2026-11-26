@@ -113,6 +113,47 @@ def test_load_cache_and_purge(cache, archive):
     assert tsdb.list_cache() == []
 
 
+def test_delete_cache_missing_root(cache):
+    cache.rmdir()
+    tsdb.delete_cache()
+    assert not cache.exists()
+
+
+def test_delete_cache_invalid_dataset(cache):
+    with pytest.raises(AssertionError, match="not available in TSDB"):
+        tsdb.delete_cache("unknown_dataset")
+    assert cache.is_dir()
+
+
+def test_delete_cache_missing_dataset(cache):
+    tsdb.delete_cache("physionet_2019")
+    assert cache.is_dir()
+    with pytest.raises(FileNotFoundError):
+        tsdb.delete_cache("physionet_2019", only_pickle=True)
+
+
+def test_delete_cache_preserves_other_datasets_and_raw_files(cache):
+    first = cache / "physionet_2019"
+    second = cache / "physionet_2012"
+    for directory in (first, second):
+        directory.mkdir()
+        (directory / "cached.pkl").write_bytes(b"cache")
+        (directory / "raw.txt").write_bytes(b"raw")
+    tsdb.delete_cache("physionet_2019", only_pickle=True)
+    assert not (first / "cached.pkl").exists()
+    assert (first / "raw.txt").read_bytes() == b"raw"
+    assert (second / "cached.pkl").is_file()
+    tsdb.delete_cache(only_pickle=True)
+    assert not (second / "cached.pkl").exists()
+    assert (second / "raw.txt").read_bytes() == b"raw"
+    tsdb.delete_cache("physionet_2019")
+    assert not first.exists()
+    assert second.is_dir()
+    tsdb.delete_cache()
+    assert cache.is_dir()
+    assert not list(cache.iterdir())
+
+
 def test_migrate(tmp_path, cache):
     original = tmp_path / "original"
     original.mkdir()
@@ -164,7 +205,8 @@ def test_live_download_and_extract(tmp_path):
 @pytest.mark.parametrize("dataset", DATASETS_TO_TEST)
 def test_live_dataset_loading(cache, dataset):
     result = tsdb.load(dataset)
-    assert isinstance(result, dict) and result, f"Failed to load {dataset}"
+    assert isinstance(result, dict), f"Failed to load {dataset}"
+    assert result, f"Empty dataset {dataset}"
     if dataset == "physionet_2019":
         assert result["training_setA"].RecordID.nunique() == 20336
         assert result["training_setB"].RecordID.nunique() == 20000

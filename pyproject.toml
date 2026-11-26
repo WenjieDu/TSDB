@@ -59,6 +59,9 @@ version = { attr = "tsdb.version.__version__" }
 readme = { file = "README.md", content-type = "text/markdown" }
 dependencies = { file = "requirements/requirements.txt" }
 
+[dependency-groups]
+test = ["pytest", "pytest-cov"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py38"

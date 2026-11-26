@@ -39,3 +39,4 @@ jobs:
             python: ${{ matrix.python }}
             suite: offline
             coverage: ${{ matrix.os == 'ubuntu-latest' }}
+            locked: ${{ matrix.os == 'ubuntu-latest' }}
