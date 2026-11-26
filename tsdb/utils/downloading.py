@@ -185,11 +185,11 @@ def download_and_extract(dataset_name: str, dataset_saving_path: str) -> None:
     _publish(destination, urls, dataset_name)
 
 
-def refresh_raw_dataset(dataset_name: str, destination: str) -> None:
+def refresh_raw_dataset(dataset_name: str, destination: str, prepare=None):
     """Keep the old raw/cache directory until a replacement download is complete.
 
-    This is a staged raw-data refresh, not a transaction covering parsing or
-    concurrent cache operations. If rollback fails, preserve the backup.
+    An optional prepare callback validates and parses staged data before
+    publication. If rollback fails, preserve the backup.
     """
     target = Path(destination).absolute()
     if target.is_symlink() or not target.is_dir():
@@ -197,6 +197,7 @@ def refresh_raw_dataset(dataset_name: str, destination: str) -> None:
     with tempfile.TemporaryDirectory(prefix=".tsdb-refresh-", dir=target.parent) as staging:
         replacement = Path(staging) / "data"
         download_and_extract(dataset_name, str(replacement))
+        result = prepare(replacement) if prepare is not None else None
         backup_dir = Path(tempfile.mkdtemp(prefix=".tsdb-backup-", dir=target.parent))
         backup = backup_dir / "data"
         try:
@@ -216,3 +217,4 @@ def refresh_raw_dataset(dataset_name: str, destination: str) -> None:
             raise
         else:
             shutil.rmtree(backup_dir)
+        return result

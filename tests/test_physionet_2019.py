@@ -119,7 +119,7 @@ def test_existing_cache_is_not_overwritten(tmp_path, simulated_source):
 
 def test_public_load_and_cached_reads(tmp_path, simulated_source, monkeypatch):
     _, requests = simulated_source
-    monkeypatch.setattr(data_processing, "CACHED_DATASET_DIR", str(tmp_path))
+    monkeypatch.setitem(vars(data_processing), "CACHED_DATASET_DIR", str(tmp_path))
     first = tsdb.load("physionet_2019")
     assert first["training_setA"].RecordID.nunique() == 2
     assert first["training_setB"].RecordID.nunique() == 1

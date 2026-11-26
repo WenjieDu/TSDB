@@ -138,7 +138,16 @@ use `tsdb.download_url(url, destination)`. ZIP, TAR (including gzip, bzip2 and x
 compression), and single CSV/TXT gzip files are supported. The destination must
 not exist. Unsafe archive paths, links, special files and conflicting file
 members are rejected. `tsdb.load(name, use_cache=False)` retains the old cache
-until the new raw download succeeds. Parsed cache recovery is a separate step.
+until the replacement has been downloaded, parsed and cached successfully.
+Parsed caches are trusted local pickle files: never install or load an untrusted
+pickle. Unreadable parsed caches are rebuilt from local raw data when possible.
+Cache operations sharing one ecosystem configuration are serialized by an OS
+lock. External writers and distinct ecosystem homes sharing a cache are not
+covered. Cache migration requires a new or empty non-overlapping destination;
+configuration is switched only after copying succeeds. A failed configuration
+write retains the original and the complete destination copy for recovery.
+Invalid dataset names raise ValueError. Pickle utility failures raise CacheError
+instead of returning None. Cache deletion preserves unrelated files and backups.
 
 ### Unicode configuration and logs
 

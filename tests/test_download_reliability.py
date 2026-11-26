@@ -206,7 +206,7 @@ def test_reject_missing_required_dataset_files(tmp_path, serve):
 def test_failed_refresh_preserves_existing_raw_and_parsed_cache(tmp_path, serve, monkeypatch):
     responses, _ = serve
     name = "electricity_load_diagrams"
-    monkeypatch.setattr(data_processing, "CACHED_DATASET_DIR", str(tmp_path))
+    monkeypatch.setitem(vars(data_processing), "CACHED_DATASET_DIR", str(tmp_path))
     destination = tmp_path / name
     destination.mkdir()
     (destination / "LD2011_2014.txt").write_bytes(b"existing raw")
@@ -222,7 +222,7 @@ def test_failed_refresh_preserves_existing_raw_and_parsed_cache(tmp_path, serve,
 def test_successful_refresh_replaces_raw_data(tmp_path, serve, monkeypatch):
     responses, _ = serve
     name = "electricity_load_diagrams"
-    monkeypatch.setattr(data_processing, "CACHED_DATASET_DIR", str(tmp_path))
+    monkeypatch.setitem(vars(data_processing), "CACHED_DATASET_DIR", str(tmp_path))
     url = DATABASE[name]
     first = b";MT_001\n2011-01-01 00:00:00;1,5\n"
     second = b";MT_001\n2011-01-01 00:00:00;9,5\n"
