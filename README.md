@@ -223,3 +223,14 @@ author = {Wenjie Du, Yiyuan Yang, Linglong Qian, Jun Wang, and Qingsong Wen},
 year = {2025},
 }
 ```
+
+### Dataset return contracts
+
+UCR/UEA TXT data retains `(samples, timepoints, features)`; ARFF data retains
+its historical `(samples, channels, timepoints)` layout. This difference is
+intentional compatibility preservation in v1.0; do not assume a unified axis
+order across formats. ARFF takes precedence when both complete pairs exist.
+Single-row TXT inputs are supported; malformed/empty pairs raise errors.
+PhysioNet and Beijing raw files are enumerated in sorted order; existing local
+parsed caches retain their earlier order until explicitly rebuilt. AIS elapsed
+time is computed in seconds independent of pandas timestamp resolution.

@@ -14,7 +14,6 @@ import time
 
 import numpy as np
 import pandas as pd
-from pandas.errors import UnsupportedFunctionCall
 
 from ..utils.logging import logger
 
@@ -52,9 +51,9 @@ def load_ais(local_path):
     logger.info("Please wait...")
     path_to_parquets = os.path.join(local_path, "parquets")
 
-    filenames = os.listdir(path_to_parquets)
+    filenames = [p for p in os.listdir(path_to_parquets) if p.endswith(".parquet")]
 
-    mmsis = []
+    mmsis = set()
     s = []
     a = []
     data = {}
@@ -68,13 +67,8 @@ def load_ais(local_path):
         df = pd.read_parquet(path, engine="pyarrow")
         logger.info(f"Reading group of vessel trajectories {i}/40 from {path}, data shape {df.shape}")
 
-        # Making a list of unique vessel identifiers
-        vessels = list(df["mmsi"].unique())
-
-        for k in vessels:
-            # Grouping time series by MMSI and filtering only moving vessels by "sog"
-
-            g = df.groupby(by="mmsi").get_group(k)
+        # Group once; preserve the original first-occurrence vessel ordering.
+        for _, g in df.groupby("mmsi", sort=False):
             g = g.loc[g["sog"] > 0.2].iloc[0:2000]
 
             # Length of 2000 is taken provisionally, increasing to 3000 will reduce the number of vessels,
@@ -86,24 +80,15 @@ def load_ais(local_path):
                 datetime_series = pd.to_datetime(g["date_time_utc"])
                 datetime_index = pd.DatetimeIndex(datetime_series.values)
                 g = g.set_index(datetime_index)
-                values = datetime_series.values.astype(float)
-
-                # Here we shift time for every vessel, so it starts from 0, it can be removed
-                t = np.amin(values)
-                g["time"] = (values - t) / 10**9
+                # Compute elapsed seconds independent of pandas datetime resolution.
+                g["time"] = (datetime_series - datetime_series.min()).dt.total_seconds().to_numpy()
 
                 # Now we slice the time series to be all equal.
                 # It is reasonable to expect that the series would be at least double in size,
                 # so should slice it on at least 4000.
                 # Navigational status tells what should be the sampling time (how often vessel sends an AIS message)
                 # for a particular mode of operation (for example speed less than 25 knots, at anchor etc).
-                try:
-                    g = g.resample("3S").mean(numeric_only=True).iloc[0:6000]
-                except UnsupportedFunctionCall:
-                    # Refer to https://github.com/WenjieDu/TSDB/pull/13#issuecomment-1618798165
-                    # This error may be caused by pandas lower versions like 1.4.4.
-                    # Can be directly solved by upgrading pandas to 1.5.3.
-                    g = g.resample("3S").mean().iloc[0:6000]
+                g = g.resample("3s").mean(numeric_only=True).iloc[:6000]
 
             # Maybe there are some time series shorter then 6000
             if len(g) == 6000:
@@ -118,7 +103,7 @@ def load_ais(local_path):
                 g = g.assign(heading=lambda x: np.mod(x["true_heading"] - 180.0, 360.0) - 180.0)
                 g = g.assign(course=lambda x: np.mod(x["cog"] - 180.0, 360.0) - 180.0)
 
-                m = g["mmsi"][0]
+                m = g["mmsi"].iloc[0]
 
                 # Taking only unique MMSIs and dropping unnecessary columns
 
@@ -136,10 +121,10 @@ def load_ais(local_path):
                         )
                     )
                     # y data, classes are length integer for possible classification
-                    a.append(pd.DataFrame({"Length": [g["length"][0]], "MMSI": [g["mmsi"][0]]}))
+                    a.append(pd.DataFrame({"Length": [g["length"].iloc[0]], "MMSI": [g["mmsi"].iloc[0]]}))
 
                     # Vessels included in training stored in list of MMSIs
-                    mmsis.append(m)
+                    mmsis.add(m)
 
     data["X"] = pd.concat(s)
     data["y"] = pd.concat(a)
