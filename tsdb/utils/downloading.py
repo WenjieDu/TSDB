@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from ..database import DATABASE
 from .logging import logger
+from .physionet_2019 import download_physionet2019
 
 
 def _download_and_extract(url: str, saving_path: str) -> Optional[str]:  # noqa: FA100
@@ -122,8 +123,11 @@ def download_and_extract(dataset_name: str, dataset_saving_path: str) -> None:
 
     """
     logger.info("Start downloading...")
-    os.makedirs(dataset_saving_path)
     dataset_url = DATABASE[dataset_name]
+    if dataset_name == "physionet_2019":
+        download_physionet2019(dataset_url, dataset_saving_path)
+        return
+    os.makedirs(dataset_saving_path)
     if isinstance(dataset_url, str) and dataset_url.startswith("hf://"):
         # HuggingFace datasets are downloaded during loading via the datasets library
         logger.info(
