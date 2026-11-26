@@ -20,8 +20,8 @@ _DATABASE = {
     # http://www.physionet.org/challenge/2019
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019
     "physionet_2019": [
-        "https://archive.physionet.org/users/shared/challenge-2019/training_setA.zip",
-        "https://archive.physionet.org/users/shared/challenge-2019/training_setB.zip",
+        "https://physionet-open.s3.amazonaws.com/challenge-2019/1.0.0/training/training_setA/",
+        "https://physionet-open.s3.amazonaws.com/challenge-2019/1.0.0/training/training_setB/",
     ],
     #
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams
@@ -225,9 +225,9 @@ _ucr_uea_datasets = [
 
 UCR_UEA_DATASETS = {}
 for i in _ucr_uea_datasets:
-    UCR_UEA_DATASETS[
-        "ucr_uea_" + i
-    ] = f"https://www.timeseriesclassification.com/aeon-toolkit/{i}.zip"
+    UCR_UEA_DATASETS["ucr_uea_" + i] = (
+        "https://www.timeseriesclassification.com/aeon-toolkit/" + i + ".zip"
+    )
 
 DATABASE = {**_DATABASE, **UCR_UEA_DATASETS}
 AVAILABLE_DATASETS = list(DATABASE.keys())
