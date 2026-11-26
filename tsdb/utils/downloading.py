@@ -1,142 +1,214 @@
-"""
-Downloading functions.
-"""
+"""Download and safely publish datasets without exposing partial destinations."""
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
-import gzip
 import os
 import shutil
 import tempfile
-import warnings
-from typing import Optional
+import time
+from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 import requests
 from tqdm import tqdm
 
-from ..database import DATABASE
+from ..database import dataset_spec
+from .archive import archive_format, extract, member_path
 from .logging import logger
 from .physionet_2019 import download_physionet2019
+from .tsqa import download_tsqa
+from .vessel_ais import ais_parquet_files
+
+_TIMEOUT = (10, 60)
+_ATTEMPTS = 4
+_RETRY_STATUS = {429, 500, 502, 503, 504}
 
 
-def _download_and_extract(url: str, saving_path: str) -> Optional[str]:  # noqa: FA100
-    """Download dataset from the given url and extract to the given saving path.
+class DownloadError(RuntimeError):
+    """A source could not be downloaded or validated."""
 
-    Parameters
-    ----------
-    url : str,
-        URL of the dataset to be downloaded.
-    saving_path : str,
-        Path to save extracted dataset.
 
-    Returns
-    -------
-    saving_path if successful else None
-    """
-    no_need_decompression_format = ["csv", "txt"]
-    supported_compression_format = ["zip", "tar", "gz", "bz", "xz"]
+class _IncompleteDownload(DownloadError):
+    """The response did not contain the expected bytes."""
 
-    # truncate the file name from url
-    file_name = os.path.basename(url)
-    suffix = file_name.split(".")[-1]
 
-    if suffix in no_need_decompression_format:
-        raw_data_saving_path = os.path.join(saving_path, file_name)
-    elif suffix in supported_compression_format:
-        # create temp dir for raw data saving
-        tmp_dir = tempfile.mkdtemp()
-        raw_data_saving_path = os.path.join(tmp_dir, file_name)
-    else:
-        warnings.warn(
-            "The compression format is not supported, aborting. "
-            "If necessary, please create a pull request to add according supports.",
-            category=RuntimeWarning,
+def _download_once(url: str, path: Path, name: str) -> None:
+    with requests.get(url, stream=True, timeout=_TIMEOUT, headers={"Accept-Encoding": "identity"}) as response:
+        response.raise_for_status()
+        length = response.headers.get("Content-Length")
+        # Requests transparently decodes Content-Encoding; only compare like-for-like bytes.
+        size = (
+            int(length)
+            if length is not None and response.headers.get("Content-Encoding", "identity") == "identity"
+            else None
         )
-        return None
+        written = 0
+        with (
+            path.open("wb") as output,
+            tqdm(
+                total=size, unit="B", unit_scale=True, unit_divisor=1024, desc=f"Downloading {name}", ascii=True
+            ) as progress,
+        ):
+            for chunk in response.iter_content(chunk_size=64 * 1024):
+                written += output.write(chunk)
+                progress.update(len(chunk))
+        if written == 0 or (size is not None and written != size):
+            raise _IncompleteDownload(f"Incomplete download for {name}: expected {size}, received {written} bytes")
 
-    # download and save the raw dataset
-    try:
-        with requests.get(url, stream=True) as r:
-            r.raise_for_status()
-            chunk_size = 8192
-            try:
-                size = int(r.headers["Content-Length"])
-            except KeyError:
-                size = None
 
-            with tqdm(
-                unit="B",
-                unit_scale=True,
-                unit_divisor=1024,
-                miniters=1,
-                desc=f"Downloading {file_name}",
-                total=size,
-            ) as pbar, open(raw_data_saving_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=chunk_size):
-                    f.write(chunk)
-                    pbar.update(len(chunk))
-
-    except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
-        shutil.rmtree(saving_path, ignore_errors=True)
-        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        raise RuntimeError(f"Exception: {e}\nDownload failed. Aborting.")
-    except KeyboardInterrupt:
-        shutil.rmtree(saving_path, ignore_errors=True)
-        shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        raise KeyboardInterrupt("Download cancelled by the user.")
-
-    logger.info(f"Successfully downloaded data to {raw_data_saving_path}")
-
-    # if the file is compressed, then unpack it
-    if suffix in supported_compression_format:
+def _download(url: str, path: Path, name: str) -> None:
+    for attempt in range(_ATTEMPTS):
         try:
-            os.makedirs(saving_path, exist_ok=True)
-            if ".txt.gz" in file_name:
-                new_name = file_name.split(".txt.gz")[0]
-                new_name = new_name + ".txt"
-                saving_path = os.path.join(saving_path, new_name)
-                with open(raw_data_saving_path, "rb") as f, open(saving_path, "wb") as wf:
-                    wf.write(gzip.decompress(f.read()))
-            else:
-                shutil.unpack_archive(raw_data_saving_path, saving_path)
-            logger.info(f"Successfully extracted data to {saving_path}")
-        except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
-            shutil.rmtree(saving_path, ignore_errors=True)
-            raise RuntimeError(f"❌ {e}")
-        finally:
-            shutil.rmtree(tmp_dir, ignore_errors=True)
+            _download_once(url, path, name)
+        except requests.HTTPError as exc:
+            if exc.response is None or exc.response.status_code not in _RETRY_STATUS or attempt == _ATTEMPTS - 1:
+                raise DownloadError(f"Download failed for {name}: {exc}") from exc
+        except (
+            requests.ConnectionError,
+            requests.Timeout,
+            requests.exceptions.ChunkedEncodingError,
+            _IncompleteDownload,
+        ) as exc:
+            if attempt == _ATTEMPTS - 1:
+                raise DownloadError(f"Download failed for {name}: {exc}") from exc
+        except requests.RequestException as exc:
+            raise DownloadError(f"Download failed for {name}: {exc}") from exc
+        else:
+            return
+        time.sleep(0.5 * 2**attempt)
 
-    return saving_path
+
+def _fetch(url: str, root: Path, work: Path) -> str:
+    parts = urlsplit(url)
+    name = unquote(parts.path.rsplit("/", 1)[-1])
+    if parts.scheme not in ("http", "https") or not parts.netloc or member_path(root, name).parent != root:
+        raise ValueError(f"Invalid download URL: {url!r}")
+    kind = archive_format(name)
+    archive = work / "download"
+    _download(url, archive, name)
+    extract(archive, root, name, kind)
+    archive.unlink()
+    return name[:-3] if kind == "gzip" else ""
+
+
+def _check_destination(destination: Path) -> None:
+    if os.path.lexists(destination):
+        raise FileExistsError(f"Download destination already exists: {destination}")
+
+
+def _validate_dataset(name: str, root: Path) -> None:
+    spec = dataset_spec(name)
+    if spec.loader_arg is not None:
+        dataset = spec.loader_arg
+        if not any(
+            all(_nonempty(root / f"{dataset}_{split}.{ext}") for split in ("TRAIN", "TEST")) for ext in ("arff", "txt")
+        ):
+            raise DownloadError(f"Missing train/test files for {name}")
+    for filename in spec.required_files:
+        if not _nonempty(root / filename):
+            raise DownloadError(f"Missing or empty required file: {filename}")
+    if name == "vessel_ais":
+        # The source archive contains extensionless Parquet files.
+        try:
+            ais_parquet_files(root)
+        except ValueError as exc:
+            raise DownloadError(str(exc)) from exc
+    for directory, pattern in spec.required_directories:
+        if not any(_nonempty(path) for path in (root / directory).glob(pattern)):
+            raise DownloadError(f"Missing required dataset files: {directory}/{pattern}")
+
+
+def _nonempty(path: Path) -> bool:
+    return path.is_file() and path.stat().st_size > 0
+
+
+def _publish(destination: Path, urls: tuple[str, ...], dataset_name: str | None = None) -> str:
+    _check_destination(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".tsdb-download-", dir=destination.parent) as staging:
+        work = Path(staging)
+        root = work / "data"
+        root.mkdir()
+        result = ""
+        if dataset_name is not None and dataset_spec(dataset_name).download_strategy == "huggingface":
+            download_tsqa(urls[0].removeprefix("hf://"), root)
+        else:
+            for url in urls:
+                result = _fetch(url, root, work)
+        if not any(path.is_file() for path in root.rglob("*")):
+            raise DownloadError("Download produced no files")
+        if dataset_name is not None:
+            _validate_dataset(dataset_name, root)
+        _check_destination(destination)
+        os.rename(root, destination)
+    logger.info(f"Successfully downloaded data to {destination}")
+    return str(destination / result)
+
+
+def download_url(url: str, saving_path: str) -> str:
+    """Download a CSV/TXT or supported archive into a new destination directory.
+
+    The destination must not exist. Failed or interrupted downloads leave no
+    partial destination. Return the directory (or decompressed .txt/.csv path
+    for a single gzip file). TLS verification is not disabled.
+    """
+    return _publish(Path(saving_path).absolute(), (url,))
+
+
+def _download_and_extract(url: str, saving_path: str) -> str:
+    """Compatibility wrapper for the legacy generic URL helper."""
+    result = download_url(url, saving_path)
+    # Preserve the old helper's relative-path return convention.
+    relative = Path(result).relative_to(Path(saving_path).absolute())
+    return str(Path(saving_path) / relative)
 
 
 def download_and_extract(dataset_name: str, dataset_saving_path: str) -> None:
-    """Wrapper of _download_and_extract.
+    """Download a registered dataset's raw files into a new directory.
 
-    Parameters
-    ----------
-    dataset_name : str,
-        The name of a dataset available in tsdb.
-
-    dataset_saving_path : str,
-        The local path for dataset saving.
-
+    All required sources must succeed before publication. An existing
+    destination is never overwritten by this function.
     """
-    logger.info("Start downloading...")
-    dataset_url = DATABASE[dataset_name]
-    if dataset_name == "physionet_2019":
-        download_physionet2019(dataset_url, dataset_saving_path)
+    spec = dataset_spec(dataset_name)
+    destination = Path(dataset_saving_path).absolute()
+    _check_destination(destination)
+    if spec.download_strategy == "physionet_2019":
+        download_physionet2019(spec.sources, str(destination))
         return
-    os.makedirs(dataset_saving_path)
-    if isinstance(dataset_url, str) and dataset_url.startswith("hf://"):
-        # HuggingFace datasets are downloaded during loading via the datasets library
-        logger.info(
-            f"Dataset {dataset_name} is hosted on HuggingFace. "
-            f"It will be downloaded on the first call to the dataset loader."
-        )
-        return
-    if isinstance(dataset_url, list):
-        for link in dataset_url:
-            _download_and_extract(link, dataset_saving_path)
-    else:
-        _download_and_extract(dataset_url, dataset_saving_path)
+    _publish(destination, spec.sources, dataset_name)
+
+
+def refresh_raw_dataset(dataset_name: str, destination: str, prepare=None):
+    """Keep the old raw/cache directory until a replacement download is complete.
+
+    An optional prepare callback validates and parses staged data before
+    publication. If rollback fails, preserve the backup.
+    """
+    target = Path(destination).absolute()
+    if target.is_symlink() or not target.is_dir():
+        raise ValueError(f"Cannot refresh non-directory or linked cache: {target}")
+    with tempfile.TemporaryDirectory(prefix=".tsdb-refresh-", dir=target.parent) as staging:
+        replacement = Path(staging) / "data"
+        download_and_extract(dataset_name, str(replacement))
+        result = prepare(replacement) if prepare is not None else None
+        backup_dir = Path(tempfile.mkdtemp(prefix=".tsdb-backup-", dir=target.parent))
+        backup = backup_dir / "data"
+        try:
+            os.rename(target, backup)
+            try:
+                os.rename(replacement, target)
+            except BaseException:
+                # Never delete the old data if restoring it fails.
+                if not os.path.lexists(target):
+                    os.rename(backup, target)
+                raise
+        except BaseException:
+            if backup.exists():
+                logger.error(f"Original dataset retained at {backup}; restore it manually if needed.")
+            else:
+                backup_dir.rmdir()
+            raise
+        else:
+            shutil.rmtree(backup_dir)
+        return result

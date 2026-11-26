@@ -4,14 +4,19 @@
 # License: BSD-3-Clause
 
 import io
+import json
+import os
 import uuid
 import zipfile
+from pathlib import Path
 
 import pandas as pd
 import pytest
 import requests
+import tomlkit
 
 import tsdb
+from scripts.raw_dataset_cache import POLICY, restore, store
 from tsdb import data_processing
 from tsdb.database import DATABASE
 from tsdb.utils import config, file
@@ -25,6 +30,7 @@ DATASETS_TO_TEST = [
     "electricity_load_diagrams",
     "electricity_transformer_temperature",
     "vessel_ais",
+    "tsqa",
     "pems_traffic",
     "solar_alabama",
     "ucr_uea_Wine",
@@ -36,9 +42,9 @@ DATASETS_TO_TEST = [
 def cache(tmp_path, monkeypatch):
     root = tmp_path / "cache"
     root.mkdir()
-    config_path = tmp_path / "config.ini"
-    config_path.write_text(f"[path]\ntsdb_home = {root}\n", encoding="utf-8")
-    monkeypatch.setattr(data_processing, "CACHED_DATASET_DIR", str(root))
+    config_path = tmp_path / "config.toml"
+    config_path.write_text(tomlkit.dumps({"schema_version": 1, "tsdb": {"cache_dir": str(root)}}), encoding="utf-8")
+    monkeypatch.setitem(vars(data_processing), "CACHED_DATASET_DIR", str(root))
     monkeypatch.setattr(config, "PYPOTS_ECOSYSTEM_CONFIG_PATH", config_path)
 
     def read_local_configs(path=config_path):
@@ -120,7 +126,7 @@ def test_delete_cache_missing_root(cache):
 
 
 def test_delete_cache_invalid_dataset(cache):
-    with pytest.raises(AssertionError, match="not available in TSDB"):
+    with pytest.raises(ValueError, match="not available in TSDB"):
         tsdb.delete_cache("unknown_dataset")
     assert cache.is_dir()
 
@@ -137,14 +143,21 @@ def test_delete_cache_preserves_other_datasets_and_raw_files(cache):
     second = cache / "physionet_2012"
     for directory in (first, second):
         directory.mkdir()
-        (directory / "cached.pkl").write_bytes(b"cache")
+        (directory / f"{directory.name}_cache.pkl").write_bytes(b"cache")
+        (directory / "custom_analysis.pkl").write_bytes(b"unrelated")
         (directory / "raw.txt").write_bytes(b"raw")
     tsdb.delete_cache("physionet_2019", only_pickle=True)
-    assert not (first / "cached.pkl").exists()
+    assert not (first / f"{first.name}_cache.pkl").exists()
+    assert (first / "custom_analysis.pkl").read_bytes() == b"unrelated"
     assert (first / "raw.txt").read_bytes() == b"raw"
-    assert (second / "cached.pkl").is_file()
+    assert (second / f"{second.name}_cache.pkl").is_file()
     tsdb.delete_cache(only_pickle=True)
-    assert not (second / "cached.pkl").exists()
+    assert not (second / f"{second.name}_cache.pkl").exists()
+    assert (second / "custom_analysis.pkl").read_bytes() == b"unrelated"
+    assert (first / "custom_analysis.pkl").read_bytes() == b"unrelated"
+    tsdb.delete_cache(only_pickle=True)  # idempotent when parsed files are absent
+    assert (first / "custom_analysis.pkl").read_bytes() == b"unrelated"
+    assert (second / "custom_analysis.pkl").read_bytes() == b"unrelated"
     assert (second / "raw.txt").read_bytes() == b"raw"
     tsdb.delete_cache("physionet_2019")
     assert not first.exists()
@@ -167,7 +180,7 @@ def test_migrate(tmp_path, cache):
     tsdb.migrate_cache(str(new_cache))
     assert not cache.exists()
     assert (new_cache / "test.txt").read_text(encoding="utf-8") == "cached"
-    assert config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).get("path", "tsdb_home") == str(new_cache)
+    assert config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH)["tsdb"]["cache_dir"] == str(new_cache)
 
 
 def test_logging(tmp_path):
@@ -191,24 +204,73 @@ def test_logging(tmp_path):
 
 def test_config(cache):
     configs = config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH)
-    assert configs.get("path", "tsdb_home") == str(cache)
-
-
-@pytest.mark.network
-def test_live_download_and_extract(tmp_path):
-    destination = tmp_path / "wine"
-    tsdb.download_and_extract("ucr_uea_Wine", str(destination))
-    assert any(path.is_file() for path in destination.rglob("*"))
+    assert configs["tsdb"]["cache_dir"] == str(cache)
 
 
 @pytest.mark.network
 @pytest.mark.parametrize("dataset", DATASETS_TO_TEST)
 def test_live_dataset_loading(cache, dataset):
+    raw_root = os.environ.get("TSDB_CI_RAW_CACHE")
+    raw_cache = Path(raw_root) if raw_root and dataset in POLICY else None
+    target = cache / dataset
+    hit = raw_cache is not None and restore(raw_cache, dataset, target)
+    # Cover the public download API without downloading Wine twice.
+    if dataset == "ucr_uea_Wine":
+        tsdb.download_and_extract(dataset, str(target))
     result = tsdb.load(dataset)
     assert isinstance(result, dict), f"Failed to load {dataset}"
     assert result, f"Empty dataset {dataset}"
     if dataset == "physionet_2019":
         assert result["training_setA"].RecordID.nunique() == 20336
         assert result["training_setB"].RecordID.nunique() == 20000
+    if dataset == "vessel_ais":
+        from tsdb.utils.vessel_ais import ais_parquet_files
+
+        assert len(ais_parquet_files(target)) == 40
+        assert not result["y"].empty and result["y"].index.is_unique
+        assert len(result["X"]) == 6000 * len(result["y"])
+        assert result["X"]["mmsi"].nunique() == len(result["y"])
+    if dataset == "tsqa":
+        from tsdb.utils.tsqa import TSQA_CSV_FILES
+
+        assert set(result) == set(TSQA_CSV_FILES)
+        assert all(not frame.empty for frame in result.values())
     # Exercise cached reads without a second download.
     assert isinstance(tsdb.load(dataset), dict)
+
+    if raw_cache is not None and not hit:
+        tsdb.delete_cache(dataset, only_pickle=True)
+        store(raw_cache, dataset, target)
+    mode = "raw-cache-hit" if hit else "cold-download"
+    print(f"DATASET MODE {dataset}: {mode}", flush=True)
+    report_dir = os.environ.get("TSDB_CI_DATASET_REPORT")
+    if report_dir:
+        report = Path(report_dir)
+        report.mkdir(parents=True, exist_ok=True)
+        (report / f"{dataset}.json").write_text(json.dumps({"dataset": dataset, "mode": mode}), encoding="utf-8")
+
+
+def test_real_dataset_raw_cache_reparse(cache, archive, monkeypatch, tmp_path):
+    name = "electricity_load_diagrams"
+    shared = tmp_path / "shared-raw"
+    report = tmp_path / "report"
+    monkeypatch.setenv("TSDB_CI_RAW_CACHE", str(shared))
+    monkeypatch.setenv("TSDB_CI_DATASET_REPORT", str(report))
+    test_live_dataset_loading(cache, name)
+    assert len(archive) == 1
+    assert not list(shared.rglob("*.pkl"))
+    assert json.loads((report / f"{name}.json").read_text())["mode"] == "cold-download"
+    tsdb.delete_cache(name)
+    calls = []
+    parse = data_processing._parse
+
+    def tracked_parse(*args):
+        calls.append(args[0])
+        return parse(*args)
+
+    monkeypatch.setattr(data_processing, "_parse", tracked_parse)
+    test_live_dataset_loading(cache, name)
+    assert len(archive) == 1
+    assert calls == [name]
+    assert (cache / name / f"{name}_cache.pkl").is_file()
+    assert json.loads((report / f"{name}.json").read_text())["mode"] == "raw-cache-hit"

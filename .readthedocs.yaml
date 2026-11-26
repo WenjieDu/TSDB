@@ -1,5 +1,4 @@
-# This is file is used to help customize TSDB documentation building process on ReadTheDocs.
-
+# https://docs.readthedocs.com/platform/stable/config-file/v2.html
 version: 2
 
 formats:
@@ -9,21 +8,15 @@ formats:
 
 sphinx:
     configuration: docs/conf.py
-    fail_on_warning: false
+    fail_on_warning: true
 
 build:
     os: ubuntu-22.04
-
     tools:
         python: "3.10"
 
-    jobs:
-        pre_install:
-            - python -m pip install --upgrade pip
-            - pip install -r requirements/requirements.txt
-            - pip install sphinx==6.2.1 docutils==0.19 sphinxcontrib-bibtex==2.1.4 sphinxcontrib-gtagjs sphinx-autodoc-typehints furo==2023.07.26
-
-        post_install:
-            - pip install docutils==0.20
-            # this version fixes issue#102, put it in post_install to avoid being
-            # overwritten by other versions (like 0.19) while installing other packages
+python:
+    install:
+        - requirements: docs/requirements.txt
+        - method: pip
+          path: .

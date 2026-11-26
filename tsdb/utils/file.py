@@ -8,10 +8,14 @@ Functions manipulating files.
 import os
 import pickle
 import shutil
+import tempfile
+from pathlib import Path
 
 import pandas as pd
 
-from .config import CONFIG_TEMPLATE_PATH, read_configs, write_configs
+from . import config
+from .cache_lock import cache_lock, dataset_cache_lock
+from .config import cache_dir_override, read_configs, require_legacy_retired_for_relocation, write_configs
 from .logging import logger
 
 
@@ -35,13 +39,7 @@ def check_path(
         The absolute path of the given path.
 
     """
-    # expand the home dir if the path starts with "~"
-    if path.startswith("~"):
-        checked_path = path.replace("~", os.path.expanduser("~"))
-    else:
-        checked_path = path
-
-    checked_path = os.path.abspath(checked_path)
+    checked_path = os.path.abspath(os.path.expanduser(path))
 
     if check_exists:
         assert os.path.exists(checked_path), f"The given path {checked_path} does not exists"
@@ -86,57 +84,35 @@ def create_dir_if_not_exist(path: str, is_dir: bool = True) -> None:
         logger.info(f"Successfully created the given path {path}")
 
 
+class CacheError(RuntimeError):
+    """A trusted local cache could not be read or written."""
+
+
 def pickle_dump(data: object, path: str) -> None:
-    """Pickle the given object.
-
-    Parameters
-    ----------
-    data:
-        The object to be pickled.
-
-    path:
-        Saving path.
-
-    Returns
-    -------
-    `path` if succeed else None
-
-    """
+    """Atomically write a trusted local pickle; preserve an earlier file on failure."""
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
     try:
-        # help create the parent dir if not exist
-        create_dir_if_not_exist(extract_parent_dir(path))
-        with open(path, "wb") as f:
+        with tempfile.NamedTemporaryFile(mode="wb", dir=destination.parent, prefix=".tsdb-pickle-", delete=False) as f:
+            temporary = Path(f.name)
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
-        logger.info(f"Successfully saved to {path}")
-    except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
-        logger.error(f"❌ Pickling failed. No cache data saved. Investigate the error below: \n{e}")
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporary, destination)
+    except Exception as exc:
+        raise CacheError(f"Cannot write local cache {destination}") from exc
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def pickle_load(path: str) -> object:
-    """Load pickled object from file.
-
-    Parameters
-    ----------
-    path :
-        Local path of the pickled object.
-
-    Returns
-    -------
-    Object
-        Pickled object.
-
-    """
+    """Read a trusted local pickle. Never load a pickle from an untrusted source."""
     try:
-        with open(path, "rb") as f:
-            if pd.__version__ >= "2.0.0":
-                data = pd.read_pickle(f)
-            else:
-                data = pickle.load(f)
-    except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
-        logger.error(f"❌ Loading data failed. Operation aborted. Investigate the error below: \n{e}")
-        return None
-
-    return data
+        return pd.read_pickle(path)
+    except Exception as exc:
+        raise CacheError(f"Cannot read local cache {path}") from exc
 
 
 def purge_path(path: str, ignore_errors: bool = True) -> None:
@@ -170,15 +146,25 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
         raise shutil.Error("Operation failed.")
 
 
+def normalize_cache_dir(path):
+    """Validate a cache override without touching the filesystem."""
+    value = os.fspath(path)
+    if not isinstance(value, str) or not value.strip() or "\0" in value:
+        raise ValueError("cache_dir must be a nonempty filesystem path")
+    return str(Path(value).expanduser().resolve())
+
+
 def determine_tsdb_home():
     # default path
-    config_temp = read_configs(CONFIG_TEMPLATE_PATH)
-    default_path = check_path(config_temp.get("path", "tsdb_home"))
+    override = cache_dir_override()
+    if override is not None:
+        return check_path(override)
+    default_path = str(Path(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).parent / "tsdb")
 
     # read tsdb_home from the current config file
     # tsdb_home may be changed by users, hence not necessarily equal to the default path
-    config = read_configs()
-    tsdb_home_path = config.get("path", "tsdb_home")
+    document = read_configs()
+    tsdb_home_path = document["tsdb"]["cache_dir"]
     tsdb_home_path = check_path(tsdb_home_path)
 
     # old cached dataset dir path used in TSDB v0.2
@@ -186,7 +172,9 @@ def determine_tsdb_home():
     # old cached dataset dir path used in TSDB v0.4
     old_cached_dataset_dir_04 = check_path("~/.tsdb")
 
-    if os.path.exists(old_cached_dataset_dir_02) or os.path.exists(old_cached_dataset_dir_04):
+    if Path(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).parent == config.USER_HOME / ".pypots" and (
+        os.path.exists(old_cached_dataset_dir_02) or os.path.exists(old_cached_dataset_dir_04)
+    ):
         logger.warning("‼️ Detected the home dir of the old version TSDB. Auto migrating... Please wait.")
         cached_dataset_dir = tsdb_home_path
         if os.path.exists(old_cached_dataset_dir_02):
@@ -194,89 +182,92 @@ def determine_tsdb_home():
         else:
             migrate(old_cached_dataset_dir_04, cached_dataset_dir)
         logger.info("🌟 Migrating finished.")
-    elif os.path.exists(tsdb_home_path):
-        # use the path directly, may be in a portable disk
+    elif os.path.exists(tsdb_home_path) or tsdb_home_path == default_path:
         cached_dataset_dir = tsdb_home_path
     else:
-        # if the preset tsdb_home path does not exist,
-        # e.g. `tsdb_home_path` is in a portable disk that is not connected
-        # then use the default path
-        if check_path(tsdb_home_path) != check_path(default_path):
-            logger.warning(
-                f"❗️ The preset tsdb_home {tsdb_home_path} doesn't exist. "
-                f"This may be caused by the portable disk not connected."
-            )
-            logger.warning(f"‼️ Using the default path {default_path} for now")
-
-        cached_dataset_dir = default_path
+        # Do not silently redirect a configured external disk to another cache.
+        raise FileNotFoundError(
+            f"Configured TSDB cache {tsdb_home_path} does not exist. Mount or create that directory, "
+            "or set TSDB_CACHE_DIR for a temporary override."
+        )
 
     return cached_dataset_dir
 
 
-def migrate(
-    old_path: str,
-    new_path: str,
-    symlink: bool = False,
-) -> None:
-    """Migrate files in a directory from old_path to new_path.
+def _migration_paths(old_path, new_path):
+    source = Path(old_path).expanduser().absolute()
+    destination = Path(new_path).expanduser().absolute()
+    if source.is_symlink() or not source.is_dir():
+        raise ValueError(f"Migration source must be a real directory: {source}")
+    if destination.is_symlink() or (destination.exists() and not destination.is_dir()):
+        raise ValueError(f"Migration destination must be a real directory: {destination}")
+    source = source.resolve()
+    destination = destination.resolve()
+    if source == destination or source in destination.parents or destination in source.parents:
+        raise ValueError("Migration source and destination must not overlap")
+    if destination.exists() and any(destination.iterdir()):
+        raise FileExistsError(f"Migration destination is not empty: {destination}")
+    return source, destination
 
-    Parameters
-    ----------
-    old_path:
-        The old path of the dataset.
 
-    new_path:
-        The new path of the dataset.
-
-    symlink:
-        If True, create a symbolic link from the new path to the old path, namely users still can access the dataset
-        from the old path.
-
-    """
-    # check both old_path and new_path
-    old_path = check_path(old_path, check_exists=True)
-    new_path = check_path(new_path)
-
-    # create new_path if not exists
-    if not os.path.exists(new_path):
-        os.makedirs(new_path, exist_ok=True)
-    else:
-        logger.warning(f"‼️ Note that new_path {new_path} already exists.")
-
-    all_old_files = os.listdir(old_path)
-    for f in all_old_files:
-        old_f_path = os.path.join(old_path, f)
-
-        if os.path.isdir(old_f_path):
-            new_f_path = os.path.join(new_path, f)
-            shutil.copytree(old_f_path, new_f_path)
-        else:
-            shutil.move(old_f_path, new_path)
-
-    logger.info(f"Successfully migrated {old_path} to {new_path}")
-    shutil.rmtree(old_path, ignore_errors=True)
-    logger.info(f"Purged the old path {old_path}")
-
-    # create a symbolic link from the new path to the old path
+def _migrate(old_path, new_path, symlink=False, on_publish=None):
+    source, destination = _migration_paths(old_path, new_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    existed = destination.exists()
+    with tempfile.TemporaryDirectory(prefix=".tsdb-migration-", dir=destination.parent) as work:
+        staged = Path(work) / "data"
+        # Preserve relative symlinks in legacy Hugging Face caches.
+        shutil.copytree(source, staged, symlinks=True)
+        if existed:
+            destination.rmdir()  # refuses a concurrent non-empty destination
+        try:
+            if os.path.lexists(destination):
+                raise FileExistsError(str(destination))
+            os.rename(staged, destination)
+        except BaseException:
+            if existed and not os.path.lexists(destination):
+                destination.mkdir()
+            raise
+        # Until config publication succeeds, the original remains intact.
+        if on_publish is not None:
+            on_publish(destination)
+    shutil.rmtree(source)
     if symlink:
-        os.symlink(new_path, old_path)
-        logger.info(f"Successfully created a symbolic link from {new_path} to {old_path}")
+        os.symlink(destination, source, target_is_directory=True)
+    logger.info(f"Successfully migrated {source} to {destination}")
+
+
+def migrate(old_path: str, new_path: str, symlink: bool = False) -> None:
+    """Safely migrate to a new or empty directory; refuse overlaps and conflicts.
+
+    If publication or configuration fails, retain the source. A complete
+    destination copy may remain for manual recovery. Do not run with external
+    writers changing either tree.
+    """
+    source, destination = _migration_paths(old_path, new_path)
+    with dataset_cache_lock(source, destination):
+        _migrate(source, destination, symlink)
 
 
 def migrate_cache(target_path: str) -> None:
-    """Migrate datasets from old_path to new_path.
+    """Migrate the configured cache and switch paths after successful copying."""
+    from .. import data_processing
 
-    Parameters
-    ----------
-    target_path:
-        The new path for TSDB to store cached datasets.
+    with cache_lock():
+        if cache_dir_override() is not None:
+            raise ValueError("Unset TSDB_CACHE_DIR before migrating the persistent cache.")
+        read_configs()
+        require_legacy_retired_for_relocation()
+        source = data_processing._cache_home()
 
-    """
-    # check the target path
-    target_path = check_path(target_path)
+        def update(destination):
+            write_configs({"tsdb": {"cache_dir": str(destination)}})
+            if "CACHED_DATASET_DIR" in vars(data_processing):
+                data_processing.CACHED_DATASET_DIR = str(destination)
 
-    cached_dataset_dir = determine_tsdb_home()
-    migrate(cached_dataset_dir, target_path)
-    config_parser = read_configs()
-    write_configs(config_parser, {"path": {"tsdb_home": target_path}})
-    logger.info(f"Have set {target_path} as the default cache dir.")
+        source, destination = _migration_paths(source, target_path)
+        home = Path(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).parent.resolve()
+        if any(root == home or root in home.parents for root in (source, destination)):
+            raise ValueError("Cache migration must not move or replace the ecosystem configuration directory")
+        with dataset_cache_lock(source, destination):
+            _migrate(source, destination, on_publish=update)

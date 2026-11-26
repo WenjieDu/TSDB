@@ -32,7 +32,7 @@ def load_beijing_air_quality(local_path):
     """
     dir_path = os.path.join(local_path, "PRSA_Data_20130301-20170228")
     df_collector = []
-    file_list = os.listdir(dir_path)
+    file_list = sorted(name for name in os.listdir(dir_path) if name.endswith(".csv"))
     for filename in file_list:
         file_path = os.path.join(dir_path, filename)
         current_df = pd.read_csv(file_path)

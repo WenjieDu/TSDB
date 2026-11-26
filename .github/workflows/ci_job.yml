@@ -15,9 +15,19 @@ on:
             checkout-ref:
                 type: string
                 default: ''
+            raw-cache:
+                type: boolean
+                default: false
+            cold-download:
+                type: boolean
+                default: true
             coverage:
                 type: boolean
                 default: false
+        secrets:
+            HF_TOKEN:
+                description: Read-only access to the gated TSQA dataset
+                required: false
 
 permissions:
     contents: read
@@ -26,13 +36,14 @@ jobs:
     test:
         name: ${{ inputs.suite }} / ${{ inputs.os }} / Python ${{ inputs.python }}
         runs-on: ${{ inputs.os }}
-        timeout-minutes: ${{ inputs.suite == 'network' && 120 || 30 }}
+        timeout-minutes: ${{ inputs.suite == 'combined' && 180 || 30 }}
         defaults:
             run:
                 shell: bash
         env:
             PYTHONUNBUFFERED: '1'
             PIP_INDEX_URL: https://pypi.org/simple
+            TSDB_SUITE: ${{ inputs.suite }}
         steps:
             - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
               with:
@@ -48,7 +59,7 @@ jobs:
             - name: Build and install the wheel from this checkout
               run: |
                   python -m pip wheel --no-deps --wheel-dir "$RUNNER_TEMP/tsdb-ci/dist" .
-                  python -c "import os, pathlib, subprocess, sys; wheel = next((pathlib.Path(os.environ['RUNNER_TEMP']) / 'tsdb-ci' / 'dist').glob('*.whl')); subprocess.check_call([sys.executable, '-m', 'pip', 'install', str(wheel), 'pytest', 'pytest-cov'])"
+                  python -c "import os, pathlib, subprocess, sys; wheel = next((pathlib.Path(os.environ['RUNNER_TEMP']) / 'tsdb-ci' / 'dist').glob('*.whl')); subprocess.check_call([sys.executable, '-m', 'pip', 'install', str(wheel), 'pytest', 'pytest-cov'] + (['huggingface_hub'] if os.environ['TSDB_SUITE'] == 'combined' else []))"
                   python -m pip check
             - name: Smoke test installed distribution outside the checkout
               working-directory: ${{ runner.temp }}
@@ -56,15 +67,50 @@ jobs:
                   HOME: ${{ runner.temp }}/tsdb-smoke-home
                   USERPROFILE: ${{ runner.temp }}/tsdb-smoke-home
               run: |
-                  python -I -c "import os, pathlib, tsdb; from tsdb.utils.config import CONFIG_TEMPLATE_PATH, read_configs; assert pathlib.Path(os.environ['GITHUB_WORKSPACE']).resolve() not in pathlib.Path(tsdb.__file__).resolve().parents; assert pathlib.Path(CONFIG_TEMPLATE_PATH).is_file(); assert tsdb.list(); assert read_configs().get('path', 'tsdb_home'); print('Installed TSDB', tsdb.__version__)"
+                  python -I -c "import os, pathlib, tsdb; from tsdb.utils.config import CONFIG_TEMPLATE_PATH, read_configs; assert pathlib.Path(os.environ['GITHUB_WORKSPACE']).resolve() not in pathlib.Path(tsdb.__file__).resolve().parents; assert pathlib.Path(CONFIG_TEMPLATE_PATH).is_file(); assert tsdb.list(); assert read_configs()['tsdb']['cache_dir']; print('Installed TSDB', tsdb.__version__)"
             - name: Offline regression tests
               if: inputs.suite == 'offline'
               run: |
                   python -m pytest -rA -m "not network" tests --cov=tsdb --cov-report=term --cov-report=lcov:"$RUNNER_TEMP/tsdb-ci/coverage.lcov" --cov-report=xml:"$RUNNER_TEMP/tsdb-ci/coverage.xml" --junitxml="$RUNNER_TEMP/tsdb-ci/pytest.xml"
-            - name: Live dataset download and loading tests
-              if: inputs.suite == 'network'
+            - name: Compute weekly raw cache key
+              if: inputs.suite == 'combined' && inputs.raw-cache
+              id: raw-key
+              run: echo "key=$(python -m scripts.raw_dataset_cache)" >> "$GITHUB_OUTPUT"
+            - name: Restore reviewed public raw datasets
+              if: inputs.suite == 'combined' && inputs.raw-cache && !inputs.cold-download
+              id: raw-restore
+              uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+              with:
+                  path: ${{ runner.temp }}/tsdb-raw-datasets
+                  key: ${{ steps.raw-key.outputs.key }}
+            - name: Verify restored cache integrity and budget
+              if: inputs.suite == 'combined' && inputs.raw-cache && steps.raw-restore.outputs.cache-hit == 'true'
+              run: python -m scripts.raw_dataset_cache --verify "$RUNNER_TEMP/tsdb-raw-datasets"
+            - name: Offline, real-dataset and combined coverage
+              if: inputs.suite == 'combined'
+              env:
+                  TSDB_CI_RAW_CACHE: ${{ inputs.raw-cache && format('{0}/tsdb-raw-datasets', runner.temp) || '' }}
+                  HF_TOKEN: ${{ secrets.HF_TOKEN }}
               run: |
-                  python -m pytest -rA -m network tests --junitxml="$RUNNER_TEMP/tsdb-ci/pytest.xml"
+                  # Fail before expensive downloads if the trusted daily run lacks its credential.
+                  if [[ "$GITHUB_EVENT_NAME" == "schedule" || "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+                      if [[ "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == "refs/heads/dev" ]]; then
+                          if [[ -z "$HF_TOKEN" ]]; then
+                              echo "::error::Configure the repository Actions secret HF_TOKEN with authorized read access to Time-MQA/TSQA."
+                              exit 1
+                          fi
+                      fi
+                  fi
+                  python scripts/coverage_suite.py --output "$RUNNER_TEMP/tsdb-ci/combined"
+            - name: Verify raw-only cache and budget
+              if: inputs.suite == 'combined' && inputs.raw-cache && steps.raw-restore.outputs.cache-hit != 'true'
+              run: python -m scripts.raw_dataset_cache --verify "$RUNNER_TEMP/tsdb-raw-datasets"
+            - name: Save verified raw datasets
+              if: inputs.suite == 'combined' && inputs.raw-cache && steps.raw-restore.outputs.cache-hit != 'true'
+              uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+              with:
+                  path: ${{ runner.temp }}/tsdb-raw-datasets
+                  key: ${{ steps.raw-key.outputs.key }}
             - name: Submit coverage to Coveralls
               if: inputs.coverage && success()
               uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
@@ -80,4 +126,6 @@ jobs:
                   path: |
                       ${{ runner.temp }}/tsdb-ci/*.xml
                       ${{ runner.temp }}/tsdb-ci/*.lcov
+                      ${{ runner.temp }}/tsdb-ci/combined/
+                  include-hidden-files: true
                   if-no-files-found: warn

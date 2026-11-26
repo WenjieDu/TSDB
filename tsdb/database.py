@@ -5,6 +5,8 @@ List available datasets and their official download links.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
+from dataclasses import asdict, dataclass
+
 _DATABASE = {
     # http://www.physionet.org/challenge/2012
     # https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012
@@ -228,3 +230,72 @@ for i in _ucr_uea_datasets:
 
 DATABASE = {**_DATABASE, **UCR_UEA_DATASETS}
 AVAILABLE_DATASETS = list(DATABASE.keys())
+
+
+@dataclass(frozen=True)
+class DatasetSpec:
+    """Lightweight descriptor; no loader or download dependency imports."""
+
+    name: str
+    sources: tuple[str, ...]
+    loader: str
+    download_strategy: str = "http"
+    profile: str = ""
+    loader_arg: str | None = None
+    required_files: tuple[str, ...] = ()
+    required_directories: tuple[tuple[str, str], ...] = ()
+    optional_dependencies: tuple[str, ...] = ()
+    revision: str | None = None
+    license: str | None = None
+    tasks: tuple[str, ...] | None = None
+
+
+# Keep source URLs and legacy DATABASE/list ordering unchanged. A family defines
+# dispatch and required layout together; UCR/UEA uses one family for all names.
+_FAMILIES = {
+    "physionet_2012": {
+        "loader": "load_physionet2012",
+        "required_files": ("Outcomes-a.txt", "Outcomes-b.txt", "Outcomes-c.txt"),
+        "required_directories": (("set-a", "*.txt"), ("set-b", "*.txt"), ("set-c", "*.txt")),
+        "revision": "1.0.0",
+    },
+    "physionet_2019": {"loader": "load_physionet2019", "download_strategy": "physionet_2019", "revision": "1.0.0"},
+    "electricity_load_diagrams": {"loader": "load_electricity", "required_files": ("LD2011_2014.txt",)},
+    "electricity_transformer_temperature": {
+        "loader": "load_ett",
+        "required_files": ("ETTm1.csv", "ETTm2.csv", "ETTh1.csv", "ETTh2.csv"),
+    },
+    "beijing_multisite_air_quality": {
+        "loader": "load_beijing_air_quality",
+        "required_directories": (("PRSA_Data_20130301-20170228", "*.csv"),),
+    },
+    "italy_air_quality": {"loader": "load_italy_air_quality", "required_files": ("AirQualityUCI.csv",)},
+    "vessel_ais": {"loader": "load_ais", "required_directories": (("parquets", "*"),)},
+    "pems_traffic": {"loader": "load_pems_traffic", "required_files": ("traffic.txt",)},
+    "solar_alabama": {"loader": "load_solar_alabama", "required_files": ("solar_AL.txt",)},
+    "tsqa": {"loader": "load_tsqa", "download_strategy": "huggingface", "optional_dependencies": ("huggingface_hub",)},
+}
+
+
+def dataset_spec(name: str) -> DatasetSpec:
+    if name not in DATABASE:
+        raise ValueError(f"{name!r} is not available in TSDB. See tsdb.list().")
+    value = DATABASE[name]
+    sources = (value,) if isinstance(value, str) else tuple(value)
+    if name.startswith("ucr_uea_"):
+        return DatasetSpec(
+            name, sources, "load_ucr_uea_dataset", profile="ucr_uea_datasets", loader_arg=name.removeprefix("ucr_uea_")
+        )
+    return DatasetSpec(name, sources, profile=name, **_FAMILIES[name])
+
+
+def info(name: str) -> dict:
+    """Return dataset metadata without downloading, parsing or touching caches.
+
+    Unknown source license, task or revision metadata is represented by None.
+    The dataset profile links to the maintained source/citation information.
+    """
+    spec = dataset_spec(name)
+    result = asdict(spec)
+    result["profile_url"] = f"https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{spec.profile}"
+    return result

@@ -1,9 +1,3 @@
-numpy
-scikit_learn
-pandas
-scipy
-sphinx
-docutils
-sphinxcontrib-bibtex
-sphinx-autodoc-typehints
-furo
+sphinx>=8.1,<9
+sphinxcontrib-bibtex>=2.6,<3
+furo>=2024.8.6

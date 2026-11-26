@@ -1,0 +1,8 @@
+# Release-validation environment only; not installed by TSDB consumers.
+-r requirements.txt
+build
+setuptools>=71
+wheel
+packaging
+twine
+pytest

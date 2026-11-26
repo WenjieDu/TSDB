@@ -23,9 +23,9 @@ def load_physionet2019(local_path):
     for m_ in time_series_measurements_dir:
         df_collector = []
         raw_data_dir = os.path.join(local_path, m_)
-        for filename in os.listdir(raw_data_dir):
+        for filename in sorted(name for name in os.listdir(raw_data_dir) if name.endswith(".psv")):
             recordID = filename.split(".psv")[0]
-            with open(os.path.join(raw_data_dir, filename), "r") as f:
+            with open(os.path.join(raw_data_dir, filename), encoding="utf-8") as f:
                 df_temp = pd.read_csv(f, sep="|", header=0)
             df_temp["RecordID"] = recordID
             df_collector.append(df_temp)

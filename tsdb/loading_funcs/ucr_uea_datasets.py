@@ -12,46 +12,21 @@ https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets
 # License: BSD-3-Clause
 
 import os
-import warnings
 
 import numpy as np
-from sklearn.utils.estimator_checks import _NotAnArray as NotAnArray
 
 
 def load_ucr_uea_dataset(local_path, dataset_name):
-    try:
-        # if both TXT and ARFF files are provided, the TXT versions are
-        # used
-        # both training and test data must be available in the same format
-        if _has_files(local_path, dataset_name, ext="arff"):
-            X_train, y_train = _load_arff_uea(os.path.join(local_path, dataset_name + "_TRAIN.arff"))
-            X_test, y_test = _load_arff_uea(os.path.join(local_path, dataset_name + "_TEST.arff"))
-        elif _has_files(local_path, dataset_name, ext="txt"):
-            X_train, y_train = _load_txt_uea(os.path.join(local_path, dataset_name + "_TRAIN.txt"))
-            X_test, y_test = _load_txt_uea(os.path.join(local_path, dataset_name + "_TEST.txt"))
-        else:
-            warnings.warn(
-                f'dataset "{dataset_name}" is not provided in either TXT or ARFF format and thus could not be loaded',
-                category=RuntimeWarning,
-                stacklevel=2,
-            )
-            return None
-
-        data = {
-            "X_train": X_train,
-            "y_train": y_train,
-            "X_test": X_test,
-            "y_test": y_test,
-        }
-
-        return data
-
-    except Exception as exception:  # noqa: BLE001 - Preserve the existing error-handling contract.
-        warnings.warn(
-            f'dataset "{dataset_name}" could be downloaded but not parsed: {exception!s}',
-            category=RuntimeWarning,
-            stacklevel=2,
-        )
+    # Preserve historical ARFF-first selection and its channel-first axes.
+    if _has_files(local_path, dataset_name, ext="arff"):
+        parser, extension = _load_arff_uea, "arff"
+    elif _has_files(local_path, dataset_name, ext="txt"):
+        parser, extension = _load_txt_uea, "txt"
+    else:
+        raise FileNotFoundError(f"Missing matching TRAIN/TEST files for {dataset_name}")
+    X_train, y_train = parser(os.path.join(local_path, f"{dataset_name}_TRAIN.{extension}"))
+    X_test, y_test = parser(os.path.join(local_path, f"{dataset_name}_TEST.{extension}"))
+    return {"X_train": X_train, "y_train": y_train, "X_test": X_test, "y_test": y_test}
 
 
 def _has_files(data_dir, dataset_name, ext):
@@ -207,11 +182,9 @@ def to_time_series_dataset(dataset, dtype=float):
         import pandas as pd
 
         if isinstance(dataset, pd.DataFrame):
-            return to_time_series_dataset(np.array(dataset))
+            return to_time_series_dataset(np.array(dataset), dtype=dtype)
     except ImportError:
         pass
-    if isinstance(dataset, NotAnArray):  # Patch to pass sklearn tests
-        return to_time_series_dataset(np.array(dataset))
     if len(dataset) == 0:
         return np.zeros((0, 0, 0))
     if np.array(dataset[0]).ndim == 0:
@@ -252,15 +225,14 @@ def _load_arff_uea(
     data_started = False
     is_multi_variate = False
     is_first_case = True
-    n_cases = 0
     n_channels = 1
     with open(full_file_path_and_name, encoding="utf-8") as f:
         for line in f:
-            if line.strip():
+            if line.strip() and not line.lstrip().startswith("%"):
                 if is_multi_variate is False and "@attribute" in line.lower() and "relational" in line.lower():
                     is_multi_variate = True
 
-                if "@data" in line.lower():
+                if line.strip().lower() == "@data":
                     data_started = True
                     continue
                 # if the 'data tag has been found, the header information
@@ -281,12 +253,14 @@ def _load_arff_uea(
                             raise ValueError(
                                 f" Number of channels not equal in "
                                 f"dataset, first case had {n_channels} channel "
-                                f"but case number {n_cases + 1} has "
+                                f"but case number {len(instance_list) + 1} has "
                                 f"{len(channels)}"
                             )
                         inst = np.zeros(shape=(n_channels, n_timepoints))
                         for c in range(len(channels)):
                             split = channels[c].split(",")
+                            if len(split) != n_timepoints:
+                                raise ValueError("Inconsistent ARFF time-series lengths")
                             inst[c] = np.array([float(i) for i in split])
                     else:
                         line_parts = line.split(",")
@@ -296,8 +270,12 @@ def _load_arff_uea(
                         class_val_list.append(line_parts[-1].strip())
                         split = line_parts[: len(line_parts) - 1]
                         inst = np.zeros(shape=(n_channels, n_timepoints))
+                        if len(split) != n_timepoints:
+                            raise ValueError("Inconsistent ARFF time-series lengths")
                         inst[0] = np.array([float(i) for i in split])
                     instance_list.append(inst)
+    if not instance_list:
+        raise ValueError("ARFF contains no data rows")
     return np.asarray(instance_list), np.asarray(class_val_list)
 
 
@@ -321,7 +299,9 @@ def _load_txt_uea(dataset_path):
     Exception: on any failure, e.g. if the given file does not exist or is
                corrupted
     """
-    data = np.loadtxt(dataset_path)
+    data = np.loadtxt(dataset_path, ndmin=2)
+    if not data.size or data.shape[1] < 2:
+        raise ValueError("TXT requires at least one label and one observation per sample")
     X = to_time_series_dataset(data[:, 1:])
     y = data[:, 0].astype(int)
     return X, y

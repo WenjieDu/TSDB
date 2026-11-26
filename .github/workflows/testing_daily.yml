@@ -2,10 +2,16 @@ name: Daily Testing
 
 on:
     schedule:
-        - cron: '0 0 * * *'
+        - cron: '0 0 * * 1-6'
+        - cron: '0 0 * * 0' # Sunday: cold download and seed a new weekly cache
     push:
         branches: [run_daily_testing]
     workflow_dispatch:
+        inputs:
+            cold-download:
+                description: Force fresh downloads (recommended before release)
+                type: boolean
+                default: true
 
 permissions:
     contents: read
@@ -19,20 +25,24 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                python: ['3.9', '3.10', '3.11', '3.12', '3.13']
+                python: ['3.11', '3.12', '3.13']
         uses: ./.github/workflows/ci_job.yml
         with:
-            # A compatible image for legacy interpreters; current releases use the latest.
-            os: ${{ matrix.python == '3.9' && 'ubuntu-22.04' || 'ubuntu-latest' }}
+            os: ubuntu-latest
             python: ${{ matrix.python }}
             suite: offline
             checkout-ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}
 
     live-datasets:
-        # Only one full live download suite per run; failures are not suppressed.
+        # Only one representative dataset suite per run; failures are not suppressed.
         uses: ./.github/workflows/ci_job.yml
         with:
             os: ubuntu-latest
             python: '3.13'
-            suite: network
+            suite: combined
             checkout-ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}
+            raw-cache: ${{ github.ref_name == github.event.repository.default_branch && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.cold-download)) }}
+            cold-download: ${{ github.event_name == 'push' || github.event.schedule == '0 0 * * 0' || (github.event_name == 'workflow_dispatch' && inputs.cold-download) }}
+        secrets:
+            # Only trusted main/dev scheduled or manually dispatched runs receive the token.
+            HF_TOKEN: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && secrets.HF_TOKEN || '' }}

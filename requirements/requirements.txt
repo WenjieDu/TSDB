@@ -1,7 +1,6 @@
 tqdm
 numpy
-scipy
 pandas
 pyarrow
 requests
-scikit-learn
+tomlkit

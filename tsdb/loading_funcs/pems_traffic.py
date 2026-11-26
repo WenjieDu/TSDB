@@ -36,7 +36,7 @@ def load_pems_traffic(local_path):
     date = pd.date_range(
         start="2015-01-01 00:00:00",
         end="2016-12-31 23:00:00",
-        freq="H",
+        freq="h",
     )
     df["date"] = date
     col_names.insert(0, "date")

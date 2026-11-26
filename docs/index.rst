@@ -1,179 +1,62 @@
-.. PyPOTS documentation index page
-   Created by Wenjie Du <wenjay.du@gmail.com>
-   License: BSD-3-Clause
+TSDB
+====
 
-Welcome to TSDB documentation!
-================================
-.. image:: https://pypots.com/figs/pypots_logos/TSDB/logo_FFBG.svg
-   :height: 180
-   :align: right
-   :target: https://github.com/WenjieDu/TSDB
-   :alt: TSDB logo
+.. only:: html and not epub
 
-**A Python Toolbox to Ease Loading Public Time-Series Datasets**
+   .. image:: https://pypots.com/figs/pypots_logos/TSDB/logo_FFBG.svg
+      :width: 180
+      :align: right
+      :target: https://github.com/WenjieDu/TSDB
+      :alt: TSDB logo
 
-.. image:: https://img.shields.io/badge/python-v3-E97040?logo=python&logoColor=white
-   :alt: Python version
+**A Python Toolbox for Loading Public Time Series Datasets**
 
-.. image:: https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white
-   :alt: the latest release version
-   :target: https://img.shields.io/github/v/release/wenjiedu/tsdb?color=EE781F&include_prereleases&label=Release&logo=github&logoColor=white
+TSDB (Time Series Data Beans) provides unified access to 173 public time series datasets.
+It handles discovery, downloading, extraction, loading, and caching as the dataset access layer of the
+`PyPOTS ecosystem <https://pypots.com/ecosystem/>`_. Loaders apply basic dataset-specific preparation,
+not task-specific normalization or missing-value imputation. Users may also download original files.
 
-.. image:: https://img.shields.io/badge/License-BSD--3-E9BB41?logo=opensourceinitiative&logoColor=white
-   :alt: License
-   :target: https://github.com/WenjieDu/TSDB/blob/main/LICENSE
+.. note::
+   This documentation describes the v1.0 development API. Use the documentation matching your installed version.
 
-.. image:: https://img.shields.io/github/actions/workflow/status/wenjiedu/tsdb/testing_ci.yml?logo=github&color=C8D8E1&label=CI
-   :alt: GitHub Testing
-   :target: https://github.com/WenjieDu/TSDB/actions/workflows/testing_ci.yml
+Quick start
+-----------
 
-.. image:: https://img.shields.io/codeclimate/maintainability-percentage/WenjieDu/TSDB?color=3C7699&label=Maintainability&logo=codeclimate
-   :alt: Code Climate maintainability
-   :target: https://codeclimate.com/github/WenjieDu/TSDB
-
-.. image:: https://img.shields.io/coverallsCoverage/github/WenjieDu/TSDB?branch=main&logo=coveralls&color=75C1C4&label=Coverage
-   :alt: Coveralls report
-   :target: https://coveralls.io/github/WenjieDu/TSDB
-
-.. image:: https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/conda_tsdb_downloads.json
-   :alt: Conda downloads
-   :target: https://anaconda.org/conda-forge/pypots
-
-.. image:: https://img.shields.io/endpoint?url=https://pypots.com/figs/downloads_badges/pypi_tsdb_downloads.json
-   :alt: PyPI downloads
-   :target: https://pepy.tech/project/tsdb
-
-.. image:: https://img.shields.io/badge/Contributor%20Covenant-v2.1-4baaaa.svg
-   :alt: CODE of CONDUCT
-
-.. image:: https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWenjieDu%2FTime_Series_Database&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visits+since+April+2022&edge_flat=false
-   :alt: Visit num
-
-📣 TSDB now supports a total of 1️⃣7️⃣2️⃣ time-series datasets ‼️
-
-.. image:: https://pypots.com/figs/pypots_logos/PyPOTS/logo_FFBG.svg
-   :width: 120
-   :align: left
-   :target: https://github.com/WenjieDu/PyPOTS
-   :alt: PyPOTS logo
-
-TSDB is a part of `PyPOTS project <https://github.com/WenjieDu/PyPOTS>`_ (a Python toolbox for data mining on Partially-Observed Time Series), and was separated from PyPOTS for decoupling datasets from learning algorithms.
-
-TSDB is created to help researchers and engineers get rid of data collecting and downloading, and focus back on data processing details.
-TSDB provides all-in-one-stop convenience for downloading and loading open-source time-series datasets (available datasets listed `below <https://github.com/WenjieDu/TSDB#-list-of-available-datasets>`_).
-
-❗️Please note that due to people have very different requirements for data processing, data-loading functions in TSDB only contain the most general steps (e.g. removing invalid samples)
-and won't process the data (not even normalize it). So, no worries, TSDB won't affect your data preprocessing. If you only want the raw datasets,
-TSDB can help you download and save raw datasets as well (take a look at `Usage Examples <https://github.com/WenjieDu/TSDB#-usage-example>`_ below).
-
-🤝 If you need TSDB to integrate an open-source dataset or want to add it into TSDB yourself, please feel free to request for it by creating an issue or make a PR to merge your code.
-
-🤗 **Please** star this repo to help others notice TSDB if you think it is a useful toolkit.
-**Please** properly `cite TSDB <https://github.com/WenjieDu/TSDB#-citing-tsdbpypots>`_ in your publications
-if it helps with your research. This really means a lot to our open-source research. Thank you!
-
-
-❖ Usage Examples
-^^^^^^^^^^^^^^^^^
-TSDB is available on both `PyPI <https://pypi.python.org/pypi/tsdb>`_ and `Anaconda <https://anaconda.org/conda-forge/tsdb>`_.
-
-Install it with `conda install tsdb`, you may need to specify the channel with option `-c conda-forge`
-
-or install via PyPI:
+.. code-block:: bash
 
    pip install tsdb
 
-or install from source code:
-
-   pip install `https://github.com/WenjieDu/TSDB/archive/main.zip`
-
 .. code-block:: python
-   :linenos:
 
    import tsdb
 
-   # list all available datasets in TSDB
-   tsdb.list()
-   # select the dataset you need and load it, TSDB will download, extract, and process it automatically
-   data = tsdb.load('physionet_2012')
-   # if you need the raw data, use download_and_extract()
-   tsdb.download_and_extract('physionet_2012', './save_it_here')
-   # datasets you once loaded are cached, and you can check them with list_cached_data()
-   tsdb.list_cache()
-   # you can delete only one specific dataset's pickled cache
-   tsdb.delete_cache(dataset_name='physionet_2012', only_pickle=True)
-   # you can delete only one specific dataset raw files and preserve others
-   tsdb.delete_cache(dataset_name='physionet_2012')
-   # or you can delete all cache with delete_cached_data() to free disk space
-   tsdb.delete_cache()
+   print(tsdb.list())
+   print(tsdb.info("physionet_2012"))
+   data = tsdb.load("physionet_2012")  # first load requires network access
 
-   # The default cache directory is ~/.pypots/tsdb under the user's home directory.
-   # To avoid taking up too much space if downloading many datasets ,
-   # TSDB cache directory can be migrated to an external disk
-   tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
+See :doc:`install` and :doc:`usage` for prerequisites and detailed examples.
 
-
-That's all. Simple and efficient. Enjoy it! 😃
-
-
-❖ List of Available Datasets
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-========================================================================================================================================================================== ==========================================
- Name                                                                                                                                                                      Main Tasks
-========================================================================================================================================================================== ==========================================
- `PhysioNet Challenge 2012 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2012>`_  :cite:`silva2012physionet`                                      Forecasting, Imputation, Classification
- `PhysioNet Challenge 2019 <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/physionet_2019>`_  :cite:`reyna2019physionet`                                      Forecasting, Imputation, Classification
- `Beijing Multi-Site Air-Quality <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/beijing_multisite_air_quality>`_  :cite:`zhang2017airquality`                Forecasting, Imputation
- `Electricity Load Diagrams <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_load_diagrams>`_  :cite:`trindade2015electricity`                     Forecasting, Imputation
- `Electricity Transformer Temperature (ETT) <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/electricity_transformer_temperature>`_  :cite:`zhou2021informer`  Forecasting, Imputation
- `Vessel AIS data <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/vessel_ais>`_  :cite:`grgicevic2023ais`                                                     Forecasting, Imputation, Classification
- `PeMS Traffic <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/pems_traffic>`_                                                                                Forecasting, Imputation
- `Solar Alabama <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/solar_alabama>`_                                                                              Forecasting, Imputation
- `UCR & UEA Datasets <https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/ucr_uea_datasets>`_ (all 163 datasets)  :cite:`bagnall2018uea` :cite:`dau2018ucr`        Classification
-========================================================================================================================================================================== ==========================================
-
-❖ Citing TSDB/PyPOTS
-^^^^^^^^^^^^^^^^^^^^^
-The paper introducing PyPOTS is available on arXiv at `this URL <https://arxiv.org/abs/2305.18811>`_.,
-and we are pursuing to publish it in prestigious academic venues, e.g. JMLR (track for
-`Machine Learning Open Source Software <https://www.jmlr.org/mloss/>`_). If you use PyPOTS in your work,
-please cite it as below and 🌟star `PyPOTS repository <https://github.com/WenjieDu/PyPOTS>`_ to make others notice this library. 🤗
-
-
-.. image:: https://pypots.com/figs/pypots_logos/Ecosystem/PyPOTS_Ecosystem_Pipeline.png
-   :height: 300
-   :align: center
-   :target: https://pypots.com/ecosystem/
-   :alt: PyPOTS Ecosystem Pipeline
-
-
-.. code-block:: bibtex
-   :linenos:
-
-   @article{du2023pypots,
-   title={{PyPOTS: a Python toolbox for data mining on Partially-Observed Time Series}},
-   author={Wenjie Du},
-   journal={arXiv preprint arXiv:2305.18811},
-   year={2023},
-   }
-
-or
-
-   Wenjie Du.
-   PyPOTS: A Python Toolbox for Data Mining on Partially-Observed Time Series.
-   arXiv, abs/2305.18811, 2023.
-
+`GitHub <https://github.com/WenjieDu/TSDB>`_ · `PyPI <https://pypi.org/project/tsdb/>`_ ·
+`Community <https://github.com/WenjieDu/PyPOTS#-community>`_ · `Tutorials <https://github.com/WenjieDu/BrewPOTS>`_
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
-   :caption: Code Documentation
+   :caption: User Guide
+
+   install
+   usage
+   datasets
+   migration
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
 
    tsdb
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
-   :caption: Additional Information
+   :caption: Project Development
 
+   maintenance
    references
