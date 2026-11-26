@@ -3,11 +3,11 @@ requires = ["setuptools>=71"]
 
 [project]
 name = "tsdb"
-description = "TSDB (Time Series Data Beans): a Python toolbox helping load 172 open-source time-series datasets"
+description = "TSDB (Time Series Data Beans): a Python toolbox for accessing open-source time-series datasets"
 authors = [{ name = "Wenjie Du", email = "wenjay.du@gmail.com" }]
 dynamic = ["version", "readme", "dependencies"]
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -16,6 +16,11 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
@@ -47,12 +52,11 @@ Documentation = "https://docs.pypots.com"
 "Bug Tracker" = "https://github.com/WenjieDu/TSDB/issues"
 Download = "https://github.com/WenjieDu/TSDB/archive/main.zip"
 
+[project.optional-dependencies]
+tsqa = ["huggingface_hub"]
+
 [tool.setuptools.packages.find]
-exclude = [
-    "docs*",
-    "test*",
-    "dataset_profiles*",
-]
+include = ["tsdb", "tsdb.*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "tsdb.version.__version__" }
@@ -61,7 +65,7 @@ dependencies = { file = "requirements/requirements.txt" }
 
 [tool.ruff]
 line-length = 120
-target-version = "py38"
+target-version = "py310"
 exclude = [
     "*/template",
 ]

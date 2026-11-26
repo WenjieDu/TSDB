@@ -37,14 +37,6 @@ class _UnicodeStreamHandler(logging.StreamHandler):
             self.handleError(record)
 
 
-class _UTF8FileHandler(logging.FileHandler):
-    """Use UTF-8 even on Python 3.8, where FileHandler has no errors parameter."""
-
-    def _open(self):
-        open_file = getattr(self, "_builtin_open", open)
-        return open_file(self.baseFilename, self.mode, encoding="utf-8", errors="backslashreplace")
-
-
 def _check_append_encoding(path):
     """Refuse to mix UTF-8 with an existing non-UTF-8 log."""
     try:
@@ -126,7 +118,7 @@ class Logger:
         path = os.path.join(saving_dir, name)
         if "a" in mode:
             _check_append_encoding(path)
-        handler = _UTF8FileHandler(path, mode=mode, encoding="utf-8")
+        handler = logging.FileHandler(path, mode=mode, encoding="utf-8", errors="backslashreplace")
         handler.setLevel(self.logging_level)
         handler.setFormatter(self.formatter)
         if self.file_handler is not None:

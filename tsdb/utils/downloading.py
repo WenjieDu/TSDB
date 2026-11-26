@@ -10,7 +10,6 @@ import os
 import shutil
 import tempfile
 import warnings
-from typing import Optional
 
 import requests
 from tqdm import tqdm
@@ -20,7 +19,7 @@ from .logging import logger
 from .physionet_2019 import download_physionet2019
 
 
-def _download_and_extract(url: str, saving_path: str) -> Optional[str]:  # noqa: FA100
+def _download_and_extract(url: str, saving_path: str) -> str | None:
     """Download dataset from the given url and extract to the given saving path.
 
     Parameters
@@ -65,14 +64,17 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:  # noqa:
             except KeyError:
                 size = None
 
-            with tqdm(
-                unit="B",
-                unit_scale=True,
-                unit_divisor=1024,
-                miniters=1,
-                desc=f"Downloading {file_name}",
-                total=size,
-            ) as pbar, open(raw_data_saving_path, "wb") as f:
+            with (
+                tqdm(
+                    unit="B",
+                    unit_scale=True,
+                    unit_divisor=1024,
+                    miniters=1,
+                    desc=f"Downloading {file_name}",
+                    total=size,
+                ) as pbar,
+                open(raw_data_saving_path, "wb") as f,
+            ):
                 for chunk in r.iter_content(chunk_size=chunk_size):
                     f.write(chunk)
                     pbar.update(len(chunk))

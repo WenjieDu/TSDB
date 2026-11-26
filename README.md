@@ -118,6 +118,16 @@ tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
 
 That's all. Simple and efficient. Enjoy it! 😃
 
+### Python support and optional dependencies
+
+TSDB v1.0 requires Python 3.10 or newer. Python 3.8 and 3.9 users can continue
+using TSDB 0.8. For TSQA, install the optional dependencies with
+`pip install "tsdb[tsqa]"`. Other datasets retain their existing dependencies.
+
+Importing TSDB or its shared logger, and listing dataset names, do not initialize
+the ecosystem configuration or migrate caches. The configuration is initialized
+when the configuration or data access modules are first used.
+
 ### Unicode configuration and logs
 
 TSDB stores the shared ecosystem configuration (`~/.pypots/config.ini`) and new
@@ -128,7 +138,7 @@ TSDB does not change your application's standard streams or global encoding sett
 Existing valid UTF-8 configurations (including ASCII and UTF-8 with BOM) are
 read unchanged. If a configuration from an older release is not valid UTF-8,
 set `TSDB_LEGACY_CONFIG_ENCODING` to its **known original encoding** (e.g.
-`cp1252` or `gbk`) for one `import tsdb`, then unset it. TSDB validates the
+`cp1252` or `gbk`) for one `from tsdb.utils import config`, then unset it. TSDB validates the
 configuration, saves its original bytes in a uniquely named `config.ini.*.bak`
 file beside it, and atomically converts the original to UTF-8. Do not guess the
 encoding: some legacy byte sequences are also valid UTF-8 and cannot be reliably
