@@ -79,16 +79,12 @@ def test_recover_incomplete_config(config_module, original):
     config, path = config_module
     path.write_bytes(original)
     config._initialize_config()
-    assert config.read_configs(path).get("path", "tsdb_home") == str(
-        path.parent / "tsdb"
-    )
+    assert config.read_configs(path).get("path", "tsdb_home") == str(path.parent / "tsdb")
     backups = list(path.parent.glob("*.bak"))
     assert len(backups) == 1 and backups[0].read_bytes() == original
 
 
-@pytest.mark.parametrize(
-    "original", [b"[path]\n[custom]\nkeep = yes\n", b"[path]\ntsdb_home =\n"]
-)
+@pytest.mark.parametrize("original", [b"[path]\n[custom]\nkeep = yes\n", b"[path]\ntsdb_home =\n"])
 def test_do_not_overwrite_other_invalid_configs(config_module, original):
     config, path = config_module
     path.write_bytes(original)
@@ -168,9 +164,7 @@ def log_creator(tmp_path, monkeypatch):
 def test_unicode_logging_stream_and_file(log_creator, tmp_path, encoding):
     creator = log_creator
     buffer = io.BytesIO()
-    stream = io.TextIOWrapper(
-        buffer, encoding=encoding, errors="strict", write_through=True
-    )
+    stream = io.TextIOWrapper(buffer, encoding=encoding, errors="strict", write_through=True)
     creator.stream_handler.setStream(stream)
     creator.set_saving_path(str(tmp_path), "utf8.log")
     creator.logger.warning("%s", MESSAGE)
@@ -217,10 +211,7 @@ def test_logging_append_preserves_utf8_and_refuses_legacy(log_creator, tmp_path)
     text = path.read_text(encoding="utf-8")
     assert "old café" in text and MESSAGE in text
     assert text.count("one marker") == 1
-    assert (
-        sum(isinstance(h, logging.FileHandler) for h in log_creator.logger.handlers)
-        == 1
-    )
+    assert sum(isinstance(h, logging.FileHandler) for h in log_creator.logger.handlers) == 1
 
 
 @pytest.mark.parametrize("encoding", ["utf-8", "cp1252", "gbk"])
@@ -240,19 +231,17 @@ def test_fresh_import_with_unicode_home(tmp_path, encoding):
     command = [
         sys.executable,
         "-c",
-        "import sys, os; streams=(sys.stdout,sys.stderr); settings=(sys.stdout.encoding,sys.stderr.encoding); "
-        "before=dict(os.environ); import tsdb; "
-        "assert streams==(sys.stdout,sys.stderr); assert settings==(sys.stdout.encoding,sys.stderr.encoding); "
-        "assert all(os.environ.get(k)==before.get(k) for k in ('PYTHONUTF8','PYTHONIOENCODING')); "
-        "print('IMPORT_OK')",
+        (
+            "import sys, os; streams=(sys.stdout,sys.stderr); settings=(sys.stdout.encoding,sys.stderr.encoding); "
+            "before=dict(os.environ); import tsdb; "
+            "assert streams==(sys.stdout,sys.stderr); assert settings==(sys.stdout.encoding,sys.stderr.encoding); "
+            "assert all(os.environ.get(k)==before.get(k) for k in ('PYTHONUTF8','PYTHONIOENCODING')); "
+            "print('IMPORT_OK')"
+        ),
     ]
     for _ in range(2):
-        result = subprocess.run(
-            command, env=env, cwd=tmp_path, capture_output=True, timeout=60
-        )
-        assert result.returncode == 0, result.stderr.decode(
-            encoding, errors="backslashreplace"
-        )
+        result = subprocess.run(command, env=env, cwd=tmp_path, capture_output=True, timeout=60, check=False)
+        assert result.returncode == 0, result.stderr.decode(encoding, errors="backslashreplace")
         assert b"IMPORT_OK" in result.stdout
         assert b"Logging error" not in result.stderr
     config_file = home / ".pypots" / "config.ini"

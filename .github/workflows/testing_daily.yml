@@ -2,53 +2,37 @@ name: Daily Testing
 
 on:
     schedule:
-        # https://crontab.guru. Run everyday at 0:00AM UTC, i.e. 08:00AM Beijing, i.e. 08:00PM Montreal (summer time)
-        - cron: "0 0 * * *"
+        - cron: '0 0 * * *'
     push:
-        branches:
-            - run_daily_testing  # if in need, create such a temporary branch to run daily testing
+        branches: [run_daily_testing]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: false
 
 jobs:
-    Daily-testing:
-        runs-on: ${{ matrix.os }}
-        defaults:
-            run:
-                shell: bash -l {0}
+    compatibility:
         strategy:
             fail-fast: false
             matrix:
-                os: [ubuntu-latest, windows-latest, macOS-latest]
-                python-version: ["3.7", "3.11"]
+                python: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        uses: ./.github/workflows/ci_job.yml
+        with:
+            # A compatible image for legacy interpreters; current releases use the latest.
+            os: ${{ matrix.python == '3.9' && 'ubuntu-22.04' || 'ubuntu-latest' }}
+            python: ${{ matrix.python }}
+            suite: offline
+            checkout-ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}
 
-        steps:
-            - name: Check out the repo code
-              uses: actions/checkout@v5
-
-            - name: Set up Conda
-              uses: conda-incubator/setup-miniconda@v3
-              with:
-                  activate-environment: tsdb-test
-                  python-version: ${{ matrix.python-version }}
-                  environment-file: tests/environment_for_conda_test.yml
-                  auto-activate-base: false
-
-            - name: Fetch the test environment details
-              run: |
-                  which python
-                  conda info
-                  conda list
-
-            - name: Test with pytest
-              run: |
-                  python -m pytest -rA tests/test_tsdb.py -s --cov=tsdb
-
-            - name: Generate the LCOV report
-              run: |
-                  python -m coverage lcov
-
-            - name: Submit the report
-              uses: coverallsapp/github-action@master
-              continue-on-error: true
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  path-to-lcov: 'coverage.lcov'
+    live-datasets:
+        # Only one full live download suite per run; failures are not suppressed.
+        uses: ./.github/workflows/ci_job.yml
+        with:
+            os: ubuntu-latest
+            python: '3.13'
+            suite: network
+            checkout-ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}

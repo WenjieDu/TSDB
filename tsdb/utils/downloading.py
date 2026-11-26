@@ -15,11 +15,11 @@ from typing import Optional
 import requests
 from tqdm import tqdm
 
-from .logging import logger
 from ..database import DATABASE
+from .logging import logger
 
 
-def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
+def _download_and_extract(url: str, saving_path: str) -> Optional[str]:  # noqa: FA100
     """Download dataset from the given url and extract to the given saving path.
 
     Parameters
@@ -71,16 +71,15 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
                 miniters=1,
                 desc=f"Downloading {file_name}",
                 total=size,
-            ) as pbar:
-                with open(raw_data_saving_path, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=chunk_size):
-                        f.write(chunk)
-                        pbar.update(len(chunk))
+            ) as pbar, open(raw_data_saving_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    f.write(chunk)
+                    pbar.update(len(chunk))
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
-        raise RuntimeError(f"Exception: {e}\n" f"Download failed. Aborting.")
+        raise RuntimeError(f"Exception: {e}\nDownload failed. Aborting.")
     except KeyboardInterrupt:
         shutil.rmtree(saving_path, ignore_errors=True)
         shutil.rmtree(raw_data_saving_path, ignore_errors=True)
@@ -96,14 +95,12 @@ def _download_and_extract(url: str, saving_path: str) -> Optional[str]:
                 new_name = file_name.split(".txt.gz")[0]
                 new_name = new_name + ".txt"
                 saving_path = os.path.join(saving_path, new_name)
-                with open(raw_data_saving_path, "rb") as f, open(
-                    saving_path, "wb"
-                ) as wf:
+                with open(raw_data_saving_path, "rb") as f, open(saving_path, "wb") as wf:
                     wf.write(gzip.decompress(f.read()))
             else:
                 shutil.unpack_archive(raw_data_saving_path, saving_path)
             logger.info(f"Successfully extracted data to {saving_path}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
             shutil.rmtree(saving_path, ignore_errors=True)
             raise RuntimeError(f"❌ {e}")
         finally:

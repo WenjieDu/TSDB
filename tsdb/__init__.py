@@ -8,33 +8,33 @@ with a single line of code.
 
 from .data_processing import (
     CACHED_DATASET_DIR,
-    list,
-    load,
-    download_and_extract,
-    list_cache,
     delete_cache,
+    download_and_extract,
+    list,
+    list_cache,
+    load,
 )
 from .utils.file import (
-    purge_path,
-    pickle_dump,
-    pickle_load,
     migrate,
     migrate_cache,
+    pickle_dump,
+    pickle_load,
+    purge_path,
 )
 from .version import __version__
 
 __all__ = [
-    "__version__",
-    "list",
-    "load",
-    "download_and_extract",
-    "list_cache",
-    "delete_cache",
     "CACHED_DATASET_DIR",
-    # file
-    "purge_path",
-    "pickle_dump",
-    "pickle_load",
+    "__version__",
+    "delete_cache",
+    "download_and_extract",
+    "list",
+    "list_cache",
+    "load",
     "migrate",
     "migrate_cache",
+    "pickle_dump",
+    "pickle_load",
+    # file
+    "purge_path",
 ]

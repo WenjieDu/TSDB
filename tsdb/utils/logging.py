@@ -24,22 +24,16 @@ class _UnicodeStreamHandler(logging.StreamHandler):
             message = self.format(record) + self.terminator
             encoding = getattr(self.stream, "encoding", None)
             if encoding:
-                message = message.encode(encoding, errors="backslashreplace").decode(
-                    encoding
-                )
+                message = message.encode(encoding, errors="backslashreplace").decode(encoding)
             try:
                 self.stream.write(message)
             except UnicodeEncodeError as exc:
                 # Some custom streams do not advertise their encoding.
-                self.stream.write(
-                    message.encode(exc.encoding, errors="backslashreplace").decode(
-                        exc.encoding
-                    )
-                )
+                self.stream.write(message.encode(exc.encoding, errors="backslashreplace").decode(exc.encoding))
             self.flush()
         except RecursionError:
             raise
-        except Exception:
+        except Exception:  # noqa: BLE001 - Preserve the existing error-handling contract.
             self.handleError(record)
 
 
@@ -48,9 +42,7 @@ class _UTF8FileHandler(logging.FileHandler):
 
     def _open(self):
         open_file = getattr(self, "_builtin_open", open)
-        return open_file(
-            self.baseFilename, self.mode, encoding="utf-8", errors="backslashreplace"
-        )
+        return open_file(self.baseFilename, self.mode, encoding="utf-8", errors="backslashreplace")
 
 
 def _check_append_encoding(path):
@@ -91,9 +83,7 @@ class Logger:
 
         """
 
-        assert (
-            logging_level in LEVELS.keys()
-        ), f"logging_level should be {list(LEVELS.keys())}, but got {logging_level}"
+        assert logging_level in LEVELS, f"logging_level should be {list(LEVELS.keys())}, but got {logging_level}"
 
         self.logger = logging.getLogger(name)
         self.logging_level = LEVELS[logging_level]

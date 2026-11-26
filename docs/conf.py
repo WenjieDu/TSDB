@@ -10,9 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import os
 import datetime
+import os
 import sys
+
 from sphinx.ext.napoleon.docstring import NumpyDocstring
 
 try:
@@ -91,8 +92,7 @@ html_context = {
 }
 
 html_favicon = (
-    "https://raw.githubusercontent.com/"
-    "PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS/logo_FFBG.svg"
+    "https://raw.githubusercontent.com/PyPOTS/pypots.github.io/main/static/figs/pypots_logos/PyPOTS/logo_FFBG.svg"
 )
 
 html_sidebars = {

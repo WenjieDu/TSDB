@@ -2,49 +2,40 @@ name: CI
 
 on:
     push:
-        branches:
-            - main
-            - dev
-            - temp_test_branch  # if in need, create such a temporary branch to test some functions
-
+        branches: [main, dev, temp_test_branch]
     pull_request:
-        branches:
-            - dev
+        branches: [main, dev]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-    test:
-        runs-on: ${{ matrix.os }}
+    compatibility:
         strategy:
             fail-fast: false
             matrix:
-                os: [ ubuntu-latest, windows-latest, macOS-latest ]
-                python-version: [ "3.8","3.11" ]
-
-        steps:
-            - uses: actions/checkout@v5
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v5
-              with:
-                  python-version: ${{ matrix.python-version }}
-
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements/requirements.txt
-                  pip install pytest pytest-cov
-                  pip install coverage
-
-            - name: Test with pytest
-              run: |
-                  python -m pytest -rA tests/test_tsdb.py tests/test_unicode_io.py -s --cov=tsdb
-
-            - name: Write the LCOV report
-              run: |
-                  python -m coverage lcov
-
-            - name: Submit report
-              uses: coverallsapp/github-action@master
-              continue-on-error: true
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  path-to-lcov: 'coverage.lcov'
+                include:
+                    # Python 3.8 is still the declared minimum; pin a compatible Ubuntu image.
+                    - os: ubuntu-22.04
+                      python: '3.8'
+                    - os: windows-latest
+                      python: '3.8'
+                    - os: macOS-latest
+                      python: '3.8'
+                    - os: ubuntu-latest
+                      python: '3.14'
+                    - os: windows-latest
+                      python: '3.14'
+                    - os: macOS-latest
+                      python: '3.14'
+        uses: ./.github/workflows/ci_job.yml
+        with:
+            os: ${{ matrix.os }}
+            python: ${{ matrix.python }}
+            suite: offline
+            coverage: ${{ matrix.os == 'ubuntu-latest' }}

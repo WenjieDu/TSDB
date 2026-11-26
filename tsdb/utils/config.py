@@ -69,19 +69,14 @@ def _backup_config(path, original):
 def _validate_config(text, path):
     parser = ConfigParser()
     parser.read_string(text, source=str(path))
-    if (
-        not parser.has_option("path", "tsdb_home")
-        or not parser.get("path", "tsdb_home").strip()
-    ):
-        raise ValueError(
-            f"Missing [path] tsdb_home in {path}. Restore or edit your configuration. It was not changed."
-        )
+    if not parser.has_option("path", "tsdb_home") or not parser.get("path", "tsdb_home").strip():
+        raise ValueError(f"Missing [path] tsdb_home in {path}. Restore or edit your configuration. It was not changed.")
     return parser
 
 
 def write_configs(config_parser, key_value_set):
-    for section in key_value_set.keys():
-        for key in key_value_set[section].keys():
+    for section in key_value_set:
+        for key in key_value_set[section]:
             value = key_value_set[section][key]
             config_parser.set(section, key, value)
 
@@ -108,15 +103,11 @@ def _initialize_config():
             try:
                 text = original.decode(encoding)
             except (LookupError, UnicodeError) as legacy_exc:
-                raise ValueError(
-                    f"Cannot decode {path} using {encoding!r}. The file was not changed."
-                ) from legacy_exc
+                raise ValueError(f"Cannot decode {path} using {encoding!r}. The file was not changed.") from legacy_exc
             _validate_config(text, path)
             backup = _backup_config(path, original)
             _atomic_write(path, lambda f: f.write(text))
-            logger.info(
-                f"💫 Migrated ecosystem config to UTF-8. Original bytes saved to {backup}"
-            )
+            logger.info(f"💫 Migrated ecosystem config to UTF-8. Original bytes saved to {backup}")
             return
 
         # Recover only the empty/section-only file left by an interrupted old
@@ -125,18 +116,14 @@ def _initialize_config():
             _validate_config(text, path)
             return
         backup = _backup_config(path, original)
-        logger.warning(
-            f"‼️ Recovering incomplete ecosystem config. Original bytes saved to {backup}"
-        )
+        logger.warning(f"‼️ Recovering incomplete ecosystem config. Original bytes saved to {backup}")
     else:
         logger.warning("‼️ PyPOTS Ecosystem configuration file does not exist.")
 
     path.parent.mkdir(parents=True, exist_ok=True)
     configer = read_configs(CONFIG_TEMPLATE_PATH)
     write_configs(configer, {"path": {"tsdb_home": str(path.parent / "tsdb")}})
-    logger.info(
-        f"💫 Initialized PyPOTS Ecosystem configuration file {path} successfully."
-    )
+    logger.info(f"💫 Initialized PyPOTS Ecosystem configuration file {path} successfully.")
 
 
 _initialize_config()
