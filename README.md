@@ -234,3 +234,13 @@ Single-row TXT inputs are supported; malformed/empty pairs raise errors.
 PhysioNet and Beijing raw files are enumerated in sorted order; existing local
 parsed caches retain their earlier order until explicitly rebuilt. AIS elapsed
 time is computed in seconds independent of pandas timestamp resolution.
+
+### Coverage and release validation
+
+PR CI measures deterministic offline coverage. Daily Testing additionally runs
+`python scripts/coverage_suite.py --output /path/to/new/report-directory` with
+pytest-cov and the TSQA extra installed. The runner executes offline and live
+suites separately on the same checkout, combines their coverage databases,
+and records the exact revision, each exit status, and line counts. External
+source errors fail the job; partial coverage never implies a passing suite.
+The designated Coveralls upload remains offline-only for a comparable trend.

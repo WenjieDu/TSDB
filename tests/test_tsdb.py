@@ -25,6 +25,7 @@ DATASETS_TO_TEST = [
     "electricity_load_diagrams",
     "electricity_transformer_temperature",
     "vessel_ais",
+    "tsqa",
     "pems_traffic",
     "solar_alabama",
     "ucr_uea_Wine",
@@ -210,5 +211,10 @@ def test_live_dataset_loading(cache, dataset):
     if dataset == "physionet_2019":
         assert result["training_setA"].RecordID.nunique() == 20336
         assert result["training_setB"].RecordID.nunique() == 20000
+    if dataset == "tsqa":
+        from tsdb.utils.tsqa import TSQA_CSV_FILES
+
+        assert set(result) == set(TSQA_CSV_FILES)
+        assert all(not frame.empty for frame in result.values())
     # Exercise cached reads without a second download.
     assert isinstance(tsdb.load(dataset), dict)

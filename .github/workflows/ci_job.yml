@@ -26,13 +26,14 @@ jobs:
     test:
         name: ${{ inputs.suite }} / ${{ inputs.os }} / Python ${{ inputs.python }}
         runs-on: ${{ inputs.os }}
-        timeout-minutes: ${{ inputs.suite == 'network' && 120 || 30 }}
+        timeout-minutes: ${{ inputs.suite == 'combined' && 180 || 30 }}
         defaults:
             run:
                 shell: bash
         env:
             PYTHONUNBUFFERED: '1'
             PIP_INDEX_URL: https://pypi.org/simple
+            TSDB_SUITE: ${{ inputs.suite }}
         steps:
             - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
               with:
@@ -48,7 +49,7 @@ jobs:
             - name: Build and install the wheel from this checkout
               run: |
                   python -m pip wheel --no-deps --wheel-dir "$RUNNER_TEMP/tsdb-ci/dist" .
-                  python -c "import os, pathlib, subprocess, sys; wheel = next((pathlib.Path(os.environ['RUNNER_TEMP']) / 'tsdb-ci' / 'dist').glob('*.whl')); subprocess.check_call([sys.executable, '-m', 'pip', 'install', str(wheel), 'pytest', 'pytest-cov'])"
+                  python -c "import os, pathlib, subprocess, sys; wheel = next((pathlib.Path(os.environ['RUNNER_TEMP']) / 'tsdb-ci' / 'dist').glob('*.whl')); subprocess.check_call([sys.executable, '-m', 'pip', 'install', str(wheel), 'pytest', 'pytest-cov'] + (['huggingface_hub'] if os.environ['TSDB_SUITE'] == 'combined' else []))"
                   python -m pip check
             - name: Smoke test installed distribution outside the checkout
               working-directory: ${{ runner.temp }}
@@ -61,10 +62,9 @@ jobs:
               if: inputs.suite == 'offline'
               run: |
                   python -m pytest -rA -m "not network" tests --cov=tsdb --cov-report=term --cov-report=lcov:"$RUNNER_TEMP/tsdb-ci/coverage.lcov" --cov-report=xml:"$RUNNER_TEMP/tsdb-ci/coverage.xml" --junitxml="$RUNNER_TEMP/tsdb-ci/pytest.xml"
-            - name: Live dataset download and loading tests
-              if: inputs.suite == 'network'
-              run: |
-                  python -m pytest -rA -m network tests --junitxml="$RUNNER_TEMP/tsdb-ci/pytest.xml"
+            - name: Offline, live and combined coverage (one cold run per source)
+              if: inputs.suite == 'combined'
+              run: python scripts/coverage_suite.py --output "$RUNNER_TEMP/tsdb-ci/combined"
             - name: Submit coverage to Coveralls
               if: inputs.coverage && success()
               uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
@@ -80,4 +80,6 @@ jobs:
                   path: |
                       ${{ runner.temp }}/tsdb-ci/*.xml
                       ${{ runner.temp }}/tsdb-ci/*.lcov
+                      ${{ runner.temp }}/tsdb-ci/combined/
+                  include-hidden-files: true
                   if-no-files-found: warn

@@ -33,5 +33,5 @@ jobs:
         with:
             os: ubuntu-latest
             python: '3.13'
-            suite: network
+            suite: combined
             checkout-ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}
