@@ -151,8 +151,7 @@ def _delete_dataset(path, only_pickle):
     if not path.is_dir():
         raise CacheError(f"Not a dataset directory: {path}")
     if only_pickle:
-        for file in path.glob("*.pkl"):
-            file.unlink()
+        (path / f"{path.name}_cache.pkl").unlink(missing_ok=True)
     else:
         shutil.rmtree(path)
 
@@ -160,7 +159,7 @@ def _delete_dataset(path, only_pickle):
 def delete_cache(
     dataset_name: str | None = None, only_pickle: bool = False, *, cache_dir: str | os.PathLike | None = None
 ) -> None:
-    """Delete registered caches in the resolved or explicit cache, preserving unrelated files."""
+    """Delete registered dataset directories, or only their TSDB-owned parsed cache files."""
     if dataset_name is not None:
         _validate_name(dataset_name)
     with _cache_operation(cache_dir) as root:

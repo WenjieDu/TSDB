@@ -143,14 +143,21 @@ def test_delete_cache_preserves_other_datasets_and_raw_files(cache):
     second = cache / "physionet_2012"
     for directory in (first, second):
         directory.mkdir()
-        (directory / "cached.pkl").write_bytes(b"cache")
+        (directory / f"{directory.name}_cache.pkl").write_bytes(b"cache")
+        (directory / "custom_analysis.pkl").write_bytes(b"unrelated")
         (directory / "raw.txt").write_bytes(b"raw")
     tsdb.delete_cache("physionet_2019", only_pickle=True)
-    assert not (first / "cached.pkl").exists()
+    assert not (first / f"{first.name}_cache.pkl").exists()
+    assert (first / "custom_analysis.pkl").read_bytes() == b"unrelated"
     assert (first / "raw.txt").read_bytes() == b"raw"
-    assert (second / "cached.pkl").is_file()
+    assert (second / f"{second.name}_cache.pkl").is_file()
     tsdb.delete_cache(only_pickle=True)
-    assert not (second / "cached.pkl").exists()
+    assert not (second / f"{second.name}_cache.pkl").exists()
+    assert (second / "custom_analysis.pkl").read_bytes() == b"unrelated"
+    assert (first / "custom_analysis.pkl").read_bytes() == b"unrelated"
+    tsdb.delete_cache(only_pickle=True)  # idempotent when parsed files are absent
+    assert (first / "custom_analysis.pkl").read_bytes() == b"unrelated"
+    assert (second / "custom_analysis.pkl").read_bytes() == b"unrelated"
     assert (second / "raw.txt").read_bytes() == b"raw"
     tsdb.delete_cache("physionet_2019")
     assert not first.exists()

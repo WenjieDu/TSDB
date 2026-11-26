@@ -56,7 +56,8 @@ The default cache is ``~/.pypots/tsdb``. Inspect, rebuild or refresh a dataset:
    data = tsdb.load("physionet_2012")  # reparse existing raw files
    data = tsdb.load("physionet_2012", use_cache=False)  # fresh download
 
-Deleting only the pickle preserves raw files. Unreadable parsed caches are
+Deleting only the pickle removes the TSDB-owned ``<dataset_name>_cache.pkl``
+file and preserves raw files and unrelated pickle files. Unreadable parsed caches are
 rebuilt from local raw data when possible. A fresh download retains the old
 cache until its replacement has been downloaded, parsed and cached successfully.
 Parsed caches are trusted local pickle files; never load an untrusted pickle.
@@ -67,13 +68,19 @@ Parsed caches are trusted local pickle files; never load an untrusted pickle.
    # tsdb.delete_cache()  # remove all registered dataset caches
    tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
 
-Deletion preserves unrelated files and recovery backups. Invalid dataset names
+Whole-dataset deletion removes the registered dataset directory and all its
+contents, but preserves unrelated files and recovery backups outside those
+directories. Invalid dataset names
 raise ``ValueError``. Pickle utility failures raise ``CacheError`` instead of
 returning ``None``. Cooperating TSDB processes lock the resolved cache root,
 even when using different ecosystem homes. A stable sibling lock file in the
 cache parent directory requires write access to that parent; do not delete
 lock files while processes are running. External writers, nested cache roots,
-and older TSDB releases are not covered. Migration requires a new or empty non-overlapping
+and older TSDB releases are not covered. On POSIX, a forked child discards
+inherited TSDB lock handles and must acquire its own locks for new operations.
+Forking in the middle of a TSDB operation and continuing that inherited
+operation in the child is unsupported. Do not wait for a child to acquire a
+lock while holding that same lock in its parent. Migration requires a new or empty non-overlapping
 destination. Configuration switches only after copying succeeds. A failed
 configuration write retains the original and complete destination copy for recovery.
 
