@@ -18,7 +18,9 @@ from urllib3.util.retry import Retry
 from .logging import logger
 
 _S3_ROOT = "https://physionet-open.s3.amazonaws.com/"
-_NS = {"s3": "http://s3.amazonaws.com/doc/2006-03-01/"}
+# The XML namespace is an identifier, not a network endpoint. Its literal URI
+# must match the S3 response exactly. All actual requests use HTTPS (S5332 false positive).
+_NS = {"s3": "http://s3.amazonaws.com/doc/2006-03-01/"}  # NOSONAR
 # The official release contains 20,336 subjects in A and 20,000 in B.
 _SPLITS = (("training", 20336), ("training_setB", 20000))
 _TIMEOUT = (10, 60)
@@ -31,6 +33,35 @@ def _session():
     retry = Retry(total=3, backoff_factor=0.5, status_forcelist=(429, 500, 502, 503, 504))
     session.mount("https://", HTTPAdapter(max_retries=retry))
     return session
+
+
+def _parse_records(root, prefix, records):
+    """Validate the objects on one listing page and accumulate unique records."""
+    for entry in root.findall("s3:Contents", _NS):
+        key = entry.findtext("s3:Key", namespaces=_NS)
+        if key == prefix:  # optional S3 directory marker
+            continue
+        if not key or not key.startswith(prefix):
+            raise RuntimeError(f"Unexpected object in PhysioNet listing: {key!r}")
+        name = key[len(prefix) :]
+        if not re.fullmatch(r"p\d+\.psv", name, flags=re.ASCII) or name in records:
+            raise RuntimeError(f"Unexpected or duplicate PhysioNet record: {name!r}")
+        size = int(entry.findtext("s3:Size", namespaces=_NS))
+        if size <= 0:
+            raise RuntimeError(f"Empty PhysioNet record: {name}")
+        records[name] = size
+
+
+def _get_next_token(root, seen_tokens):
+    """Return the next continuation token, or None for the final page."""
+    truncated = root.findtext("s3:IsTruncated", namespaces=_NS)
+    if truncated == "false":
+        return None
+    token = root.findtext("s3:NextContinuationToken", namespaces=_NS)
+    if truncated != "true" or not token or token in seen_tokens:
+        raise RuntimeError("Invalid PhysioNet S3 pagination")
+    seen_tokens.add(token)
+    return token
 
 
 def _list_records(url, expected_count):
@@ -47,26 +78,10 @@ def _list_records(url, expected_count):
             response = session.get(_S3_ROOT, params=params, timeout=_TIMEOUT)
             response.raise_for_status()
             root = ElementTree.fromstring(response.content)
-            for entry in root.findall("s3:Contents", _NS):
-                key = entry.findtext("s3:Key", namespaces=_NS)
-                if key == prefix:  # optional S3 directory marker
-                    continue
-                if not key or not key.startswith(prefix):
-                    raise RuntimeError(f"Unexpected object in PhysioNet listing: {key!r}")
-                name = key[len(prefix) :]
-                if not re.fullmatch(r"p[0-9]+\.psv", name) or name in records:
-                    raise RuntimeError(f"Unexpected or duplicate PhysioNet record: {name!r}")
-                size = int(entry.findtext("s3:Size", namespaces=_NS))
-                if size <= 0:
-                    raise RuntimeError(f"Empty PhysioNet record: {name}")
-                records[name] = size
-            truncated = root.findtext("s3:IsTruncated", namespaces=_NS)
-            if truncated == "false":
+            _parse_records(root, prefix, records)
+            token = _get_next_token(root, seen_tokens)
+            if token is None:
                 break
-            token = root.findtext("s3:NextContinuationToken", namespaces=_NS)
-            if truncated != "true" or not token or token in seen_tokens:
-                raise RuntimeError("Invalid PhysioNet S3 pagination")
-            seen_tokens.add(token)
     if len(records) != expected_count:
         raise RuntimeError(f"Expected {expected_count} PhysioNet records at {url}, found {len(records)}")
     return sorted(records.items())

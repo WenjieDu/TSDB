@@ -131,3 +131,55 @@ def test_public_load_and_cached_reads(tmp_path, simulated_source, monkeypatch):
     tsdb.delete_cache("physionet_2019", only_pickle=True)
     assert tsdb.load("physionet_2019")["training_setB"].equals(first["training_setB"])
     assert not requests
+
+
+@pytest.mark.parametrize("name", ["p１２３.psv", "p١٢٣.psv", "../p123.psv", "p123.csv"])
+def test_listing_rejects_invalid_record_names(name):
+    prefix = "training/"
+    root = ET.fromstring(_page(prefix, [(name, 10)]))
+    with pytest.raises(RuntimeError, match="Unexpected or duplicate PhysioNet record"):
+        source._parse_records(root, prefix, {})
+
+
+def test_listing_accepts_directory_marker_and_ascii_record():
+    prefix = "training/"
+    root = ET.fromstring(_page(prefix, [("", 0), ("p123.psv", 10)]))
+    records = {}
+    source._parse_records(root, prefix, records)
+    assert records == {"p123.psv": 10}
+
+
+def test_listing_rejects_duplicate_across_pages():
+    prefix = "training/"
+    root = ET.fromstring(_page(prefix, [("p123.psv", 10)]))
+    records = {"p123.psv": 10}
+    with pytest.raises(RuntimeError, match="Unexpected or duplicate PhysioNet record"):
+        source._parse_records(root, prefix, records)
+
+
+def test_listing_rejects_unexpected_prefix():
+    root = ET.fromstring(_page("other/", [("p123.psv", 10)]))
+    with pytest.raises(RuntimeError, match="Unexpected object in PhysioNet listing"):
+        source._parse_records(root, "training/", {})
+
+
+@pytest.mark.parametrize("size", [0, -1])
+def test_listing_rejects_empty_records(size):
+    root = ET.fromstring(_page("training/", [("p123.psv", size)]))
+    with pytest.raises(RuntimeError, match="Empty PhysioNet record"):
+        source._parse_records(root, "training/", {})
+
+
+def test_pagination_rejects_repeated_token():
+    root = ET.fromstring(_page("training/", [], token="repeated"))
+    seen = set()
+    assert source._get_next_token(root, seen) == "repeated"
+    with pytest.raises(RuntimeError, match="Invalid PhysioNet S3 pagination"):
+        source._get_next_token(root, seen)
+
+
+def test_pagination_rejects_missing_token():
+    root = ET.fromstring(_page("training/", []))
+    root.find("s3:IsTruncated", source._NS).text = "true"
+    with pytest.raises(RuntimeError, match="Invalid PhysioNet S3 pagination"):
+        source._get_next_token(root, set())
