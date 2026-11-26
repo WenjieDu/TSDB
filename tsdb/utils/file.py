@@ -5,14 +5,13 @@ Functions manipulating files.
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
-
 import os
 import pickle
 import shutil
 
 import pandas as pd
 
-from .config import read_configs, write_configs, CONFIG_TEMPLATE_PATH
+from .config import CONFIG_TEMPLATE_PATH, read_configs, write_configs
 from .logging import logger
 
 
@@ -45,9 +44,7 @@ def check_path(
     checked_path = os.path.abspath(checked_path)
 
     if check_exists:
-        assert os.path.exists(
-            checked_path
-        ), f"The given path {checked_path} does not exists"
+        assert os.path.exists(checked_path), f"The given path {checked_path} does not exists"
 
     return checked_path
 
@@ -111,12 +108,8 @@ def pickle_dump(data: object, path: str) -> None:
         with open(path, "wb") as f:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         logger.info(f"Successfully saved to {path}")
-    except Exception as e:
-        logger.error(
-            f"❌ Pickling failed. No cache data saved. Investigate the error below: \n{e}"
-        )
-
-    return None
+    except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
+        logger.error(f"❌ Pickling failed. No cache data saved. Investigate the error below: \n{e}")
 
 
 def pickle_load(path: str) -> object:
@@ -139,10 +132,8 @@ def pickle_load(path: str) -> object:
                 data = pd.read_pickle(f)
             else:
                 data = pickle.load(f)
-    except Exception as e:
-        logger.error(
-            f"❌ Loading data failed. Operation aborted. Investigate the error below: \n{e}"
-        )
+    except Exception as e:  # noqa: BLE001 - Preserve the existing error-handling contract.
+        logger.error(f"❌ Loading data failed. Operation aborted. Investigate the error below: \n{e}")
         return None
 
     return data
@@ -174,9 +165,7 @@ def purge_path(path: str, ignore_errors: bool = True) -> None:
             logger.info(f"Successfully deleted {path}")
         else:
             cached_dataset_dir = determine_tsdb_home()
-            raise FileExistsError(
-                f"Deleting operation failed. {cached_dataset_dir} still exists."
-            )
+            raise FileExistsError(f"Deleting operation failed. {cached_dataset_dir} still exists.")
     except shutil.Error:
         raise shutil.Error("Operation failed.")
 
@@ -197,12 +186,8 @@ def determine_tsdb_home():
     # old cached dataset dir path used in TSDB v0.4
     old_cached_dataset_dir_04 = check_path("~/.tsdb")
 
-    if os.path.exists(old_cached_dataset_dir_02) or os.path.exists(
-        old_cached_dataset_dir_04
-    ):
-        logger.warning(
-            "‼️ Detected the home dir of the old version TSDB. Auto migrating... Please wait."
-        )
+    if os.path.exists(old_cached_dataset_dir_02) or os.path.exists(old_cached_dataset_dir_04):
+        logger.warning("‼️ Detected the home dir of the old version TSDB. Auto migrating... Please wait.")
         cached_dataset_dir = tsdb_home_path
         if os.path.exists(old_cached_dataset_dir_02):
             migrate(old_cached_dataset_dir_02, cached_dataset_dir)
@@ -275,9 +260,7 @@ def migrate(
     # create a symbolic link from the new path to the old path
     if symlink:
         os.symlink(new_path, old_path)
-        logger.info(
-            f"Successfully created a symbolic link from {new_path} to {old_path}"
-        )
+        logger.info(f"Successfully created a symbolic link from {new_path} to {old_path}")
 
 
 def migrate_cache(target_path: str) -> None:

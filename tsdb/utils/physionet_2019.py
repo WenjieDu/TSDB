@@ -28,9 +28,7 @@ _CHUNK_SIZE = 32
 
 def _session():
     session = requests.Session()
-    retry = Retry(
-        total=3, backoff_factor=0.5, status_forcelist=(429, 500, 502, 503, 504)
-    )
+    retry = Retry(total=3, backoff_factor=0.5, status_forcelist=(429, 500, 502, 503, 504))
     session.mount("https://", HTTPAdapter(max_retries=retry))
     return session
 
@@ -54,14 +52,10 @@ def _list_records(url, expected_count):
                 if key == prefix:  # optional S3 directory marker
                     continue
                 if not key or not key.startswith(prefix):
-                    raise RuntimeError(
-                        f"Unexpected object in PhysioNet listing: {key!r}"
-                    )
+                    raise RuntimeError(f"Unexpected object in PhysioNet listing: {key!r}")
                 name = key[len(prefix) :]
                 if not re.fullmatch(r"p[0-9]+\.psv", name) or name in records:
-                    raise RuntimeError(
-                        f"Unexpected or duplicate PhysioNet record: {name!r}"
-                    )
+                    raise RuntimeError(f"Unexpected or duplicate PhysioNet record: {name!r}")
                 size = int(entry.findtext("s3:Size", namespaces=_NS))
                 if size <= 0:
                     raise RuntimeError(f"Empty PhysioNet record: {name}")
@@ -74,9 +68,7 @@ def _list_records(url, expected_count):
                 raise RuntimeError("Invalid PhysioNet S3 pagination")
             seen_tokens.add(token)
     if len(records) != expected_count:
-        raise RuntimeError(
-            f"Expected {expected_count} PhysioNet records at {url}, found {len(records)}"
-        )
+        raise RuntimeError(f"Expected {expected_count} PhysioNet records at {url}, found {len(records)}")
     return sorted(records.items())
 
 
@@ -103,8 +95,7 @@ def _download_split(url, directory, records):
         # Bound the queued work so a failed request cannot enqueue the entire dataset.
         for offset in range(0, len(chunks), _WORKERS):
             pending = [
-                executor.submit(_download_chunk, url, directory, chunk)
-                for chunk in chunks[offset : offset + _WORKERS]
+                executor.submit(_download_chunk, url, directory, chunk) for chunk in chunks[offset : offset + _WORKERS]
             ]
             for future in pending:
                 progress.update(future.result())
@@ -112,17 +103,15 @@ def _download_split(url, directory, records):
 
 def download_physionet2019(urls, saving_path):
     """Publish both complete splits together, retaining the legacy cache layout."""
+    if len(urls) != len(_SPLITS):
+        raise RuntimeError("Both PhysioNet 2019 training splits are required")
     destination = Path(saving_path).absolute()
     if destination.exists():
         raise FileExistsError(str(destination))
     destination.parent.mkdir(parents=True, exist_ok=True)
     listings = [_list_records(url, count) for url, (_, count) in zip(urls, _SPLITS)]
-    if len(listings) != len(_SPLITS):
-        raise RuntimeError("Both PhysioNet 2019 training splits are required")
     # Do not leave a partial dataset at the path that tsdb.load treats as cached.
-    with tempfile.TemporaryDirectory(
-        prefix=".physionet2019-", dir=destination.parent
-    ) as staging:
+    with tempfile.TemporaryDirectory(prefix=".physionet2019-", dir=destination.parent) as staging:
         data = Path(staging) / "data"
         data.mkdir()
         for url, (directory, _), records in zip(urls, _SPLITS, listings):
