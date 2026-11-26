@@ -10,20 +10,12 @@ https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/tsqa
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
-import os
+from pathlib import Path
 
 import pandas as pd
 
 from ..utils.logging import logger
-
-# Mapping of task name -> relative path inside the HuggingFace repo
-_TSQA_CSV_FILES = {
-    "anomaly_detection": "Anomaly_Detection/anomaly_detection.csv",
-    "classification": "Classification/classification.csv",
-    "forecasting_imputation_1": ("Forecasting+Imputation/Forecasting+Imputation_1/forecasting_imputation1.csv"),
-    "forecasting_imputation_2": ("Forecasting+Imputation/Forecasting+Imputation_2/forecasting_imputation2.csv"),
-    "open_ended_qa": "Open_Ended_QA/open_ended_QA.csv",
-}
+from ..utils.tsqa import TSQA_CSV_FILES, has_tsqa_files, snapshot_download
 
 
 def load_tsqa(local_path):
@@ -45,26 +37,17 @@ def load_tsqa(local_path):
     Notes
     -----
     This dataset requires the `huggingface_hub` package.
-    Install it with: pip install huggingface_hub
+    Install it with: pip install "tsdb[tsqa]"
     """
-    try:
-        from huggingface_hub import snapshot_download
-    except ImportError as e:
-        raise ImportError(
-            "The 'huggingface_hub' package is required to load the TSQA dataset. "
-            "Please install it with: pip install huggingface_hub"
-        ) from e
-
-    logger.info("Downloading TSQA dataset from HuggingFace (Time-MQA/TSQA)...")
-    repo_local_path = snapshot_download(
-        repo_id="Time-MQA/TSQA",
-        repo_type="dataset",
-        cache_dir=local_path,
-    )
+    repo_local_path = Path(local_path)
+    if not has_tsqa_files(repo_local_path):
+        # Older TSDB releases stored the Hugging Face hub cache here instead
+        # of a directly materialized raw dataset. Preserve that read path.
+        repo_local_path = Path(snapshot_download(repo_id="Time-MQA/TSQA", repo_type="dataset", cache_dir=local_path))
 
     data = {}
-    for task_name, rel_path in _TSQA_CSV_FILES.items():
-        file_path = os.path.join(repo_local_path, rel_path)
+    for task_name, rel_path in TSQA_CSV_FILES.items():
+        file_path = repo_local_path / rel_path
         logger.info(f"Loading task '{task_name}' from {file_path}...")
         data[task_name] = pd.read_csv(file_path)
 

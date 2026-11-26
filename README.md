@@ -128,6 +128,18 @@ Importing TSDB or its shared logger, and listing dataset names, do not initializ
 the ecosystem configuration or migrate caches. The configuration is initialized
 when the configuration or data access modules are first used.
 
+### Reliable downloads and raw data
+
+`tsdb.download_and_extract(name, destination)` downloads all required raw files
+before publishing a new destination directory. Existing destinations are not
+overwritten. For TSQA it downloads the actual Hugging Face dataset files; install
+`tsdb[tsqa]` first. To download a CSV/TXT file or supported archive from a URL,
+use `tsdb.download_url(url, destination)`. ZIP, TAR (including gzip, bzip2 and xz
+compression), and single CSV/TXT gzip files are supported. The destination must
+not exist. Unsafe archive paths, links, special files and conflicting file
+members are rejected. `tsdb.load(name, use_cache=False)` retains the old cache
+until the new raw download succeeds. Parsed cache recovery is a separate step.
+
 ### Unicode configuration and logs
 
 TSDB stores the shared ecosystem configuration (`~/.pypots/config.ini`) and new

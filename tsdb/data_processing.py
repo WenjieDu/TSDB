@@ -23,7 +23,7 @@ from .loading_funcs import (
     load_tsqa,
     load_ucr_uea_dataset,
 )
-from .utils.downloading import download_and_extract
+from .utils.downloading import download_and_extract, refresh_raw_dataset
 from .utils.file import determine_tsdb_home, pickle_dump, pickle_load, purge_path
 from .utils.logging import logger
 
@@ -77,9 +77,8 @@ def load(dataset_name: str, use_cache: bool = True) -> dict:
         if use_cache:
             logger.info(f"Dataset {dataset_name} has already been downloaded. Processing directly...")
         else:
-            # if not use cache, then delete the downloaded data dir (including processing cache)
-            shutil.rmtree(dataset_saving_path, ignore_errors=True)
-            download_and_extract(dataset_name, dataset_saving_path)
+            # Preserve the existing cache until the replacement download succeeds.
+            refresh_raw_dataset(dataset_name, dataset_saving_path)
 
     # if cached, then load directly
     cache_path = os.path.join(dataset_saving_path, dataset_name + "_cache.pkl")
