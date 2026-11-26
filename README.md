@@ -270,6 +270,13 @@ TSDB consumers. The build uses the verified backend with `--no-isolation`;
 local artifact installs use `--no-deps --no-index`. Both wheel and sdist are
 installed and smoke-tested.
 
+### Dataset discovery
+`tsdb.info("physionet_2019")` returns source URLs, loader and download strategy,
+required file layout, optional dependencies, known revision, and a link to the
+dataset profile. Metadata discovery does not access the network or initialize
+the cache. Unknown license, task and revision metadata is `None`; consult the
+source/profile for authoritative dataset terms and citation information.
+
 ### Daily real-dataset cache
 
 Regular PR/push CI remains offline. Daily Testing on the default branch runs

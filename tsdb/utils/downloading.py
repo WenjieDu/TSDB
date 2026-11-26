@@ -13,7 +13,7 @@ from urllib.parse import unquote, urlsplit
 import requests
 from tqdm import tqdm
 
-from ..database import DATABASE
+from ..database import dataset_spec
 from .archive import archive_format, extract, member_path
 from .logging import logger
 from .physionet_2019 import download_physionet2019
@@ -22,19 +22,6 @@ from .tsqa import download_tsqa
 _TIMEOUT = (10, 60)
 _ATTEMPTS = 4
 _RETRY_STATUS = {429, 500, 502, 503, 504}
-_REQUIRED_FILES = {
-    "physionet_2012": ("Outcomes-a.txt", "Outcomes-b.txt", "Outcomes-c.txt"),
-    "electricity_load_diagrams": ("LD2011_2014.txt",),
-    "electricity_transformer_temperature": ("ETTm1.csv", "ETTm2.csv", "ETTh1.csv", "ETTh2.csv"),
-    "italy_air_quality": ("AirQualityUCI.csv",),
-    "pems_traffic": ("traffic.txt",),
-    "solar_alabama": ("solar_AL.txt",),
-}
-_REQUIRED_DIRECTORIES = {
-    "physionet_2012": (("set-a", "*.txt"), ("set-b", "*.txt"), ("set-c", "*.txt")),
-    "beijing_multisite_air_quality": (("PRSA_Data_20130301-20170228", "*.csv"),),
-    "vessel_ais": (("parquets", "*.parquet"),),
-}
 
 
 class DownloadError(RuntimeError):
@@ -110,16 +97,17 @@ def _check_destination(destination: Path) -> None:
 
 
 def _validate_dataset(name: str, root: Path) -> None:
-    if name.startswith("ucr_uea_"):
-        dataset = name.removeprefix("ucr_uea_")
+    spec = dataset_spec(name)
+    if spec.loader_arg is not None:
+        dataset = spec.loader_arg
         if not any(
             all(_nonempty(root / f"{dataset}_{split}.{ext}") for split in ("TRAIN", "TEST")) for ext in ("arff", "txt")
         ):
             raise DownloadError(f"Missing train/test files for {name}")
-    for filename in _REQUIRED_FILES.get(name, ()):
+    for filename in spec.required_files:
         if not _nonempty(root / filename):
             raise DownloadError(f"Missing or empty required file: {filename}")
-    for directory, pattern in _REQUIRED_DIRECTORIES.get(name, ()):
+    for directory, pattern in spec.required_directories:
         if not any(_nonempty(path) for path in (root / directory).glob(pattern)):
             raise DownloadError(f"Missing required dataset files: {directory}/{pattern}")
 
@@ -128,7 +116,7 @@ def _nonempty(path: Path) -> bool:
     return path.is_file() and path.stat().st_size > 0
 
 
-def _publish(destination: Path, urls: list[str], dataset_name: str | None = None) -> str:
+def _publish(destination: Path, urls: tuple[str, ...], dataset_name: str | None = None) -> str:
     _check_destination(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".tsdb-download-", dir=destination.parent) as staging:
@@ -136,7 +124,7 @@ def _publish(destination: Path, urls: list[str], dataset_name: str | None = None
         root = work / "data"
         root.mkdir()
         result = ""
-        if dataset_name == "tsqa":
+        if dataset_name is not None and dataset_spec(dataset_name).download_strategy == "huggingface":
             download_tsqa(urls[0].removeprefix("hf://"), root)
         else:
             for url in urls:
@@ -158,7 +146,7 @@ def download_url(url: str, saving_path: str) -> str:
     partial destination. Return the directory (or decompressed .txt/.csv path
     for a single gzip file). TLS verification is not disabled.
     """
-    return _publish(Path(saving_path).absolute(), [url])
+    return _publish(Path(saving_path).absolute(), (url,))
 
 
 def _download_and_extract(url: str, saving_path: str) -> str:
@@ -175,14 +163,13 @@ def download_and_extract(dataset_name: str, dataset_saving_path: str) -> None:
     All required sources must succeed before publication. An existing
     destination is never overwritten by this function.
     """
-    dataset_url = DATABASE[dataset_name]
+    spec = dataset_spec(dataset_name)
     destination = Path(dataset_saving_path).absolute()
     _check_destination(destination)
-    if dataset_name == "physionet_2019":
-        download_physionet2019(dataset_url, str(destination))
+    if spec.download_strategy == "physionet_2019":
+        download_physionet2019(spec.sources, str(destination))
         return
-    urls = dataset_url if isinstance(dataset_url, list) else [dataset_url]
-    _publish(destination, urls, dataset_name)
+    _publish(destination, spec.sources, dataset_name)
 
 
 def refresh_raw_dataset(dataset_name: str, destination: str, prepare=None):

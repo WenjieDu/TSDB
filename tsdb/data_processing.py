@@ -10,20 +10,8 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from .database import AVAILABLE_DATASETS
-from .loading_funcs import (
-    load_ais,
-    load_beijing_air_quality,
-    load_electricity,
-    load_ett,
-    load_italy_air_quality,
-    load_pems_traffic,
-    load_physionet2012,
-    load_physionet2019,
-    load_solar_alabama,
-    load_tsqa,
-    load_ucr_uea_dataset,
-)
+from . import loading_funcs
+from .database import AVAILABLE_DATASETS, dataset_spec
 from .utils.cache_lock import cache_lock
 from .utils.downloading import download_and_extract, refresh_raw_dataset
 from .utils.file import CacheError, determine_tsdb_home, pickle_dump, pickle_load
@@ -53,22 +41,9 @@ def _validate_name(dataset_name):
 
 
 def _parse(dataset_name, path):
-    loaders = {
-        "physionet_2012": load_physionet2012,
-        "physionet_2019": load_physionet2019,
-        "electricity_load_diagrams": load_electricity,
-        "electricity_transformer_temperature": load_ett,
-        "beijing_multisite_air_quality": load_beijing_air_quality,
-        "italy_air_quality": load_italy_air_quality,
-        "vessel_ais": load_ais,
-        "pems_traffic": load_pems_traffic,
-        "solar_alabama": load_solar_alabama,
-        "tsqa": load_tsqa,
-    }
-    if dataset_name.startswith("ucr_uea_"):
-        result = load_ucr_uea_dataset(path, dataset_name.removeprefix("ucr_uea_"))
-    else:
-        result = loaders[dataset_name](path)
+    spec = dataset_spec(dataset_name)
+    loader = getattr(loading_funcs, spec.loader)
+    result = loader(path, spec.loader_arg) if spec.loader_arg is not None else loader(path)
     if not isinstance(result, dict) or not result:
         raise CacheError(f"Dataset {dataset_name} did not produce valid data")
     pickle_dump(result, Path(path) / f"{dataset_name}_cache.pkl")
@@ -92,7 +67,7 @@ def _load_cached(name, target):
 def load(dataset_name: str, use_cache: bool = True) -> dict:
     """Load a registered dataset; use_cache=False stages and validates a fresh replacement."""
     _validate_name(dataset_name)
-    profile = "ucr_uea_datasets" if dataset_name.startswith("ucr_uea_") else dataset_name
+    profile = dataset_spec(dataset_name).profile
     logger.info(f"Please cite {dataset_name}: https://github.com/WenjieDu/TSDB/tree/main/dataset_profiles/{profile}")
     with cache_lock():
         target = Path(_cache_home()) / dataset_name
