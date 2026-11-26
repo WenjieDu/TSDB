@@ -1,0 +1,83 @@
+name: Reusable TSDB CI job
+
+on:
+    workflow_call:
+        inputs:
+            os:
+                required: true
+                type: string
+            python:
+                required: true
+                type: string
+            suite:
+                required: true
+                type: string
+            checkout-ref:
+                type: string
+                default: ''
+            coverage:
+                type: boolean
+                default: false
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+        name: ${{ inputs.suite }} / ${{ inputs.os }} / Python ${{ inputs.python }}
+        runs-on: ${{ inputs.os }}
+        timeout-minutes: ${{ inputs.suite == 'network' && 120 || 30 }}
+        defaults:
+            run:
+                shell: bash
+        env:
+            PYTHONUNBUFFERED: '1'
+            PIP_INDEX_URL: https://pypi.org/simple
+        steps:
+            - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+              with:
+                  ref: ${{ inputs.checkout-ref }}
+                  persist-credentials: false
+            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: ${{ inputs.python }}
+                  cache: pip
+                  cache-dependency-path: |
+                      requirements/requirements.txt
+                      pyproject.toml
+            - name: Build and install the wheel from this checkout
+              run: |
+                  python -m pip wheel --no-deps --wheel-dir "$RUNNER_TEMP/tsdb-ci/dist" .
+                  python -c "import os, pathlib, subprocess, sys; wheel = next((pathlib.Path(os.environ['RUNNER_TEMP']) / 'tsdb-ci' / 'dist').glob('*.whl')); subprocess.check_call([sys.executable, '-m', 'pip', 'install', str(wheel), 'pytest', 'pytest-cov'])"
+                  python -m pip check
+            - name: Smoke test installed distribution outside the checkout
+              working-directory: ${{ runner.temp }}
+              env:
+                  HOME: ${{ runner.temp }}/tsdb-smoke-home
+                  USERPROFILE: ${{ runner.temp }}/tsdb-smoke-home
+              run: |
+                  python -I -c "import os, pathlib, tsdb; from tsdb.utils.config import CONFIG_TEMPLATE_PATH, read_configs; assert pathlib.Path(os.environ['GITHUB_WORKSPACE']).resolve() not in pathlib.Path(tsdb.__file__).resolve().parents; assert pathlib.Path(CONFIG_TEMPLATE_PATH).is_file(); assert tsdb.list(); assert read_configs().get('path', 'tsdb_home'); print('Installed TSDB', tsdb.__version__)"
+            - name: Offline regression tests
+              if: inputs.suite == 'offline'
+              run: |
+                  python -m pytest -rA -m "not network" tests --cov=tsdb --cov-report=term --cov-report=lcov:"$RUNNER_TEMP/tsdb-ci/coverage.lcov" --cov-report=xml:"$RUNNER_TEMP/tsdb-ci/coverage.xml" --junitxml="$RUNNER_TEMP/tsdb-ci/pytest.xml"
+            - name: Live dataset download and loading tests
+              if: inputs.suite == 'network'
+              run: |
+                  python -m pytest -rA -m network tests --junitxml="$RUNNER_TEMP/tsdb-ci/pytest.xml"
+            - name: Submit coverage to Coveralls
+              if: inputs.coverage && success()
+              uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
+              continue-on-error: true
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  path-to-lcov: ${{ runner.temp }}/tsdb-ci/coverage.lcov
+            - name: Upload test reports
+              if: always()
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+              with:
+                  name: ${{ inputs.suite }}-${{ inputs.os }}-py${{ inputs.python }}
+                  path: |
+                      ${{ runner.temp }}/tsdb-ci/*.xml
+                      ${{ runner.temp }}/tsdb-ci/*.lcov
+                  if-no-files-found: warn

@@ -1,16 +1,20 @@
-"""
-TSDB unit testing cases.
-"""
+"""Deterministic TSDB regression tests and independent live dataset checks."""
 
 # Created by Wenjie Du <wenjay.du@gmail.com>
 # License: BSD-3-Clause
 
-import os
-import unittest
+import io
+import uuid
+import zipfile
+
+import pandas as pd
+import pytest
+import requests
 
 import tsdb
+from tsdb import data_processing
 from tsdb.database import DATABASE
-from tsdb.utils.config import PYPOTS_ECOSYSTEM_CONFIG_PATH, read_configs
+from tsdb.utils import config, file
 from tsdb.utils.logging import Logger
 
 DATASETS_TO_TEST = [
@@ -28,77 +32,183 @@ DATASETS_TO_TEST = [
 ]
 
 
-class TestTSDB(unittest.TestCase):
-    logger_creator = Logger(name="testing log", logging_level="debug")
-    logger = logger_creator.logger
+@pytest.fixture
+def cache(tmp_path, monkeypatch):
+    root = tmp_path / "cache"
+    root.mkdir()
+    config_path = tmp_path / "config.ini"
+    config_path.write_text(f"[path]\ntsdb_home = {root}\n", encoding="utf-8")
+    monkeypatch.setattr(data_processing, "CACHED_DATASET_DIR", str(root))
+    monkeypatch.setattr(config, "PYPOTS_ECOSYSTEM_CONFIG_PATH", config_path)
 
-    def test_0_available_datasets(self):
-        available_datasets = tsdb.list()
-        assert len(available_datasets) > 0
-        assert len(DATABASE) == len(available_datasets)
+    def read_local_configs(path=config_path):
+        return config.read_configs(path)
 
-    def test_1_downloading_only(self):
-        tsdb.download_and_extract("ucr_uea_Wine", "./save_it_here")
-        file_list = os.listdir()
-        assert len(file_list) > 0
-        tsdb.purge_path("save_it_here")
-
-    def test_2_dataset_loading(self):
-        for d_ in DATASETS_TO_TEST:
-            data = tsdb.load(d_)
-            assert isinstance(data, dict), f"Loaded dataset {d_} is not a dict."
-
-    def test_3_dataset_purging(self):
-        cached_datasets = tsdb.list_cache()
-        assert isinstance(cached_datasets, list)
-        tsdb.delete_cache("physionet_2012", only_pickle=True)
-        tsdb.delete_cache("physionet_2012")  # delete single
-
-    def test_4_migrate(self):
-        os.makedirs("dir_for_migration")
-        with open("dir_for_migration/test.txt", "a") as f:
-            f.write("hello world")
-        tsdb.migrate("dir_for_migration", "new_dir/put_it_here")
-        tsdb.migrate_cache("new_cache_dir")
-        tsdb.delete_cache(only_pickle=True)  # delete all pickle cache
-        tsdb.delete_cache()  # delete all datasets
-
-    def test_5_logging(self):
-        # different level logging
-        self.logger.debug("debug")
-        self.logger.info("info")
-        self.logger.warning("warning")
-        self.logger.error("error")
-
-        # change logging level
-        self.logger_creator.set_level("info")
-        assert (
-            self.logger.level == 20
-        ), f"the level of logger is {self.logger.level}, not INFO"
-        self.logger_creator.set_level("warning")
-        assert (
-            self.logger.level == 30
-        ), f"the level of logger is {self.logger.level}, not WARNING"
-        self.logger_creator.set_level("error")
-        assert (
-            self.logger.level == 40
-        ), f"the level of logger is {self.logger.level}, not ERROR"
-        self.logger_creator.set_level("debug")
-        assert (
-            self.logger.level == 10
-        ), f"the level of logger is {self.logger.level}, not DEBUG"
-
-        # save log into file
-        self.logger_creator.set_saving_path("test_log", "testing.log")
-        assert os.path.exists("test_log/testing.log")
-
-    def test_6_config(self):
-        assert os.path.exists(
-            PYPOTS_ECOSYSTEM_CONFIG_PATH
-        ), "config file does not exist"
-        configs = read_configs()
-        configs.get("path", "tsdb_home")
+    monkeypatch.setattr(file, "read_configs", read_local_configs)
+    return root
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture
+def archive(monkeypatch):
+    """Serve a tiny deterministic ZIP without any network calls."""
+    payload = io.BytesIO()
+    with zipfile.ZipFile(payload, "w") as archive:
+        archive.writestr("LD2011_2014.txt", ";MT_001\n2011-01-01 00:00:00;1,5\n2011-01-01 00:15:00;2,5\n")
+    calls = []
+
+    def get(url, **kwargs):
+        assert url == DATABASE["electricity_load_diagrams"]
+        assert kwargs["stream"]
+        calls.append(url)
+        response = requests.Response()
+        response.status_code = 200
+        response._content = payload.getvalue()
+        response._content_consumed = True
+        response.headers["Content-Length"] = str(len(response.content))
+        return response
+
+    monkeypatch.setattr(requests, "get", get)
+    return calls
+
+
+def test_available_datasets():
+    available = tsdb.list()
+    assert available
+    assert set(available) == set(DATABASE)
+
+
+def test_download_and_extract(tmp_path, archive):
+    destination = tmp_path / "download"
+    tsdb.download_and_extract("electricity_load_diagrams", str(destination))
+    assert (destination / "LD2011_2014.txt").is_file()
+    assert len(archive) == 1
+    tsdb.purge_path(str(destination))
+    assert not destination.exists()
+
+
+def test_load_cache_and_purge(cache, archive):
+    name = "electricity_load_diagrams"
+    data = tsdb.load(name)
+    frame = data["X"]
+    assert frame["MT_001"].tolist() == [1.5, 2.5]
+    assert isinstance(frame.index, pd.DatetimeIndex)
+    path = cache / name
+    pickle_path = path / (name + "_cache.pkl")
+    assert pickle_path.is_file()
+    assert tsdb.list_cache() == [name]
+    pd.testing.assert_frame_equal(tsdb.load(name)["X"], frame)
+    assert len(archive) == 1
+    tsdb.delete_cache(name, only_pickle=True)
+    assert not pickle_path.exists()
+    assert (path / "LD2011_2014.txt").is_file()
+    pd.testing.assert_frame_equal(tsdb.load(name)["X"], frame)
+    assert len(archive) == 1
+    tsdb.delete_cache(name)
+    assert tsdb.list_cache() == []
+    pd.testing.assert_frame_equal(tsdb.load(name)["X"], frame)
+    assert len(archive) == 2
+    tsdb.delete_cache(only_pickle=True)
+    assert not pickle_path.exists()
+    tsdb.delete_cache()
+    assert tsdb.list_cache() == []
+
+
+def test_delete_cache_missing_root(cache):
+    cache.rmdir()
+    tsdb.delete_cache()
+    assert not cache.exists()
+
+
+def test_delete_cache_invalid_dataset(cache):
+    with pytest.raises(AssertionError, match="not available in TSDB"):
+        tsdb.delete_cache("unknown_dataset")
+    assert cache.is_dir()
+
+
+def test_delete_cache_missing_dataset(cache):
+    tsdb.delete_cache("physionet_2019")
+    assert cache.is_dir()
+    with pytest.raises(FileNotFoundError):
+        tsdb.delete_cache("physionet_2019", only_pickle=True)
+
+
+def test_delete_cache_preserves_other_datasets_and_raw_files(cache):
+    first = cache / "physionet_2019"
+    second = cache / "physionet_2012"
+    for directory in (first, second):
+        directory.mkdir()
+        (directory / "cached.pkl").write_bytes(b"cache")
+        (directory / "raw.txt").write_bytes(b"raw")
+    tsdb.delete_cache("physionet_2019", only_pickle=True)
+    assert not (first / "cached.pkl").exists()
+    assert (first / "raw.txt").read_bytes() == b"raw"
+    assert (second / "cached.pkl").is_file()
+    tsdb.delete_cache(only_pickle=True)
+    assert not (second / "cached.pkl").exists()
+    assert (second / "raw.txt").read_bytes() == b"raw"
+    tsdb.delete_cache("physionet_2019")
+    assert not first.exists()
+    assert second.is_dir()
+    tsdb.delete_cache()
+    assert cache.is_dir()
+    assert not list(cache.iterdir())
+
+
+def test_migrate(tmp_path, cache):
+    original = tmp_path / "original"
+    original.mkdir()
+    (original / "test.txt").write_text("hello world", encoding="utf-8")
+    destination = tmp_path / "new" / "dir"
+    tsdb.migrate(str(original), str(destination))
+    assert not original.exists()
+    assert (destination / "test.txt").read_text(encoding="utf-8") == "hello world"
+    (cache / "test.txt").write_text("cached", encoding="utf-8")
+    new_cache = tmp_path / "new_cache"
+    tsdb.migrate_cache(str(new_cache))
+    assert not cache.exists()
+    assert (new_cache / "test.txt").read_text(encoding="utf-8") == "cached"
+    assert config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH).get("path", "tsdb_home") == str(new_cache)
+
+
+def test_logging(tmp_path):
+    creator = Logger(name=f"test-log-{uuid.uuid4()}", logging_level="debug")
+    try:
+        creator.logger.debug("debug")
+        creator.logger.info("info")
+        creator.logger.warning("warning")
+        creator.logger.error("error")
+        for level, expected in [("info", 20), ("warning", 30), ("error", 40), ("debug", 10)]:
+            creator.set_level(level)
+            assert creator.logger.level == expected
+        creator.set_saving_path(str(tmp_path), "testing.log")
+        creator.logger.info("file marker")
+        assert "file marker" in (tmp_path / "testing.log").read_text(encoding="utf-8")
+    finally:
+        for handler in list(creator.logger.handlers):
+            creator.logger.removeHandler(handler)
+            handler.close()
+
+
+def test_config(cache):
+    configs = config.read_configs(config.PYPOTS_ECOSYSTEM_CONFIG_PATH)
+    assert configs.get("path", "tsdb_home") == str(cache)
+
+
+@pytest.mark.network
+def test_live_download_and_extract(tmp_path):
+    destination = tmp_path / "wine"
+    tsdb.download_and_extract("ucr_uea_Wine", str(destination))
+    assert any(path.is_file() for path in destination.rglob("*"))
+
+
+@pytest.mark.network
+@pytest.mark.parametrize("dataset", DATASETS_TO_TEST)
+def test_live_dataset_loading(cache, dataset):
+    result = tsdb.load(dataset)
+    assert isinstance(result, dict), f"Failed to load {dataset}"
+    assert result, f"Empty dataset {dataset}"
+    if dataset == "physionet_2019":
+        assert result["training_setA"].RecordID.nunique() == 20336
+        assert result["training_setB"].RecordID.nunique() == 20000
+    # Exercise cached reads without a second download.
+    assert isinstance(tsdb.load(dataset), dict)

@@ -54,30 +54,24 @@ def load_ais(local_path):
 
     filenames = os.listdir(path_to_parquets)
 
-    mmsis = list()
-    s = list()
-    a = list()
-    data = dict()
-    i = 0
+    mmsis = []
+    s = []
+    a = []
+    data = {}
 
     """
     There are 40 parquet files with around 200 vessels per file, with unknown trajectory length and possible duplicates
     of vessels (car ferries)
     """
-    for p in filenames:
-
+    for i, p in enumerate(filenames):
         path = os.path.join(path_to_parquets, p)
         df = pd.read_parquet(path, engine="pyarrow")
-        logger.info(
-            f"Reading group of vessel trajectories {i}/40 from {path}, data shape {df.shape}"
-        )
-        i += 1
+        logger.info(f"Reading group of vessel trajectories {i}/40 from {path}, data shape {df.shape}")
 
         # Making a list of unique vessel identifiers
         vessels = list(df["mmsi"].unique())
 
         for k in vessels:
-
             # Grouping time series by MMSI and filtering only moving vessels by "sog"
 
             g = df.groupby(by="mmsi").get_group(k)
@@ -86,7 +80,6 @@ def load_ais(local_path):
             # Length of 2000 is taken provisionally, increasing to 3000 will reduce the number of vessels,
             # but the data would be better
             if len(g) == 2000:
-
                 # Making an index made of date time, so we can use resample method
                 # and leaving "date_time_utc" column in a float type
 
@@ -114,7 +107,6 @@ def load_ais(local_path):
 
             # Maybe there are some time series shorter then 6000
             if len(g) == 6000:
-
                 # Fill in the missing information regarding MMSI and length caused by resampling
 
                 g.loc[:, ["mmsi"]] = g.loc[:, ["mmsi"]].ffill()
@@ -123,9 +115,7 @@ def load_ais(local_path):
 
                 # Wrapping the angles to [-pi/2, pi/2] to prepare for scaling
 
-                g = g.assign(
-                    heading=lambda x: np.mod(x["true_heading"] - 180.0, 360.0) - 180.0
-                )
+                g = g.assign(heading=lambda x: np.mod(x["true_heading"] - 180.0, 360.0) - 180.0)
                 g = g.assign(course=lambda x: np.mod(x["cog"] - 180.0, 360.0) - 180.0)
 
                 m = g["mmsi"][0]
@@ -146,11 +136,7 @@ def load_ais(local_path):
                         )
                     )
                     # y data, classes are length integer for possible classification
-                    a.append(
-                        pd.DataFrame(
-                            {"Length": [g["length"][0]], "MMSI": [g["mmsi"][0]]}
-                        )
-                    )
+                    a.append(pd.DataFrame({"Length": [g["length"][0]], "MMSI": [g["mmsi"][0]]}))
 
                     # Vessels included in training stored in list of MMSIs
                     mmsis.append(m)

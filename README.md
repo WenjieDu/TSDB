@@ -118,6 +118,29 @@ tsdb.migrate_cache("/mnt/external_disk/TSDB_cache")
 
 That's all. Simple and efficient. Enjoy it! 😃
 
+### Unicode configuration and logs
+
+TSDB stores the shared ecosystem configuration (`~/.pypots/config.ini`) and new
+file logs in UTF-8 on all platforms. Console logs retain Unicode and emoji when
+the output stream supports them, and escape unsupported characters otherwise.
+TSDB does not change your application's standard streams or global encoding settings.
+
+Existing valid UTF-8 configurations (including ASCII and UTF-8 with BOM) are
+read unchanged. If a configuration from an older release is not valid UTF-8,
+set `TSDB_LEGACY_CONFIG_ENCODING` to its **known original encoding** (e.g.
+`cp1252` or `gbk`) for one `import tsdb`, then unset it. TSDB validates the
+configuration, saves its original bytes in a uniquely named `config.ini.*.bak`
+file beside it, and atomically converts the original to UTF-8. Do not guess the
+encoding: some legacy byte sequences are also valid UTF-8 and cannot be reliably
+distinguished. If you know such a file was written in a different encoding,
+back it up and explicitly reopen/convert it in a text editor before importing TSDB.
+An empty or section-only `[path]` file left by interrupted initialization is
+backed up and recovered; other invalid configurations are not silently reset.
+
+Appending to an existing non-UTF-8 log is refused to avoid mixing encodings.
+Choose a new log filename, or back up and convert the old log to UTF-8 before
+appending. An explicitly requested overwrite (`mode="w"`) still replaces the log.
+
 
 ## ❖ List of Available Datasets
 

@@ -1,5 +1,15 @@
 # PhysioNet Challenge 2019
 
+## Download source
+
+TSDB uses the official [PhysioNet v1.0.0 release](https://physionet.org/content/challenge-2019/1.0.0/)
+via its public `physionet-open` S3 mirror, because the legacy ZIP download URLs
+are no longer available. The first download retrieves 20,336 records in training
+set A and 20,000 in training set B individually, so it may take longer than the
+previous archive download. Both splits must be complete before the cache is
+published. Existing complete local caches and the returned dataset format remain
+compatible.
+
 ## Citing this dataset 🤗
 `Reyna MA, Josef CS, Jeter R, Shashikumar SP, Westover MB, Nemati S, Clifford GD, Sharma A. Early Prediction of Sepsis From Clinical Data: The PhysioNet/Computing in Cardiology Challenge. Critical Care Medicine 48 2: 210-217 (2019). https://doi.org/10.1097/CCM.0000000000004145`
 
