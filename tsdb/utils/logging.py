@@ -16,6 +16,50 @@ LEVELS = {
 }
 
 
+class _UnicodeStreamHandler(logging.StreamHandler):
+    """Retain Unicode when possible; escape only characters the stream cannot encode."""
+
+    def emit(self, record):
+        try:
+            message = self.format(record) + self.terminator
+            encoding = getattr(self.stream, "encoding", None)
+            if encoding:
+                message = message.encode(encoding, errors="backslashreplace").decode(encoding)
+            try:
+                self.stream.write(message)
+            except UnicodeEncodeError as exc:
+                # Some custom streams do not advertise their encoding.
+                self.stream.write(message.encode(exc.encoding, errors="backslashreplace").decode(exc.encoding))
+            self.flush()
+        except RecursionError:
+            raise
+        except Exception:  # noqa: BLE001 - Preserve the existing error-handling contract.
+            self.handleError(record)
+
+
+class _UTF8FileHandler(logging.FileHandler):
+    """Use UTF-8 even on Python 3.8, where FileHandler has no errors parameter."""
+
+    def _open(self):
+        open_file = getattr(self, "_builtin_open", open)
+        return open_file(self.baseFilename, self.mode, encoding="utf-8", errors="backslashreplace")
+
+
+def _check_append_encoding(path):
+    """Refuse to mix UTF-8 with an existing non-UTF-8 log."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            while f.read(65536):
+                pass
+    except FileNotFoundError:
+        pass
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"Cannot append UTF-8 logs to {path}: existing content is not UTF-8. "
+            "Choose a new filename or back up and convert the existing log before appending."
+        ) from exc
+
+
 class Logger:
     """Logging class for TSDB logger initialization and control."""
 
@@ -44,7 +88,7 @@ class Logger:
         self.logger = logging.getLogger(name)
         self.logging_level = LEVELS[logging_level]
 
-        self.stream_handler = logging.StreamHandler()
+        self.stream_handler = _UnicodeStreamHandler()
         self.formatter = None
         self.file_handler = None
 
@@ -79,10 +123,16 @@ class Logger:
             self.logger.warning(f"{saving_dir} does not exist. Creating it now...")
             os.makedirs(saving_dir)
         path = os.path.join(saving_dir, name)
-        self.file_handler = logging.FileHandler(path, mode=mode)
-        self.file_handler.setLevel(self.logging_level)
-        self.file_handler.setFormatter(self.formatter)
-        self.logger.addHandler(self.file_handler)
+        if "a" in mode:
+            _check_append_encoding(path)
+        handler = _UTF8FileHandler(path, mode=mode, encoding="utf-8")
+        handler.setLevel(self.logging_level)
+        handler.setFormatter(self.formatter)
+        if self.file_handler is not None:
+            self.logger.removeHandler(self.file_handler)
+            self.file_handler.close()
+        self.file_handler = handler
+        self.logger.addHandler(handler)
         self.logger.info(f"Log will be saved to {path}")
 
     def set_level(self, level: str) -> None:
