@@ -6,7 +6,7 @@ on:
     workflow_dispatch:
         inputs:
             tag:
-                description: Existing stable release tag to validate (no publication)
+                description: Existing release tag to validate (no publication)
                 required: true
                 type: string
 
@@ -20,7 +20,7 @@ concurrency:
 jobs:
     validate:
         if: >-
-            (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft) ||
+            (github.event_name == 'release' && !github.event.release.draft) ||
             (github.event_name == 'workflow_dispatch' && github.ref_name == github.event.repository.default_branch)
         runs-on: ubuntu-latest
         timeout-minutes: 60
@@ -72,7 +72,7 @@ jobs:
                   path: ${{ runner.temp }}/tsdb-release/offline.xml
                   if-no-files-found: warn
     publish:
-        if: github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft
+        if: github.event_name == 'release' && !github.event.release.draft
         needs: validate
         runs-on: ubuntu-latest
         timeout-minutes: 10

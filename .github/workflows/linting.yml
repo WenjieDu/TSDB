@@ -73,4 +73,4 @@ jobs:
                   echo "$RUNNER_TEMP/actionlint-bin" >> "$GITHUB_PATH"
             - name: Validate workflow definitions
               run: |
-                  actionlint -shellcheck= .github/workflows/{ci_job,testing_ci,testing_daily,linting,greetings}.yml
+                  actionlint -shellcheck= .github/workflows/{ci_job,testing_ci,testing_daily,linting,greetings,publish_to_PyPI}.yml
