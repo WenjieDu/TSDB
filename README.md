@@ -260,3 +260,11 @@ No publication is performed by a branch push or manual dry run.
 Use `python -m build` (sdist followed by wheel) from a clean checkout; a direct
 `--wheel` build in an old working directory may include stale setuptools build
 artifacts. The release validator rejects unexpected wheel members.
+
+### Dataset discovery
+
+`tsdb.info("physionet_2019")` returns source URLs, loader and download strategy,
+required file layout, optional dependencies, known revision, and a link to the
+dataset profile. Metadata discovery does not access the network or initialize
+the cache. Unknown license, task and revision metadata is `None`; consult the
+source/profile for authoritative dataset terms and citation information.

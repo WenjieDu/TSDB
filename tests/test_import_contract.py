@@ -30,6 +30,7 @@ assert "physionet_2019" in names
 original = tuple(names)
 names.clear()
 assert tuple(tsdb.list()) == original
+assert tsdb.info("physionet_2019")["revision"] == "1.0.0"
 assert 'load' in dir(tsdb)
 assert 'CACHED_DATASET_DIR' in dir(tsdb)
 for name in ('numpy', 'pandas', 'sklearn', 'scipy', 'requests', 'pyarrow', 'tsdb.data_processing', 'tsdb.utils.config'):
@@ -52,6 +53,7 @@ def test_public_exports_are_preserved():
         "delete_cache",
         "download_and_extract",
         "download_url",
+        "info",
         "list",
         "list_cache",
         "load",

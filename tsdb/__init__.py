@@ -8,7 +8,7 @@ with a single line of code.
 
 from importlib import import_module
 
-from .database import AVAILABLE_DATASETS
+from .database import AVAILABLE_DATASETS, info
 from .version import __version__
 
 
@@ -50,6 +50,7 @@ __all__ = [
     "delete_cache",
     "download_and_extract",
     "download_url",
+    "info",
     "list",
     "list_cache",
     "load",
